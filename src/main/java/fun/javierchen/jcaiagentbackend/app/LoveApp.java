@@ -1,5 +1,7 @@
 package fun.javierchen.jcaiagentbackend.app;
 
+import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
+import fun.javierchen.jcaiagentbackend.advisor.ReReadingAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -48,6 +50,9 @@ public class LoveApp {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new AgentLoggerAdvisor())
+                // 开启重读功能 会增大 Token 消费
+//                .advisors(new ReReadingAdvisor())
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);

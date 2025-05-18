@@ -62,13 +62,21 @@
         </dependency>
 
         <!--Spring AI Alibaba-->
+        <!-- 排除掉这个依赖的 Logger 防止控制台报错 -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter</artifactId>
             <version>1.0.0-M6.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Langchain4j dashscope-->
+        <!--LangChain4j 的 用于阿里大模型的社区版本-->
         <!-- https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-community-dashscope -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
