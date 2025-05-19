@@ -31,4 +31,12 @@ class LoveAppTest {
 
     }
 
+    @Test
+    void doChatWithReport() {
+        String chatId = "100";
+        String question = "你好，我是JC！我想让我在乎的人也在乎我，我该怎么办？";
+        LoveApp.LoveReport loveReport = loveApp.doChatWithReport(question, chatId);
+        System.out.println(loveReport);
+        Assertions.assertNotNull(loveReport);
+    }
 }

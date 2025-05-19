@@ -11,6 +11,8 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
@@ -27,6 +29,7 @@ public class LoveApp {
 
     /**
      * 初始化对话模型
+     *
      * @param dashscopeChatModel
      */
     public LoveApp(ChatModel dashscopeChatModel) {
@@ -35,13 +38,18 @@ public class LoveApp {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                    new MessageChatMemoryAdvisor(chatMemory)
+                        new MessageChatMemoryAdvisor(chatMemory),
+                        // 添加日志记录功能
+                        new AgentLoggerAdvisor()
+                        // 添加重读功能 会增大 Token 的消费量
+                        // ,new ReReadingAdvisor()
                 )
                 .build();
     }
 
     /**
      * 获取对话的结果 支持多轮对话
+     *
      * @param chatMessage
      * @param chatId
      * @return
@@ -50,13 +58,30 @@ public class LoveApp {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                .advisors(new AgentLoggerAdvisor())
-                // 开启重读功能 会增大 Token 消费
-//                .advisors(new ReReadingAdvisor())
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
         return content;
+    }
+
+    record LoveReport(String title, List<String> suggestions) {
+    }
+
+    /**
+     * 每次对话都生成一份恋爱建议报告
+     *
+     * @param chatMessage
+     * @param chatId
+     * @return
+     */
+    public LoveReport doChatWithReport(String chatMessage, String chatId) {
+        LoveReport loveReport = chatClient.prompt().user(chatMessage)
+                .system(SYSTEM_PROMPT + "每次对话结束都要生成恋爱报告，标题为{用户名}的恋爱报告，内容为建议列表")
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .call().entity(LoveReport.class);
+        log.info("ai generate report: {}", loveReport);
+        return loveReport;
     }
 
 }
