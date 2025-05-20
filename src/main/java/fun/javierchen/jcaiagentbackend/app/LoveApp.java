@@ -2,6 +2,7 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.advisor.ReReadingAdvisor;
+import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -11,6 +12,7 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.List;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
@@ -33,12 +35,19 @@ public class LoveApp {
      * @param dashscopeChatModel
      */
     public LoveApp(ChatModel dashscopeChatModel) {
+
+        String memoryDir = System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "chat_memory";
+
         // 初始化内存记忆
-        ChatMemory chatMemory = new InMemoryChatMemory();
+//        ChatMemory chatMemory = new InMemoryChatMemory();
+        // 添加文件记忆方式
+        ChatMemory chatMemory = new FileBasedChatMemory(memoryDir);
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
+                        // 基于内存的记忆方式
                         new MessageChatMemoryAdvisor(chatMemory),
+                        // 基于文件的记忆方式
                         // 添加日志记录功能
                         new AgentLoggerAdvisor()
                         // 添加重读功能 会增大 Token 的消费量

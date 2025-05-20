@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -17,16 +19,17 @@ class LoveAppTest {
 
     @Test
     public void testDoChat() {
+        String chatId = UUID.randomUUID().toString();
         String question = "你好 我是JC";
-        String answer = loveApp.doChat(question, "100");
+        String answer = loveApp.doChat(question, chatId);
         Assertions.assertNotNull(answer);
 
         question = "我现在失恋了 患得患失 如何走出这个心境";
-        answer = loveApp.doChat(question, "100");
+        answer = loveApp.doChat(question, chatId);
         Assertions.assertNotNull(answer);
 
         question = "还记得我是谁吗？";
-        answer = loveApp.doChat(question, "100");
+        answer = loveApp.doChat(question, chatId);
         Assertions.assertNotNull(answer);
 
     }

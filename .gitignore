@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 业务相关 ###
+/tmp
