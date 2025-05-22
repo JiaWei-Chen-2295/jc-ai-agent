@@ -1,6 +1,5 @@
 package fun.javierchen.jcaiagentbackend.chatmemory;
 
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -13,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FileBasedChatMemory implements ChatMemory {
@@ -34,11 +34,6 @@ public class FileBasedChatMemory implements ChatMemory {
         if (!baseDirFile.exists()) {
             baseDirFile.mkdirs();
         }
-    }
-
-    @Override
-    public void add(String conversationId, Message message) {
-       saveConversation(conversationId, List.of(message));
     }
 
     @Override
@@ -72,7 +67,7 @@ public class FileBasedChatMemory implements ChatMemory {
      */
     private void saveConversation(String conversationId, List<Message> messages) {
         File file = getConversationFile(conversationId);
-        try (Output output = new Output(new FileOutputStream(file))) {
+        try (Output output = new Output(new FileOutputStream(file), 1024 * 1024 * 1000)) {
             kryo.writeObject(output, messages);
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +83,7 @@ public class FileBasedChatMemory implements ChatMemory {
         File file = getConversationFile(conversationId);
         List<Message> messages = new ArrayList<>();
         if (file.exists()) {
-            try (Input input = new Input(new FileInputStream(file))) {
+            try (Input input = new Input(new FileInputStream(file), 1024 * 1024 * 1000)) {
                 messages = kryo.readObject(input, ArrayList.class);
             } catch (IOException e) {
                 e.printStackTrace();
