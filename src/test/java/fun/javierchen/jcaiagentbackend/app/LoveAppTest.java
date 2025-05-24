@@ -42,4 +42,13 @@ class LoveAppTest {
         System.out.println(loveReport);
         Assertions.assertNotNull(loveReport);
     }
+
+    @Test
+    void doChatWithRAG() {
+
+        String chatId = "100";
+        String question = "现在，我已经结婚，对于关系的维护十分犯难，你有什么解决方案吗？";
+        String answer = loveApp.doChatWithRAG(question, chatId);
+        System.out.println(answer);
+    }
 }

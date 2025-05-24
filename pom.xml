@@ -110,6 +110,12 @@
             <artifactId>kryo</artifactId>
             <version>5.0.0</version>
         </dependency>
+        <!--读取文档-->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-markdown-document-reader</artifactId>
+            <version>1.0.0-M6</version>
+        </dependency>
 
 
 

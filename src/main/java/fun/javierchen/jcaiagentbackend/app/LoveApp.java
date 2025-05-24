@@ -3,13 +3,16 @@ package fun.javierchen.jcaiagentbackend.app;
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.advisor.ReReadingAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -91,6 +94,22 @@ public class LoveApp {
                 .call().entity(LoveReport.class);
         log.info("ai generate report: {}", loveReport);
         return loveReport;
+    }
+
+    @Resource
+    private VectorStore loveAppVectorStore;
+
+    public String doChatWithRAG(String chatMessage, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
+                .system(SYSTEM_PROMPT)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new AgentLoggerAdvisor())
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .call().chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("ai content: {}", content);
+        return content;
     }
 
 }
