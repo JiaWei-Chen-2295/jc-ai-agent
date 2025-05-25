@@ -11,6 +11,10 @@ spring:
       base-url: http://localhost:11434
       chat:
         model: gemma3:4b
+  datasource:
+    url: ${JC_AI_AGENT_POSTGRES_URL}
+    username: ${JC_AI_AGENT_POSTGRES_USER_NAME}
+    password: ${JC_AI_AGENT_POSTGRES_PWD}
 
 jc-ai-agent:
   api_key: ${JC_AI_AGENT_API_KEY}

@@ -11,7 +11,6 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
-
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -107,7 +106,7 @@ public class LoveApp {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
-                .advisors((org.springframework.ai.chat.client.advisor.api.Advisor) loveAppCloudAdvisor)
+                .advisors(loveAppCloudAdvisor)
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);

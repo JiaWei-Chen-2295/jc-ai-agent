@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.List;
 
-@Configuration
+//@Configuration
 @Slf4j
 public class LoveAppVectorStoreConfig {
 
