@@ -29,7 +29,7 @@ public class LoveAppCloudAdvisorConfig {
                         .build()
         );
 
-        // 使用 Spring AI 的检索增强顾问(advisor)来处理 DashscopeDocumentRetriever 切好片的文档
+        // 使用 Spring AI 的检索增强顾问(advisor)来处理 DashScopeDocumentRetriever 切好片的文档
         return RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(dashScopeDocumentRetriever)
                 .build();
