@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,5 +51,28 @@ class LoveAppTest {
         String question = "现在，我已经结婚，对于关系的维护十分犯难，你有什么解决方案吗？";
         String answer = loveApp.doChatWithRAG(question, chatId);
         System.out.println(answer);
+    }
+
+    @Test
+    void doChatWithStream() throws InterruptedException {
+        String chatId = "100";
+        String question = "现在，我已经结婚，对于关系的维护十分犯难，你有什么解决方案吗？";
+        StringBuffer content = new StringBuffer();
+        CountDownLatch latch = new CountDownLatch(1);
+        loveApp.doChatWithStream(question, chatId, chunk -> {
+                    System.out.print(chunk);
+                    content.append(chunk);
+                },
+                latch::countDown);
+
+        // ⭐⭐⭐ 阻塞主线程直到流处理完成
+        boolean completed = latch.await(30, TimeUnit.SECONDS); // 设置最大等待时间避免死锁
+
+        if (completed) {
+            fail("流未如期完成");
+        }
+
+        System.out.println("\n完整回复内容为：");
+        System.out.println(content);
     }
 }

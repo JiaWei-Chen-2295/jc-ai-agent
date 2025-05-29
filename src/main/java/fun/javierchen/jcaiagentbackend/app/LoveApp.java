@@ -13,9 +13,11 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
@@ -116,6 +118,17 @@ public class LoveApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
         return content;
+    }
+
+    public void doChatWithStream(String chatMessage, String chatId, java.util.function.Consumer<String> onSubscribeChunk, Runnable onComplete) {
+        Flux<String> contentFlux = chatClient.prompt().system(SYSTEM_PROMPT).user(chatMessage)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .stream().content();
+
+        contentFlux.subscribe(onSubscribeChunk,
+                throwable -> log.error("Error: {}", throwable.getMessage()),
+                onComplete);
     }
 
 }

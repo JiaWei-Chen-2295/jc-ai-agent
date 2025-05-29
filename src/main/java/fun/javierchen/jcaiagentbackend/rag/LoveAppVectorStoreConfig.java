@@ -36,7 +36,7 @@ public class LoveAppVectorStoreConfig {
                     .build();
 
             // 使用 AI 为文档增加元信息
-            documents = keywordEnricher.enrich(documents);
+//            documents = keywordEnricher.enrich(documents);
 
             vectorStore.doAdd(documents);
             return vectorStore;
