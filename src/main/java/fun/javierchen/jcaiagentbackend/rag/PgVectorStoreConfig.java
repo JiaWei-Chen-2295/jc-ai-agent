@@ -15,7 +15,8 @@ import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgDistan
 import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgIndexType.HNSW;
 
 // 当需要使用这个 Bean 时  需要将 LoveAppVectorStoreConfig 配置类注释掉
-@Configuration
+// 反之同理
+//@Configuration
 public class PgVectorStoreConfig {
 
 
@@ -25,7 +26,7 @@ public class PgVectorStoreConfig {
     @Resource
     private LoveAppDocumentLoader loveAppDocumentLoader;
 
-    @Bean
+//    @Bean
     public PgVectorStore pgVectorStore(EmbeddingModel dashscopeEmbeddingModel) throws IOException {
         PgVectorStore store = PgVectorStore.builder(jdbcTemplate, dashscopeEmbeddingModel)
                 //      .dimensions(1536)                    // 向量维度 按照我们当前的 EmbeddingModel 进行设置

@@ -99,8 +99,8 @@ public class LoveApp {
     private VectorStore loveAppVectorStore;
     @Resource
     private Advisor loveAppCloudAdvisor;
-    @Resource
-    private VectorStore pgVectorStore;
+//    @Resource
+//    private VectorStore pgVectorStore;
 
     public String doChatWithRAG(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
@@ -108,10 +108,10 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 通过云端文档检索功能
 //                .advisors(loveAppCloudAdvisor)
-                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);

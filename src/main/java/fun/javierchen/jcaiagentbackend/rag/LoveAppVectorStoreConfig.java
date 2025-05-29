@@ -12,12 +12,15 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.List;
 
-//@Configuration
+@Configuration
 @Slf4j
 public class LoveAppVectorStoreConfig {
 
     @Resource
     private LoveAppDocumentLoader loveAppDocumentLoader;
+
+    @Resource
+    private KeywordEnricher keywordEnricher;
 
     @Bean
     VectorStore LoveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
@@ -29,7 +32,12 @@ public class LoveAppVectorStoreConfig {
         }
 
         if (documents != null) {
-            SimpleVectorStore vectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel).build();
+            SimpleVectorStore vectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel)
+                    .build();
+
+            // 使用 AI 为文档增加元信息
+            documents = keywordEnricher.enrich(documents);
+
             vectorStore.doAdd(documents);
             return vectorStore;
         }
