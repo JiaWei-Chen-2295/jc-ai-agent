@@ -15,12 +15,15 @@ import java.util.List;
 @Component
 public class MyMultiQueryExpander {
 
-    @Resource
-    private ChatModel dashscopeChatModel;
+    private final ChatClient.Builder chatClientBuilder;
+
+    public MyMultiQueryExpander(ChatModel dashscopeChatModel) {
+        chatClientBuilder = ChatClient.builder(dashscopeChatModel);
+    }
 
     public List<Query> expand(Query singleQuery) {
         MultiQueryExpander multiQueryExpander = MultiQueryExpander.builder()
-                .chatClientBuilder(ChatClient.builder(dashscopeChatModel))
+                .chatClientBuilder(chatClientBuilder)
                 // 节省资源
                 .numberOfQueries(5)
                 // 保留原始语义
@@ -28,5 +31,4 @@ public class MyMultiQueryExpander {
                 .build();
         return multiQueryExpander.expand(singleQuery);
     }
-
 }
