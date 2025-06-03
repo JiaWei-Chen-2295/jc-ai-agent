@@ -2,6 +2,7 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
+import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -103,9 +104,12 @@ public class LoveApp {
     private Advisor loveAppCloudAdvisor;
 //    @Resource
 //    private VectorStore pgVectorStore;
+    @Resource
+    private QueryRewriter queryRewriter;
 
     public String doChatWithRAG(String chatMessage, String chatId) {
-        ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
+        String rewritePrompt = queryRewriter.rewrite(chatMessage);
+        ChatResponse chatResponse = chatClient.prompt().user(rewritePrompt)
                 .system(SYSTEM_PROMPT)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
