@@ -45,6 +45,7 @@ public class LoveAppDocumentLoader {
                     .withIncludeBlockquote(false)
                     .withIncludeCodeBlock(false)
                     .withAdditionalMetadata("filename", filename)
+                    .withAdditionalMetadata("status", filename.substring(filename.lastIndexOf(" ") + 1, filename.indexOf("篇.md")))
                     .build();
             // 创建 DocumentReader
             MarkdownDocumentReader markdownDocumentReader = new MarkdownDocumentReader(resource, config);

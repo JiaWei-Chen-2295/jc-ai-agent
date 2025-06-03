@@ -2,7 +2,9 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
+import fun.javierchen.jcaiagentbackend.rag.LoveAppRagCustomAdvisorFactory;
 import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
+import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -114,10 +116,12 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 通过云端文档检索功能
 //                .advisors(loveAppCloudAdvisor)
 //                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
+                //
+                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.MARRING_PERSON))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
