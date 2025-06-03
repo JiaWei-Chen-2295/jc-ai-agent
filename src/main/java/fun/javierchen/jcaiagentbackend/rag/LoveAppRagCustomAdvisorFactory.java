@@ -28,6 +28,8 @@ public class LoveAppRagCustomAdvisorFactory {
 
         return RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(documentRetriever)
+                // 指定检索增强-错误处理
+                .queryAugmenter(LoveAppContextualQueryAugmenterFactory.create())
                 .build();
     }
 }

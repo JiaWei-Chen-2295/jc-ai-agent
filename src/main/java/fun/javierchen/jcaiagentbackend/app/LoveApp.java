@@ -14,6 +14,7 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -116,15 +117,18 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 通过云端文档检索功能
 //                .advisors(loveAppCloudAdvisor)
 //                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
                 //
-                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.MARRING_PERSON))
+//                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.SINGLE_PERSON))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
+
+
+
         return content;
     }
 
