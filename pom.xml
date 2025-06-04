@@ -132,11 +132,20 @@
             <version>1.0.0-M6</version>
         </dependency>
 
+        <!-- 第三方翻译接口-->
+        <!-- https://mvnrepository.com/artifact/com.aliyun/alimt20181012 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>alimt20181012</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
 
 
     </dependencies>

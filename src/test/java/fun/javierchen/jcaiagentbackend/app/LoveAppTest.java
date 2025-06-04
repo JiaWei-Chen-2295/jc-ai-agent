@@ -75,4 +75,13 @@ class LoveAppTest {
         System.out.println("\n完整回复内容为：");
         System.out.println(content);
     }
+
+    @Test
+    void doChatWithMultiLanguage() {
+        String chatId = "100";
+        String question = "Hello, I am currently struggling to maintain a relationship after marriage. Please give me some advice";
+        String s = loveApp.doChatWithMultiLanguage(question, chatId, "en");
+        System.out.println(s);
+        assertTrue(StrUtil.isNotBlank(s));
+    }
 }
