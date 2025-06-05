@@ -19,11 +19,9 @@ import java.util.Map;
 @Slf4j
 public class AlibabaMachineTranslationQueryTransformer implements QueryTransformer {
 
-
     @Setter
     private String targetLanguage;
     private final com.aliyun.teaopenapi.Client client;
-
 
     public AlibabaMachineTranslationQueryTransformer(String targetLanguage, com.aliyun.teaopenapi.Client client) {
         this.targetLanguage = targetLanguage;
@@ -50,18 +48,23 @@ public class AlibabaMachineTranslationQueryTransformer implements QueryTransform
                 .setBodyType("json");
     }
 
+    private Map<String, Object> buildTranslationRequest(String text) {
+        return Map.of(
+                "FormatType", "text",
+                "SourceLanguage", "auto",
+                "TargetLanguage", targetLanguage,
+                "SourceText", text,
+                "Scene", "general"
+        );
+    }
+
+
 
     @Override
     public Query transform(Query query) {
         String text = query.text();
         // body params
-        Map<String, Object> body = new HashMap<>();
-        body.put("FormatType", "text");
-        // 支持自动语言检测
-        body.put("SourceLanguage", "auto");
-        body.put("TargetLanguage", targetLanguage);
-        body.put("SourceText", text);
-        body.put("Scene", "general");
+        Map<String, Object> body = buildTranslationRequest(text);
         // runtime options
         RuntimeOptions runtime = new RuntimeOptions();
         OpenApiRequest request = new OpenApiRequest()
@@ -72,10 +75,16 @@ public class AlibabaMachineTranslationQueryTransformer implements QueryTransform
             stringMap = client.callApi(getParams(), request, runtime);
         } catch (Exception e) {
             log.error("Failed to translate text: {}", e.getMessage());
+            return query;
         }
         Map<String, Object> bodyMap = (Map<String, Object>) stringMap.get("body");
         Map<String, Object> dataMap = (Map<String, Object>) bodyMap.get("Data");
         String translated = (String) dataMap.get("Translated");
+
+        if (!stringMap.containsKey("body")) {
+            return query;
+        }
+
         log.info("Translated Text: {}", translated);
 
         return Query.builder()

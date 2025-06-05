@@ -8,11 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AlibabaMachineTranslationConfig {
 
-    @Resource
-    private com.aliyun.teaopenapi.Client client;
-
     @Bean
-    public AlibabaMachineTranslationQueryTransformer alibabaMachineTranslationQueryTransformer() {
+    public AlibabaMachineTranslationQueryTransformer alibabaMachineTranslationQueryTransformer(com.aliyun.teaopenapi.Client client) {
         return AlibabaMachineTranslationQueryTransformer.builder()
                 .client(client)
                 .build();

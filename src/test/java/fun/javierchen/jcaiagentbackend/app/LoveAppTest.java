@@ -80,7 +80,7 @@ class LoveAppTest {
     void doChatWithMultiLanguage() {
         String chatId = "100";
         String question = "Hello, I am currently struggling to maintain a relationship after marriage. Please give me some advice";
-        String s = loveApp.doChatWithMultiLanguage(question, chatId, "en");
+        String s = loveApp.doChatWithMultiLanguage(question, chatId, "zh");
         System.out.println(s);
         assertTrue(StrUtil.isNotBlank(s));
     }

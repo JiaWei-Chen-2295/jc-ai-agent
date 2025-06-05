@@ -2,6 +2,7 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
+import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
 import fun.javierchen.jcaiagentbackend.rag.LoveAppRagCustomAdvisorFactory;
 import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
 import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
@@ -135,8 +136,9 @@ public class LoveApp {
     }
 
     @Resource
-    private QueryTransformer alibabaMachineTranslationQueryTransformer;
+    private AlibabaMachineTranslationQueryTransformer alibabaMachineTranslationQueryTransformer;
     public String doChatWithMultiLanguage(String chatMessage, String chatId, String language) {
+        alibabaMachineTranslationQueryTransformer.setTargetLanguage(language);
         String rewritePrompt = alibabaMachineTranslationQueryTransformer.transform(new Query(chatMessage)).text();
         ChatResponse chatResponse = chatClient.prompt().user(rewritePrompt)
                 .system(SYSTEM_PROMPT)
