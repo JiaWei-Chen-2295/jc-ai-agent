@@ -1,5 +1,6 @@
 package fun.javierchen.jcaiagentbackend.rag.config;
 
+import com.aliyun.teaopenapi.Client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
