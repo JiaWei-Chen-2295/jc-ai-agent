@@ -31,7 +31,7 @@ public class DefaultPhotoTextDocumentReaderStrategy implements PhotoTextDocument
      * key: Photo 文件名
      * value: 图片对应的文字
      */
-    private static final Map<String, String> PHOTO_TEXT_CACHE = Map.of("fc8eae09622c1315f978dfa24e2fd2b1   ", "c30da4f9-49bd-4db0-bb50-3b3546994c21");
+    private static final Map<String, String> PHOTO_TEXT_CACHE = Map.of("fc8eae09622c1315f978dfa24e2fd2b1", "7af9a350-b3fd-41a5-9d54-5513b0d5d404");
 
     private static final String DEFAULT_PROMPT = """
 
