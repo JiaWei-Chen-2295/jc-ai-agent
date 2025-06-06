@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -21,5 +24,8 @@ class StudyFriendTest {
         System.out.println(answer);
         assertNotNull(answer);
     }
+
+
+
 
 }

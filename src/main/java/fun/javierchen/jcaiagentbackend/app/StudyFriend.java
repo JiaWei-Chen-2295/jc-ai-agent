@@ -12,6 +12,7 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.io.File;
 
@@ -64,5 +65,15 @@ public class StudyFriend {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
         return content;
+    }
+
+    public Flux<String> doChatWithRAGStream(String chatMessage, String chatId) {
+        return chatClient.prompt().user(chatMessage)
+                .system(SYSTEM_PROMPT)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new AgentLoggerAdvisor())
+                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
+                .stream().content();
     }
 }
