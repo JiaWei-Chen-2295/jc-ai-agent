@@ -3,9 +3,7 @@ package fun.javierchen.jcaiagentbackend.app;
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
 import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
-import fun.javierchen.jcaiagentbackend.rag.LoveAppRagCustomAdvisorFactory;
 import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
-import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -16,21 +14,18 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.rag.Query;
-import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
-import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 @Slf4j
-@Component
+//@Component
 public class LoveApp {
 
     private static final String SYSTEM_PROMPT = "扮演深耕恋爱心理领域的专家。开场向用户表明身份，告知用户可倾诉恋爱难题。" +
@@ -146,17 +141,9 @@ public class LoveApp {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
                 .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
-                // 通过云端文档检索功能
-//                .advisors(loveAppCloudAdvisor)
-//                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
-                //
-//                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.SINGLE_PERSON))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
-
-
-
         return content;
     }
 

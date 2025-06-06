@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.rag.Query;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,8 +56,6 @@ public class AlibabaMachineTranslationQueryTransformer implements QueryTransform
                 "Scene", "general"
         );
     }
-
-
 
     @Override
     public Query transform(Query query) {

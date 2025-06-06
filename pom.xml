@@ -140,12 +140,19 @@
             <version>1.5.0</version>
         </dependency>
 
+        <!--HTML 文档解析-->
+        <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-jsoup-document-reader -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-jsoup-document-reader</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
 
 
     </dependencies>
