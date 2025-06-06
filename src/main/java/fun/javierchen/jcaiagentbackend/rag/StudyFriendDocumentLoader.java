@@ -35,7 +35,7 @@ public class StudyFriendDocumentLoader {
     }
 
     /**
-     * 加载 Markdown 文档
+     * 加载 图片中的 文档
      *
      * @return
      * @throws IOException

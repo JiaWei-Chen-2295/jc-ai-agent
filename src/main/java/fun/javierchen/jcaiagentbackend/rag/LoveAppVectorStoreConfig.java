@@ -23,7 +23,7 @@ public class LoveAppVectorStoreConfig {
     private KeywordEnricher keywordEnricher;
 
     @Bean
-    VectorStore LoveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
+    VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         List<Document> documents = null;
         try {
             documents = loveAppDocumentLoader.loadMarkDowns();

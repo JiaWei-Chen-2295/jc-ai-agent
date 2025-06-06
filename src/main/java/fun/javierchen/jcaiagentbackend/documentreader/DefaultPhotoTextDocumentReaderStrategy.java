@@ -31,50 +31,113 @@ public class DefaultPhotoTextDocumentReaderStrategy implements PhotoTextDocument
      * key: Photo 文件名
      * value: 图片对应的文字
      */
-    private static final Map<String, String> PHOTO_TEXT_CACHE = Map.of("fc8eae09622c1315f978dfa24e2fd2b1", "077711d4-1935-4cff-bc1e-4adb121c3cde");
+    private static final Map<String, String> PHOTO_TEXT_CACHE = Map.of("fc8eae09622c1315f978dfa24e2fd2b1   ", "c30da4f9-49bd-4db0-bb50-3b3546994c21");
 
     private static final String DEFAULT_PROMPT = """
-            You are a helpful assistant.
-            You are reading a photo and you need to extract the text and sub photo from the photo.
-            Analyze the provided image and convert its visual elements (e.g., icons, charts, graphics) into HTML structures , prioritizing SVG vector graphics over raster images. Requirements:
-            Preserve Layout : Retain key details like text, colors, and spatial arrangements.
-            SVG Preference : Replace scalable components (lines, shapes, icons) with SVG code; avoid <img> tags.
-            Responsive Design : Ensure the HTML adapts to different screen sizes.
-            Clean Code : Output structured, semantic HTML/SVG with minimal redundancy; add comments for clarity.
-            Logical Annotations : If the image contains complex logic (e.g., flowcharts, diagrams), provide a brief textual explanation or pseudocode alongside the code\s
-            (https://github.com/jxzzlfh/awesome-stars )\s
-            (https://roookie.space/ )."
-            Example Output Format:
-            ```html
-                <!-- Extracted from image: SVG-based HTML structure -->
-            <div class="diagram-container">
-              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <!-- Example SVG elements -->
-                <circle cx="100" cy="100" r="80" fill="#FFD700" stroke="#333" stroke-width="4"/>
-                <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="16" fill="#000">Sample</text>
-              </svg>
-            </div>
-            ```
-            Notes:
-            For photos or complex textures , the model may default to <img> tags, but SVG will dominate for clean graphics.
-            Provide high-resolution images to maximize recognition accuracy.
-            You should only return QwenVL HTML from the photo.
-            You should only return QwenVL HTML from the photo.
-            You should only return QwenVL HTML from the photo.
-             Segmentation Rules:
-                - Create separate <section> for each logical unit (paragraph/diagram/formula)
-                - Use <!-- split-point --> comments between unrelated elements
-                - Wrap text clusters in <p class='text-chunk'> tags
-             Segmentation Rules:
-                - Create separate <section> for each logical unit (paragraph/diagram/formula)
-                - Use <!-- split-point --> comments between unrelated elements
-                - Wrap text clusters in <p class='text-chunk'> tags
-             Segmentation Rules:
-                - Create separate <section> for each logical unit (paragraph/diagram/formula)
-                - Use <!-- split-point --> comments between unrelated elements
-                - Wrap text clusters in <p class='text-chunk'> tags
+
+                                                       **Role Definition**
+
+                                                       text
+                                                       You are a professional HTML/SVG conversion specialist. Analyze the provided image and convert its visual elements into semantic HTML structures following these guidelines:
+                                                       ```
             
+                                                       ## Core Requirements
+                                                       1. **Visual Fidelity**
+                                                          - Preserve original layout hierarchy
+                                                          - Maintain color schemes and spatial relationships
+                                                          - Retain critical textual details
             
+                                                       2. **SVG Optimization**
+                                                       ```HTML
+                                                       <!-- Bad Practice -->
+                                                       <img src="diagram.jpg">
+                                                       <!-- Good Practice -->
+                                                       <svg viewBox="0 0 800 600">\s
+                                                         <rect x="50" y="50" width="100" height="50"/>\s
+                                                         <text x="75" y="75">Layer</text>\s
+                                                       </svg>
+                                                       ```
+            
+                                                       3. **Responsive Design**
+                                                          - Use percentage-based dimensions
+                                                          - Implement media queries for mobile
+                                                          - Maintain aspect ratios
+            
+                                                       ## Structural Specifications
+            
+                                                       ### Hierarchy Rules
+                                                       ```HTML
+                                                       <section class="knowledge-group">\s
+                                                         <h3 class="group-title">Network Protocol Stack</h3>\s
+                                                         <!-- split-point -->\s
+                                                         <div class="knowledge-point">\s
+                                                           <p class="text-chunk">Encapsulation process:</p>\s
+                                                           <ul class="structured-list">\s
+                                                             <li>Application Layer → Data</li>\s
+                                                             <li>Transport Layer → Segments</li>\s
+                                                           </ul>\s
+                                                         </div>\s
+                                                       </section>
+                                                       ```
+            
+                                                       ### Semantic Markup
+            
+                                                       | Element Type       | HTML Tag         | CSS Class               |
+                                                       |--------------------|------------------|-------------------------|
+                                                       | Conceptual Group   | `<section>`      | `.knowledge-group`      |
+                                                       | Individual Concept | `<div>`          | `.knowledge-point`      |
+                                                       | Technical Terms    | `<span>`         | `.key-term`             |
+                                                       | Mathematical Formulas | `<div>`       | `.formula-block`        |
+            
+                                                       ## Segmentation Rules
+            
+                                                       1. **Logical Division**
+                                                          Use ▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃ to divide sections
+                                                       ```HTML
+                                                       [Category Tag] Sample Title
+                                                       ▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃
+                                                       Content block...
+                                                       ▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃
+                                                       ```
+            
+                                                       2. **Visual Separation**
+                                                       ```HTML
+                                                       <div class="diagram-container">\s
+                                                         <svg>...</svg>\s
+                                                         <p class="diagram-caption">Figure 1: Protocol Stack</p>\s
+                                                       </div>\s
+                                                       <!-- split-point -->
+                                                       ```
+            
+                                                       ## Output Validation
+            
+                                                       1. **Code Quality Checklist**
+                                                          - [ ] No redundant nested elements
+                                                          - [ ] All SVG elements have proper viewBox
+                                                          - [ ] Semantic HTML5 tags used appropriately
+                                                          - [ ] Responsive breakpoints defined
+            
+                                                       2. **Prohibited Patterns**
+                                                          - [ ] Inline styles without class abstraction
+                                                          - [ ] Use of deprecated HTML elements
+                                                          - [ ] Hardcoded pixel dimensions without fallbacks
+            
+                                                       ## Quality Assurance Checklist
+                                                          - [ ] All content blocks have a category tag
+                                                          - [ ] Divider length ≥ 20 underscores (▃)
+                                                          - [ ] Key terms wrapped in *asterisks*
+                                                          - [ ] No raw HTML tags outside designated code blocks
+            
+                                                       ## Example Output
+            
+                                                       ## Compliance Requirements
+                                                       1. Strictly return **ONLY** HTML code and ▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃ dividers
+                                                       2. Exclude any natural language explanations
+                                                       3. Prioritize structural accuracy over visual perfection
+                                                       4. Maintain W3C validation standards
+                                                       ```
+            
+                                                       Let me know if you'd like this turned into a reusable template or formatted for a specific AI interface (like ChatGPT, Claude, etc.).
             """;
 
     @Override

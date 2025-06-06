@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HTMLLoader {
@@ -20,18 +21,35 @@ public class HTMLLoader {
         List<Document> documentsList = new ArrayList<>();
         String rootPath = System.getProperty("user.dir");
         Path photoHtmlPath = Paths.get(rootPath, "photo_html", photoTextId);
+
         ResourcePatternResolver resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(new FileSystemResourceLoader());
         Resource[] resources = resourcePatternResolver.getResources(photoHtmlPath.toString());
+
         for (Resource resource : resources) {
             JsoupDocumentReaderConfig config = JsoupDocumentReaderConfig.builder()
-                    .charset("UTF-8")  // 修复中文乱码
-                    .selector("section") // 正确方法名
-                    .includeLinkUrls(true)
+                    .charset("UTF-8")
                     .build();
+
             JsoupDocumentReader reader = new JsoupDocumentReader(resource, config);
-            List<Document> documentList = reader.get();
-            documentsList.addAll(documentList);
+            List<Document> originalList = reader.get();
+
+            originalList.forEach(doc -> {
+                // 使用新分隔符分割
+                String[] chunks = doc.getFormattedContent().split("▃{20,}"); // 匹配20个以上连续▃符号
+
+                Arrays.stream(chunks)
+                        .map(chunk -> {
+                            // 清理残留标记并保留分类标识
+                            String cleaned = chunk.trim()
+                                    .replaceAll("\\[\\w+\\]\\s*", "") // 移除分类标记前缀
+                                    .replaceAll("(?m)^\\s+", "");     // 去除行首空白
+                            return new Document(cleaned);
+                        })
+                        .filter(d -> !d.getFormattedContent().isBlank())
+                        .forEach(documentsList::add);
+            });
         }
+
         return documentsList;
     }
 
