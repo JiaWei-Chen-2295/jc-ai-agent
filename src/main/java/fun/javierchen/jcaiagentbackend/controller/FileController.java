@@ -2,7 +2,9 @@ package fun.javierchen.jcaiagentbackend.controller;
 
 import cn.hutool.core.lang.Assert;
 import fun.javierchen.jcaiagentbackend.common.BaseResponse;
+import fun.javierchen.jcaiagentbackend.common.ErrorCode;
 import fun.javierchen.jcaiagentbackend.common.ResultUtils;
+import fun.javierchen.jcaiagentbackend.exception.BusinessException;
 import fun.javierchen.jcaiagentbackend.model.FileMetadata;
 import fun.javierchen.jcaiagentbackend.service.FileService;
 import jakarta.annotation.Resource;
@@ -22,7 +24,8 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("/upload")
-    public BaseResponse<String> uploadFile(String fileName, String fileType,@RequestParam("fileBytes") MultipartFile file) throws IOException {
+    public BaseResponse<String> uploadFile(String fileName, String fileType,
+                                           @RequestParam("fileBytes") MultipartFile file) {
         Assert.notBlank(fileName, "fileName cannot be blank");
         Assert.notBlank(fileType, "fileType cannot be blank");
         Assert.notNull(file, "file Bytes cannot be null");
@@ -30,6 +33,12 @@ public class FileController {
         FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setFilename(fileName);
         fileMetadata.setFileType(fileType);
-        return ResultUtils.success(fileService.uploadFile(fileMetadata, file.getBytes()));
+        String fileParentPathName = null;
+        try {
+            fileParentPathName = fileService.uploadFile(fileMetadata, file.getBytes());
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR);
+        }
+        return ResultUtils.success(fileParentPathName);
     }
 }

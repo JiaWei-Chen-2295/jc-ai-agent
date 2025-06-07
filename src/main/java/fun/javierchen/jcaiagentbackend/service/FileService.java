@@ -2,6 +2,8 @@ package fun.javierchen.jcaiagentbackend.service;
 
 import fun.javierchen.jcaiagentbackend.model.FileMetadata;
 
+import java.io.IOException;
+
 public interface FileService {
 
     /**
@@ -9,6 +11,6 @@ public interface FileService {
      * @param fileBytes
      * @return 文件的标识 ID -> 保存文件名
      */
-    String uploadFile(FileMetadata fileMetadata, byte[] fileBytes);
+    String uploadFile(FileMetadata fileMetadata, byte[] fileBytes) throws IOException;
 
 }
