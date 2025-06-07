@@ -1,0 +1,35 @@
+package fun.javierchen.jcaiagentbackend.controller;
+
+import cn.hutool.core.lang.Assert;
+import fun.javierchen.jcaiagentbackend.common.BaseResponse;
+import fun.javierchen.jcaiagentbackend.common.ResultUtils;
+import fun.javierchen.jcaiagentbackend.model.FileMetadata;
+import fun.javierchen.jcaiagentbackend.service.FileService;
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+@RestController
+@RequestMapping(value = "/file")
+public class FileController {
+
+    @Resource
+    private FileService fileService;
+
+    @PostMapping("/upload")
+    public BaseResponse<String> uploadFile(String fileName, String fileType,@RequestParam("fileBytes") MultipartFile file) throws IOException {
+        Assert.notBlank(fileName, "fileName cannot be blank");
+        Assert.notBlank(fileType, "fileType cannot be blank");
+        Assert.notNull(file, "file Bytes cannot be null");
+
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setFilename(fileName);
+        fileMetadata.setFileType(fileType);
+        return ResultUtils.success(fileService.uploadFile(fileMetadata, file.getBytes()));
+    }
+}
