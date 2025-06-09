@@ -16,25 +16,27 @@ public class WebSearchTool {
         searchAPIKey = System.getenv("SEARCH_API_KEY");
     }
 
-    @Tool(description = "search 5 result from web")
-    public String search(@ToolParam(description = "search query") String query) {
-        return search(query, 5); // 默认返回前5条
-    }
 
     @Tool(description = "search something from web use the number of top result")
-    public String search(@ToolParam(description = "search query") String query,@ToolParam(description = "return the number of result") int topN) {
+    public String searchBaiDu(@ToolParam(description = "search query") String query, @ToolParam(description = "return the number of result") int topN) {
         String url = "https://www.searchapi.io/api/v1/search";
         String result = HttpRequest.get(url)
                 .form("engine", "baidu")
                 .form("q", query)
                 .form("api_key", searchAPIKey)
-//                .timeout(5000)
+                .timeout(5000)
                 .execute()
                 .body();
 
         return parseResults(result, topN);
     }
 
+    /**
+     * 解析搜索结果 过滤无用的信息
+     * @param jsonStr
+     * @param topN
+     * @return
+     */
     private String parseResults(String jsonStr, int topN) {
         JSONObject json = JSONUtil.parseObj(jsonStr);
         JSONArray results = json.getJSONArray("organic_results");

@@ -14,6 +14,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.rag.Query;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -157,6 +158,23 @@ public class LoveApp {
         contentFlux.subscribe(onSubscribeChunk,
                 throwable -> log.error("Error: {}", throwable.getMessage()),
                 onComplete);
+    }
+
+    @Resource
+    private ToolCallback[] allTools;
+
+    public String doChatWithTool(String chatMessage, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
+                .system(SYSTEM_PROMPT)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new AgentLoggerAdvisor())
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .tools(allTools)
+                .call().chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("ai content: {}", content);
+        return content;
     }
 
 }

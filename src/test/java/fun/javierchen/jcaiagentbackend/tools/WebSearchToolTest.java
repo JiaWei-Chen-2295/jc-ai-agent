@@ -16,7 +16,7 @@ class WebSearchToolTest {
 
     @Test
     public void serach() throws Exception {
-        String 五月天 = webSearchTool.search("五月天", 5);
+        String 五月天 = webSearchTool.searchBaiDu("五月天", 5);
         assertNotNull(五月天);
         System.out.println(五月天);
     }
