@@ -88,7 +88,7 @@ class LoveAppTest {
     @Test
     void doChatWithTool() {
         String chatId = "100";
-        String question = "现在，我已经结婚，对于关系的维护十分犯难，你有什么解决方案吗？帮我把建议生成PDF";
+        String question = "我想找一个对象 帮我把相应的建议发送到邮箱: 3270260751@qq.com ";
         String s = loveApp.doChatWithTool(question, chatId);
         System.out.println(s);
     }

@@ -16,8 +16,7 @@ public class WebSearchTool {
         searchAPIKey = System.getenv("SEARCH_API_KEY");
     }
 
-
-    @Tool(description = "search something from web use the number of top result")
+    @Tool(description = "search something from web use the number of top result", returnDirect = false)
     public String searchBaiDu(@ToolParam(description = "search query") String query, @ToolParam(description = "return the number of result") int topN) {
         String url = "https://www.searchapi.io/api/v1/search";
         String result = HttpRequest.get(url)
@@ -27,7 +26,6 @@ public class WebSearchTool {
                 .timeout(5000)
                 .execute()
                 .body();
-
         return parseResults(result, topN);
     }
 

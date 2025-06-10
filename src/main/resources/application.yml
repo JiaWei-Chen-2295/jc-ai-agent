@@ -21,6 +21,8 @@ spring:
 
 jc-ai-agent:
   api_key: ${JC_AI_AGENT_API_KEY}
+  email_account: ${JC_AI_AGENT_EMAIL_USERNAME}
+  email_password: ${JC_AI_AGENT_EMAIL_PASSWORD}
 server:
   port: 8525
   servlet:
