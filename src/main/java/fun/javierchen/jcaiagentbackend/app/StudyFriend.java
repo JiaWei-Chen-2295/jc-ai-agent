@@ -93,4 +93,15 @@ public class StudyFriend {
         log.info("ai content: {}", content);
         return content;
     }
+
+    public Flux<String> doChatWithRAGStreamTool(String chatMessage, String chatId) {
+        return chatClient.prompt().user(chatMessage)
+                .system(SYSTEM_PROMPT)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new AgentLoggerAdvisor())
+                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
+                .tools(toolCallback)
+                .stream().content();
+    }
 }

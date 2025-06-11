@@ -92,4 +92,17 @@ class LoveAppTest {
         String s = loveApp.doChatWithTool(question, chatId);
         System.out.println(s);
     }
+
+    @Test
+    void doChat() {
+    }
+
+    @Test
+    void doChatWithMCP() {
+        String chatId = "100";
+        String question = "现在，我已经结婚，想和爱人去太原约会地点，我们该去哪里？";
+        String s = loveApp.doChatWithMCP(question, chatId);
+        System.out.println(s);
+    }
+
 }

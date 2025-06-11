@@ -41,4 +41,25 @@ public class StudyFriendController {
         );
         return sseEmitter;
     }
+
+
+    @GetMapping("/do_chat/sse_with_tool/emitter")
+    public SseEmitter doChatWithRAGStreamTool(String chatMessage, String chatId) {
+        SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
+        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId).subscribe(
+                chunk -> {
+                    try {
+                        sseEmitter.send(chunk);
+                    } catch (Exception e) {
+                        sseEmitter.completeWithError(e);
+                    }
+                },
+                t -> {
+                    log.error("出错{}", t.getMessage());
+                    sseEmitter.complete();
+                },
+                sseEmitter::complete
+        );
+        return sseEmitter;
+    }
 }

@@ -179,6 +179,13 @@
             <version>2.0.1</version>
         </dependency>
 
+        <!--Java MCP Client -->
+        <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-mcp-client-spring-boot-starter -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+            <version>1.0.0-M6</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -186,9 +193,7 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -217,5 +222,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>
