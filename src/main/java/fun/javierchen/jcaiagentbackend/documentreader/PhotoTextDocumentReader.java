@@ -14,6 +14,13 @@ public class PhotoTextDocumentReader implements DocumentReader {
     @Override
     public List<Document> get() {
        // 先使用默认的策略
-        return new DefaultPhotoTextDocumentReaderStrategy().read(new PhotoTextContext(photosPath, PhotoType.HANDWRITE));
+//        return new DefaultPhotoTextDocumentReaderStrategy().read(
+//                new PhotoTextContext(photosPath, PhotoType.HANDWRITE)
+//        );
+
+        // 使用 JSON 的策略
+        return new JSONPhotoTextDocumentReaderStrategy().read(
+                new PhotoTextContext(photosPath, PhotoType.HANDWRITE)
+        );
     }
 }
