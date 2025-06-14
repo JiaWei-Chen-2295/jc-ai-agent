@@ -1,18 +1,11 @@
 package fun.javierchen.jcaiagentbackend.rag;
 
 
-import fun.javierchen.jcaiagentbackend.documentreader.DefaultPhotoTextDocumentReaderStrategy;
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextContext;
 import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextDocumentReader;
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoType;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
-import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfig;
-import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -50,7 +43,7 @@ public class StudyFriendDocumentLoader {
                 photoDataUrlList.add(photoDataUrl);
             }
         }
-        PhotoTextDocumentReader reader = new PhotoTextDocumentReader(photoDataUrlList);
+        PhotoTextDocumentReader reader = new PhotoTextDocumentReader(photoDataUrlList, "json");
         documentList = reader.get();
         return documentList;
     }

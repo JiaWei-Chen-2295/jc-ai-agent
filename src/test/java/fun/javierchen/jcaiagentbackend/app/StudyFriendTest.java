@@ -26,6 +26,13 @@ class StudyFriendTest {
     }
 
     @Test
+    public void doChatWithRAGTest2() {
+        String question = studyFriend.doChatWithRAG("计算机网络随便来一点知识点", "10");
+        assertNotNull(question);
+        System.out.println(question);
+    }
+
+    @Test
     public void doChatWithTools() {
         String question = studyFriend.doChatWithTools("请帮我提出5个关于计算机网络的问题，" +
                 "把这个问题发送到邮件:1601020332@qq.com  3270260751@qq.com", "10");
