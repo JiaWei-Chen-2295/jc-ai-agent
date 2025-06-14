@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.documentreader.textloader;
 
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.jsoup.JsoupDocumentReader;

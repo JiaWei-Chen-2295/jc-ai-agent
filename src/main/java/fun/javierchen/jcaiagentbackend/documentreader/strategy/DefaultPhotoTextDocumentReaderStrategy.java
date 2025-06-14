@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.documentreader.strategy;
 
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
@@ -7,6 +7,9 @@ import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
+import fun.javierchen.jcaiagentbackend.documentreader.textloader.HTMLLoader;
+import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextContext;
+import fun.javierchen.jcaiagentbackend.documentreader.PhotoType;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;

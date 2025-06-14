@@ -1,8 +1,12 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.documentreader.strategy;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import fun.javierchen.jcaiagentbackend.documentreader.convertor.AIOCRPhotoTextConvertor;
+import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextContext;
+import fun.javierchen.jcaiagentbackend.documentreader.convertor.PhotoTextConvertor;
+import fun.javierchen.jcaiagentbackend.documentreader.PhotoType;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;

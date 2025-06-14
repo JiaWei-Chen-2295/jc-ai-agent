@@ -1,10 +1,11 @@
 package fun.javierchen.jcaiagentbackend.documentreader;
 
+import fun.javierchen.jcaiagentbackend.documentreader.strategy.DefaultPhotoTextDocumentReaderStrategy;
+import fun.javierchen.jcaiagentbackend.documentreader.strategy.JSONPhotoTextDocumentReaderStrategy;
+import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategy;
 import lombok.AllArgsConstructor;
-import lombok.Setter;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
-import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 
 import java.util.List;
 
