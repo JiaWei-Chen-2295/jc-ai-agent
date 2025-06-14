@@ -3,6 +3,7 @@ package fun.javierchen.jcaiagentbackend.documentreader;
 import fun.javierchen.jcaiagentbackend.documentreader.strategy.DefaultPhotoTextDocumentReaderStrategy;
 import fun.javierchen.jcaiagentbackend.documentreader.strategy.JSONPhotoTextDocumentReaderStrategy;
 import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategy;
+import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategyFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
@@ -24,13 +25,8 @@ public class PhotoTextDocumentReader implements DocumentReader {
 
     @Override
     public List<Document> get() {
-        PhotoTextDocumentReaderStrategy photoTextDocumentReaderStrategy;
-        if (documentReaderStrategy.equals("json")) {
-            photoTextDocumentReaderStrategy = new JSONPhotoTextDocumentReaderStrategy();
-        } else {
-            // 使用默认的策略
-            photoTextDocumentReaderStrategy = new DefaultPhotoTextDocumentReaderStrategy();
-        }
+        PhotoTextDocumentReaderStrategy photoTextDocumentReaderStrategy = PhotoTextDocumentReaderStrategyFactory
+                .getStrategy(documentReaderStrategy);
         return photoTextDocumentReaderStrategy.read(
                 new PhotoTextContext(photosPath, PhotoType.HANDWRITE)
         );
