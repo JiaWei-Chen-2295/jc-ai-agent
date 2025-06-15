@@ -1,7 +1,5 @@
 package fun.javierchen.jcaiagentbackend.documentreader;
 
-import fun.javierchen.jcaiagentbackend.documentreader.strategy.DefaultPhotoTextDocumentReaderStrategy;
-import fun.javierchen.jcaiagentbackend.documentreader.strategy.JSONPhotoTextDocumentReaderStrategy;
 import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategy;
 import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategyFactory;
 import lombok.AllArgsConstructor;
