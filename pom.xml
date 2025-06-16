@@ -187,6 +187,8 @@
             <version>1.0.0-M6</version>
         </dependency>
 
+
+
         <!--用于 JSON 序列化-->
         <dependency>
             <groupId>com.google.code.gson</groupId>

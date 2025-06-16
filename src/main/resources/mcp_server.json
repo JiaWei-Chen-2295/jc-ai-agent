@@ -1,14 +1,18 @@
 {
   "mcpServers": {
-    "amap-maps": {
-      "command": "npx.cmd",
+    "jc-image-search-server": {
+      "command": "java",
       "args": [
-        "-y",
-        "@amap/amap-maps-mcp-server"
+        "-jar",
+        "jc-image-search-server/target/jc-image-search-server-0.0.1-SNAPSHOT.jar"
       ],
-      "env": {
-        "AMAP_MAPS_API_KEY": "xxxxxxxxxxxxxxxxxxxxxx"
-      }
+      "env": {}
     }
-  }
+
+
+
+
+
+
+}
 }
