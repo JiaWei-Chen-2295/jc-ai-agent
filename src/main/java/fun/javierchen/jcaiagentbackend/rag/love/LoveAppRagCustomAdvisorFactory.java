@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag;
+package fun.javierchen.jcaiagentbackend.rag.love;
 
 import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
 import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;

@@ -4,6 +4,8 @@ import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
 import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
 import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
+import fun.javierchen.jcaiagentbackend.rag.love.LoveAppRagCustomAdvisorFactory;
+import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -101,12 +103,12 @@ public class LoveApp {
         return loveReport;
     }
 
-    @Resource
-    private VectorStore loveAppVectorStore;
-    @Resource
-    private Advisor loveAppCloudAdvisor;
 //    @Resource
-//    private VectorStore pgVectorStore;
+//    private VectorStore loveAppVectorStore;
+//    @Resource
+//    private Advisor loveAppCloudAdvisor;
+    @Resource
+    private VectorStore pgVectorStore;
     @Resource
     private QueryRewriter queryRewriter;
 
@@ -117,11 +119,11 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 通过云端文档检索功能
 //                .advisors(loveAppCloudAdvisor)
-//                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
-                //
+                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
+                // 配置 RAG
 //                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.SINGLE_PERSON))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
@@ -142,7 +144,7 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
@@ -170,7 +172,7 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .tools(allTools)
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
@@ -186,7 +188,7 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .tools(toolCallbackProvider)
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();

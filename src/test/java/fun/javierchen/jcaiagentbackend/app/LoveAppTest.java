@@ -88,7 +88,7 @@ class LoveAppTest {
     @Test
     void doChatWithTool() {
         String chatId = "100";
-        String question = "我想找一个对象 帮我把相应的建议发送到邮箱: 3270260751@qq.com ";
+        String question = "我想找一个对象 帮我把相应的建议发送到邮箱: 755046963@qq.com ";
         String s = loveApp.doChatWithTool(question, chatId);
         System.out.println(s);
     }
@@ -107,8 +107,8 @@ class LoveAppTest {
 
     @Test
     void doChatWithMCPGetImage() {
-        String chatId = "100";
-        String question = "帮我搜索给另一半的图片";
+        String chatId = "10023232";
+        String question = "我的对象喜欢猫，请调用图像搜索工具，关键词为: cat";
         String s = loveApp.doChatWithMCP(question, chatId);
         System.out.println(s);
     }
