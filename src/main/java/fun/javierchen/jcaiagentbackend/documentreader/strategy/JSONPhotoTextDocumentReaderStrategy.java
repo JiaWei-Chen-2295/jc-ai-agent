@@ -42,9 +42,14 @@ public class JSONPhotoTextDocumentReaderStrategy implements PhotoTextDocumentRea
             PhotoTextConvertor photoTextConvertor = new AIOCRPhotoTextConvertor();
             String rawText = photoTextConvertor.convert(context);
 
+            log.info("OCR原始返回: {}", rawText);
+
             // 去除代码块标记
             String jsonStr = rawText.replaceFirst("^```json\\s*", "")
-                                   .replaceFirst("\\s*```$", "");
+                                   .replaceFirst("\\s*```$", "")
+                                   .trim();
+
+            log.info("清理后JSON: {}", jsonStr);
 
             // 解析整个JSON对象
             JsonObject jsonObject = JsonParser.parseString(jsonStr).getAsJsonObject();
@@ -63,7 +68,7 @@ public class JSONPhotoTextDocumentReaderStrategy implements PhotoTextDocumentRea
             );
             documents =  jsonReader.get();
         } catch (Exception e) {
-            log.error("解析图片失败{}", e.getMessage());
+            log.error("解析图片失败", e);
             throw new RuntimeException(e);
         }
         // 使用 Spring AI

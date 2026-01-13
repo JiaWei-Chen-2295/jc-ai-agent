@@ -53,7 +53,7 @@ public class StudyFriend {
     }
 
     @Resource
-    private VectorStore studyFriendVectorStore;
+    private VectorStore studyFriendPGvectorStore;
 
     public String doChatWithRAG(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
@@ -61,7 +61,7 @@ public class StudyFriend {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
+                .advisors(new QuestionAnswerAdvisor(studyFriendPGvectorStore))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
@@ -74,20 +74,20 @@ public class StudyFriend {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
+                .advisors(new QuestionAnswerAdvisor(studyFriendPGvectorStore))
                 .stream().content();
     }
 
-    @Resource
-    private ToolCallback[] toolCallback;
+//    @Resource
+//    private ToolCallback[] toolCallback;
     public String doChatWithTools(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
-                .tools(toolCallback)
+                .advisors(new QuestionAnswerAdvisor(studyFriendPGvectorStore))
+//                .tools(toolCallback)
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
@@ -100,8 +100,8 @@ public class StudyFriend {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new AgentLoggerAdvisor())
-                .advisors(new QuestionAnswerAdvisor(studyFriendVectorStore))
-                .tools(toolCallback)
+                .advisors(new QuestionAnswerAdvisor(studyFriendPGvectorStore))
+//                .tools(toolCallback)
                 .stream().content();
     }
 }

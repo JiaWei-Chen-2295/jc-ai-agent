@@ -26,21 +26,13 @@ import java.util.*;
 public class AIOCRPhotoTextConvertor implements PhotoTextConvertor {
 
     private static final String DEFAULT_PROMPT = """
-            Please extract all recognizable textual content from the provided image and convert it into a well-structured Markdown document.
+            从图片中提取所有知识点信息，按照给定的JSON结构输出。
             
-            Requirements:
-            
-            If the image contains a document without a clear title, analyze the content and generate a suitable title to be placed as an H1 heading (# Title).
-            
-            Preserve and organize paragraphs, bullet points, numbering, and other layout elements to closely match the original document structure.
-            
-            If there are tables or charts, convert them into Markdown table format where possible.
-            
-            Ignore irrelevant elements such as watermarks, page numbers, or decorative graphics.
-            
-            Output the result in pure Markdown format only, with no additional explanation or commentary.
-            
-            If multiple images or pages are provided, separate each section using ## Page X.
+            要求：
+            1. 识别图片中的所有知识点内容
+            2. 每个知识点必须包含：标题、内容、标签、前置知识
+            3. 确保输出完整的JSON，不要截断
+            4. 如果图片内容较多，请全部提取，不要遗漏
             """;
     private final String API_KEY = System.getenv("JC_AI_AGENT_API_KEY");
 
@@ -83,10 +75,10 @@ public class AIOCRPhotoTextConvertor implements PhotoTextConvertor {
         JsonArray knowledgeArray = new JsonArray();
 
         JsonObject knowledgeItem = new JsonObject();
-        knowledgeItem.addProperty("知识点标题", "");
+        knowledgeItem.addProperty("知识点标题", "string");
         knowledgeItem.add("知识点标签", new JsonArray());
-        knowledgeItem.addProperty("知识点内容", "");
-        knowledgeItem.addProperty("知识点前置知识", "");
+        knowledgeItem.addProperty("知识点内容", "string");
+        knowledgeItem.addProperty("知识点前置知识", "string");
 
         knowledgeArray.add(knowledgeItem);
         resultSchema.add("知识点集合", knowledgeArray);
@@ -117,7 +109,12 @@ public class AIOCRPhotoTextConvertor implements PhotoTextConvertor {
                 .message(userMessage)
                 .build();
         MultiModalConversationResult result = conv.call(param);
-        return result.getOutput().getChoices().get(0).getMessage().getContent().get(0).get("text").toString();
+        String resultText = result.getOutput().getChoices().get(0).getMessage().getContent().get(0).get("text").toString();
+        
+        log.info("OCR结果长度: {} 字符", resultText.length());
+        log.info("finish_reason: {}", result.getOutput().getChoices().get(0).getFinishReason());
+        
+        return resultText;
     }
 
     public static void main(String[] args) throws IOException {

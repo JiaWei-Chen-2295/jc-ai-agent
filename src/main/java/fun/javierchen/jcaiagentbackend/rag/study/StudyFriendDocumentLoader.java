@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag;
+package fun.javierchen.jcaiagentbackend.rag.study;
 
 
 import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextDocumentReader;
@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class StudyFriendDocumentLoader {
 
-    private ResourcePatternResolver resourcePatternResolver;
+    private final ResourcePatternResolver resourcePatternResolver;
 
     public StudyFriendDocumentLoader(ResourcePatternResolver resourcePatternResolver) {
         this.resourcePatternResolver = resourcePatternResolver;

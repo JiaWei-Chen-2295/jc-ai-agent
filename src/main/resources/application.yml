@@ -7,19 +7,29 @@ spring:
       chat:
         options:
           model: qwen-plus
+      embedding:
+        options:
+#          默认 维度为 1536
+          model: text-embedding-v2
     ollama:
       base-url: http://localhost:11434
       chat:
         model: gemma3:4b
     mcp:
       client:
+        request-timeout: 60s
         stdio:
+          servers-configuration: classpath:mcp-server.json
 
 
+    # 上线配置
+    #  datasource:
+    #    url: ${JC_AI_AGENT_POSTGRES_URL}
+    #    username: ${JC_AI_AGENT_POSTGRES_USER_NAME}
+    #    password: ${JC_AI_AGENT_POSTGRES_PWD}
   datasource:
-    url: ${JC_AI_AGENT_POSTGRES_URL}
-    username: ${JC_AI_AGENT_POSTGRES_USER_NAME}
-    password: ${JC_AI_AGENT_POSTGRES_PWD}
+    url: jdbc:postgresql://localhost:5432/love_app
+    username: postgres
   servlet:
     multipart:
       max-file-size: 5MB
@@ -46,6 +56,6 @@ springdoc:
       packages-to-scan: fun.javierchen.jcaiagentbackend.controller
 # knife4j的增强配置，不需要增强可以不配
 knife4j:
-  enable: true
+  enable: false
   setting:
     language: zh_cn
