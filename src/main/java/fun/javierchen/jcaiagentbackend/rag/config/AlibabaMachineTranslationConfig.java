@@ -1,6 +1,6 @@
 package fun.javierchen.jcaiagentbackend.rag.config;
 
-import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
+import fun.javierchen.jcaiagentbackend.rag.application.retrieval.AlibabaMachineTranslationQueryTransformer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

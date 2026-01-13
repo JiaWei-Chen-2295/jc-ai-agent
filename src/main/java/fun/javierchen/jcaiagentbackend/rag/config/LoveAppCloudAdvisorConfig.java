@@ -4,7 +4,7 @@ package fun.javierchen.jcaiagentbackend.rag.config;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetriever;
 import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetrieverOptions;
-import fun.javierchen.jcaiagentbackend.rag.love.LoveAppDocumentLoader;
+import fun.javierchen.jcaiagentbackend.rag.application.ingestion.loader.LoveAppDocumentLoader;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;

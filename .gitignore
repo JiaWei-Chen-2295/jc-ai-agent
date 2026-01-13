@@ -35,3 +35,5 @@ build/
 ### 业务相关 ###
 /tmp
 /upload_file
+/doc/*
+/src/main/resources/doc/

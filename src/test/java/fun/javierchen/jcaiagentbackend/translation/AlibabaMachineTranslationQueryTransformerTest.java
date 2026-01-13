@@ -1,12 +1,11 @@
 package fun.javierchen.jcaiagentbackend.translation;
 
-import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
+import fun.javierchen.jcaiagentbackend.rag.application.retrieval.AlibabaMachineTranslationQueryTransformer;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.rag.Query;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.event.annotation.BeforeTestExecution;
 
 @SpringBootTest
 public class AlibabaMachineTranslationQueryTransformerTest {

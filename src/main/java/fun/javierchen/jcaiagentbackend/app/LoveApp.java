@@ -2,16 +2,13 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
-import fun.javierchen.jcaiagentbackend.rag.AlibabaMachineTranslationQueryTransformer;
-import fun.javierchen.jcaiagentbackend.rag.QueryRewriter;
-import fun.javierchen.jcaiagentbackend.rag.love.LoveAppRagCustomAdvisorFactory;
-import fun.javierchen.jcaiagentbackend.rag.model.LoveAppMetaDataStatusEnum;
+import fun.javierchen.jcaiagentbackend.rag.application.retrieval.AlibabaMachineTranslationQueryTransformer;
+import fun.javierchen.jcaiagentbackend.rag.application.retrieval.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
-import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;

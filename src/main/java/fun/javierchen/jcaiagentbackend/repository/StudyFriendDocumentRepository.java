@@ -1,7 +1,7 @@
 package fun.javierchen.jcaiagentbackend.repository;
 
-import fun.javierchen.jcaiagentbackend.model.entity.StudyFriendDocument;
-import fun.javierchen.jcaiagentbackend.model.enums.DocumentStatus;
+import fun.javierchen.jcaiagentbackend.rag.model.entity.StudyFriendDocument;
+import fun.javierchen.jcaiagentbackend.rag.model.enums.DocumentStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;

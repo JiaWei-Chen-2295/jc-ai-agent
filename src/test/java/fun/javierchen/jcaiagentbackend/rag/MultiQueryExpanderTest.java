@@ -1,5 +1,6 @@
 package fun.javierchen.jcaiagentbackend.rag;
 
+import fun.javierchen.jcaiagentbackend.rag.application.retrieval.MyMultiQueryExpander;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
