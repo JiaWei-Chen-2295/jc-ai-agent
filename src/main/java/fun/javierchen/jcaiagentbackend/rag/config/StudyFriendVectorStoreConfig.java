@@ -32,7 +32,8 @@ public class StudyFriendVectorStoreConfig {
 
     private String indexName = "study_friends";
 
-    @Bean
+//    @Bean
+    @Deprecated
     VectorStore studyFriendVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         List<Document> documents = null;
         try {
