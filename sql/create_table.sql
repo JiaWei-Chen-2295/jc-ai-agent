@@ -62,3 +62,74 @@ COMMENT ON COLUMN "user".is_delete IS '是否删除';
 
 -- 创建索引
 CREATE INDEX idx_union_id ON "user" (union_id);
+--
+-- 租户表
+--
+CREATE TABLE IF NOT EXISTS tenant (
+                                      id            BIGSERIAL PRIMARY KEY,
+                                      tenant_name   VARCHAR(128)                          NOT NULL,
+                                      tenant_type   VARCHAR(32)                           NOT NULL,
+                                      owner_user_id BIGINT                                NOT NULL,
+                                      create_time   TIMESTAMPTZ  DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                      update_time   TIMESTAMPTZ  DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                      is_delete     SMALLINT     DEFAULT 0                 NOT NULL
+);
+
+CREATE INDEX idx_tenant_owner_user_id ON tenant (owner_user_id);
+CREATE INDEX idx_tenant_type ON tenant (tenant_type);
+
+--
+-- 租户成员表
+--
+CREATE TABLE IF NOT EXISTS tenant_user (
+                                           id          BIGSERIAL PRIMARY KEY,
+                                           tenant_id   BIGINT                                NOT NULL,
+                                           user_id     BIGINT                                NOT NULL,
+                                           role        VARCHAR(32)                           NOT NULL,
+                                           create_time TIMESTAMPTZ  DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                           update_time TIMESTAMPTZ  DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                           is_delete   SMALLINT     DEFAULT 0                 NOT NULL,
+                                           UNIQUE (tenant_id, user_id)
+);
+
+CREATE INDEX idx_tenant_user_tenant_id ON tenant_user (tenant_id);
+CREATE INDEX idx_tenant_user_user_id ON tenant_user (user_id);
+
+-- StudyFriend 会话表
+CREATE TABLE IF NOT EXISTS chat_session (
+                                            chat_id         VARCHAR(64) PRIMARY KEY,
+                                            tenant_id       BIGINT NOT NULL,
+                                            user_id         BIGINT NOT NULL,
+                                            app_code        VARCHAR(64) NOT NULL,
+                                            title           VARCHAR(255) NULL,
+                                            last_message_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                                            created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+                                            updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+                                            is_deleted      SMALLINT NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_chat_session_tenant_user_last
+    ON chat_session(tenant_id, user_id, last_message_at DESC);
+CREATE INDEX idx_chat_session_last_message_at
+    ON chat_session(last_message_at DESC);
+
+-- StudyFriend 消息表
+CREATE TABLE IF NOT EXISTS chat_message (
+                                      id               BIGSERIAL PRIMARY KEY,
+                                      chat_id          VARCHAR(64) NOT NULL,
+                                      tenant_id        BIGINT NOT NULL,
+                                      user_id          BIGINT NOT NULL,
+                                      role             VARCHAR(32) NOT NULL,
+                                      client_message_id VARCHAR(64) NULL,
+                                      content          TEXT NOT NULL,
+                                      metadata         JSONB NULL,
+                                      created_at       TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_chat_message_chat_id_id
+    ON chat_message(chat_id, id);
+CREATE INDEX idx_chat_message_tenant_user
+    ON chat_message(tenant_id, user_id);
+CREATE UNIQUE INDEX uq_chat_message_client_id
+    ON chat_message(chat_id, user_id, role, client_message_id)
+    WHERE client_message_id IS NOT NULL;

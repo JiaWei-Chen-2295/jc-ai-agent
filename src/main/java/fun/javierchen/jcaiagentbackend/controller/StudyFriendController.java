@@ -2,6 +2,18 @@ package fun.javierchen.jcaiagentbackend.controller;
 
 
 import fun.javierchen.jcaiagentbackend.app.StudyFriend;
+import fun.javierchen.jcaiagentbackend.common.BaseResponse;
+import fun.javierchen.jcaiagentbackend.common.ErrorCode;
+import fun.javierchen.jcaiagentbackend.common.ResultUtils;
+import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
+import fun.javierchen.jcaiagentbackend.controller.dto.ChatMessageListResponse;
+import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionListResponse;
+import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionVO;
+import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
+import fun.javierchen.jcaiagentbackend.model.entity.User;
+import fun.javierchen.jcaiagentbackend.service.StudyFriendChatService;
+import fun.javierchen.jcaiagentbackend.service.TenantService;
+import fun.javierchen.jcaiagentbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,13 +22,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import fun.javierchen.jcaiagentbackend.service.UserService;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -29,6 +40,93 @@ public class StudyFriendController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private StudyFriendChatService studyFriendChatService;
+
+    @Resource
+    private TenantService tenantService;
+
+    @PostMapping(value = "/session", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Create chat session", description = "Create a StudyFriend chat session and return chatId.")
+    public BaseResponse<ChatSessionVO> createSession(
+            @RequestParam(value = "title", required = false) String title,
+            jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        ChatSessionVO session = studyFriendChatService.createSession(tenantId, loginUser.getId(), title);
+        return ResultUtils.success(session);
+    }
+
+    @GetMapping(value = "/session/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "List chat sessions (cursor)", description = "Cursor pagination for current user's sessions.")
+    public BaseResponse<ChatSessionListResponse> listSessions(
+            @RequestParam(value = "beforeLastMessageAt", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime beforeLastMessageAt,
+            @RequestParam(value = "beforeChatId", required = false) String beforeChatId,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        ChatSessionListResponse response = studyFriendChatService.listSessionsForUser(
+                tenantId, loginUser.getId(), beforeLastMessageAt, beforeChatId, limit);
+        return ResultUtils.success(response);
+    }
+
+    @GetMapping(value = "/session/{chatId}/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "List chat messages (cursor)", description = "Cursor pagination for chat messages.")
+    public BaseResponse<ChatMessageListResponse> listMessages(
+            @PathVariable("chatId") String chatId,
+            @RequestParam(value = "beforeId", required = false) Long beforeId,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        ChatMessageListResponse response = studyFriendChatService.listMessagesForUser(
+                chatId, tenantId, loginUser.getId(), beforeId, limit);
+        return ResultUtils.success(response);
+    }
+
+    @GetMapping(value = "/admin/session/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Admin list chat sessions (cursor)", description = "Admin can list sessions across tenants.")
+    public BaseResponse<ChatSessionListResponse> listSessionsByAdmin(
+            @RequestParam(value = "tenantId", required = false) Long tenantId,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "beforeLastMessageAt", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime beforeLastMessageAt,
+            @RequestParam(value = "beforeChatId", required = false) String beforeChatId,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(!userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "Admin required");
+        ChatSessionListResponse response = studyFriendChatService.listSessionsForAdmin(
+                tenantId, userId, beforeLastMessageAt, beforeChatId, limit);
+        return ResultUtils.success(response);
+    }
+
+    @GetMapping(value = "/admin/session/{chatId}/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Admin list chat messages (cursor)", description = "Admin can read messages across tenants.")
+    public BaseResponse<ChatMessageListResponse> listMessagesByAdmin(
+            @PathVariable("chatId") String chatId,
+            @RequestParam(value = "beforeId", required = false) Long beforeId,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(!userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "Admin required");
+        studyFriendChatService.requireSessionForAdmin(chatId);
+        ChatMessageListResponse response = studyFriendChatService.listMessagesForAdmin(chatId, beforeId, limit);
+        return ResultUtils.success(response);
+    }
 
     @GetMapping(value = "/do_chat/async", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(
@@ -47,9 +145,18 @@ public class StudyFriendController {
     )
     public String doChatWithRAG(@RequestParam("chatMessage") String chatMessage,
                                 @RequestParam("chatId") String chatId,
+                                @RequestParam(value = "messageId", required = false) String messageId,
                                 jakarta.servlet.http.HttpServletRequest request) {
-        userService.getLoginUser(request);
-        return studyFriend.doChatWithRAG(chatMessage, chatId);
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        String content = studyFriend.doChatWithRAG(chatMessage, chatId);
+        studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(), content);
+        return content;
     }
 
     @GetMapping(value = "/do_chat/sse/emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -67,12 +174,21 @@ public class StudyFriendController {
     ))
     public SseEmitter doChatWithRAGStream(@RequestParam("chatMessage") String chatMessage,
                                           @RequestParam("chatId") String chatId,
+                                          @RequestParam(value = "messageId", required = false) String messageId,
                                           jakarta.servlet.http.HttpServletRequest request) {
-        userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
+        StringBuilder assistantBuffer = new StringBuilder();
         studyFriend.doChatWithRAGStream(chatMessage, chatId).subscribe(
                 chunk -> {
                     try {
+                        assistantBuffer.append(chunk);
                         sseEmitter.send(chunk);
                     } catch (Exception e) {
                         sseEmitter.completeWithError(e);
@@ -82,7 +198,11 @@ public class StudyFriendController {
                     log.error("出错{}", t.getMessage());
                     sseEmitter.complete();
                 },
-                sseEmitter::complete
+                () -> {
+                    studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(),
+                            assistantBuffer.toString());
+                    sseEmitter.complete();
+                }
         );
         return sseEmitter;
     }
@@ -103,12 +223,21 @@ public class StudyFriendController {
     ))
     public SseEmitter doChatWithRAGStreamTool(@RequestParam("chatMessage") String chatMessage,
                                               @RequestParam("chatId") String chatId,
+                                              @RequestParam(value = "messageId", required = false) String messageId,
                                               jakarta.servlet.http.HttpServletRequest request) {
-        userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
+        StringBuilder assistantBuffer = new StringBuilder();
         studyFriend.doChatWithRAGStreamTool(chatMessage, chatId).subscribe(
                 chunk -> {
                     try {
+                        assistantBuffer.append(chunk);
                         sseEmitter.send(chunk);
                     } catch (Exception e) {
                         sseEmitter.completeWithError(e);
@@ -118,8 +247,18 @@ public class StudyFriendController {
                     log.error("出错{}", t.getMessage());
                     sseEmitter.complete();
                 },
-                sseEmitter::complete
+                () -> {
+                    studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(),
+                            assistantBuffer.toString());
+                    sseEmitter.complete();
+                }
         );
         return sseEmitter;
+    }
+
+    private Long requireTenantId() {
+        Long tenantId = TenantContextHolder.getTenantId();
+        ThrowUtils.throwIf(tenantId == null, ErrorCode.NO_AUTH_ERROR, "Tenant not selected");
+        return tenantId;
     }
 }
