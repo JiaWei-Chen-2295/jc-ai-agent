@@ -8,7 +8,8 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
+import fun.javierchen.jcaiagentbackend.rag.vectorstore.TenantVectorStore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -17,8 +18,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.io.IOException;
 import java.util.List;
 
-import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgDistanceType.COSINE_DISTANCE;
-import static org.springframework.ai.vectorstore.pgvector.PgVectorStore.PgIndexType.HNSW;
 
 @Configuration
 @Slf4j
@@ -58,18 +57,11 @@ public class StudyFriendVectorStoreConfig {
      * 使用 @Lazy 确保只在首次使用时初始化，避免启动时调用 Embedding API 导致启动慢
      */
     @Bean
-    @Lazy
-    public VectorStore studyFriendPGvectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel dashscopeEmbeddingModel) {
-        log.info("初始化 PGVector 存储: tableName={}", indexName);
-        return PgVectorStore.builder(jdbcTemplate, dashscopeEmbeddingModel)
-                .dimensions(1536) // Optional: defaults to model dimensions or 1536
-                .distanceType(COSINE_DISTANCE) // Optional: defaults to COSINE_DISTANCE
-                .indexType(HNSW) // Optional: defaults to HNSW
-                .initializeSchema(true) // Optional: defaults to false
-                .schemaName("public") // Optional: defaults to "public"
-                .vectorTableName(indexName) // Optional: defaults to "vector_store"
-                .maxDocumentBatchSize(10000) // Optional: defaults to 10000
-                .build();
+    public VectorStore studyFriendPGvectorStore(JdbcTemplate jdbcTemplate,
+                                                EmbeddingModel dashscopeEmbeddingModel,
+                                                ObjectMapper objectMapper) {
+        log.info("初始化多租户 PGVector 存储: tableName={}", indexName);
+        return new TenantVectorStore(jdbcTemplate, dashscopeEmbeddingModel, objectMapper, indexName);
     }
 
 }

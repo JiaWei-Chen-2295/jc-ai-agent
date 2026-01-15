@@ -14,6 +14,7 @@ import fun.javierchen.jcaiagentbackend.exception.BusinessException;
 import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
 import fun.javierchen.jcaiagentbackend.model.entity.User;
 import fun.javierchen.jcaiagentbackend.repository.UserRepository;
+import fun.javierchen.jcaiagentbackend.service.TenantService;
 import fun.javierchen.jcaiagentbackend.service.UserService;
 import fun.javierchen.jcaiagentbackend.utils.SqlUtils;
 import jakarta.persistence.criteria.Predicate;
@@ -50,6 +51,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TenantService tenantService;
     @Override
     @Transactional
     public long userRegister(UserRegisterRequest request) {
@@ -74,6 +76,7 @@ public class UserServiceImpl implements UserService {
         user.setIsDelete(DEFAULT_IS_DELETE);
 
         userRepository.save(user);
+        tenantService.ensurePersonalTenant(user);
         return user.getId();
     }
 
@@ -95,7 +98,14 @@ public class UserServiceImpl implements UserService {
         ThrowUtils.throwIf(UserConstant.BAN_ROLE.equals(user.getUserRole()),
                 ErrorCode.FORBIDDEN_ERROR, "User is banned");
 
-        httpRequest.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user.getId());
+        jakarta.servlet.http.HttpSession session = httpRequest.getSession();
+        session.setAttribute(UserConstant.USER_LOGIN_STATE, user.getId());
+        Long personalTenantId = tenantService.ensurePersonalTenant(user);
+        Long activeTenantId = parseTenantId(session.getAttribute(UserConstant.USER_ACTIVE_TENANT_ID));
+        if (activeTenantId == null || !tenantService.isMember(activeTenantId, user.getId())) {
+            activeTenantId = personalTenantId;
+        }
+        session.setAttribute(UserConstant.USER_ACTIVE_TENANT_ID, activeTenantId);
         return getUserVO(user);
     }
 
@@ -104,7 +114,9 @@ public class UserServiceImpl implements UserService {
         if (request == null) {
             return true;
         }
-        request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+        jakarta.servlet.http.HttpSession session = request.getSession();
+        session.removeAttribute(UserConstant.USER_LOGIN_STATE);
+        session.removeAttribute(UserConstant.USER_ACTIVE_TENANT_ID);
         return true;
     }
 
@@ -335,6 +347,20 @@ public class UserServiceImpl implements UserService {
             return Long.valueOf(userIdObj.toString());
         } catch (NumberFormatException e) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+    }
+
+    private Long parseTenantId(Object tenantIdObj) {
+        if (tenantIdObj == null) {
+            return null;
+        }
+        if (tenantIdObj instanceof Long) {
+            return (Long) tenantIdObj;
+        }
+        try {
+            return Long.valueOf(tenantIdObj.toString());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

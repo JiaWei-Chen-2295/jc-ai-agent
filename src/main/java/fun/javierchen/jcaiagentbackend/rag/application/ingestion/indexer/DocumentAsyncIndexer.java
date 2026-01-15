@@ -60,7 +60,7 @@ public class DocumentAsyncIndexer {
             }
 
             // 3. 写入向量数据库（内部会添加 documentId 到 metadata）
-            vectorStoreService.addDocuments(documents, documentId);
+            vectorStoreService.addDocuments(documents, documentId, event.getTenantId());
 
             // 4. 更新状态为 INDEXED
             documentRepository.updateStatus(documentId, DocumentStatus.INDEXED, null);
@@ -101,11 +101,12 @@ public class DocumentAsyncIndexer {
                 .orElseThrow(() -> new IllegalArgumentException("文档不存在: " + documentId));
 
         // 先删除已有的向量数据
-        vectorStoreService.deleteByDocumentId(documentId);
+        vectorStoreService.deleteByDocumentId(documentId, doc.getTenantId());
 
         // 重新发布事件触发索引
         DocumentUploadedEvent event = new DocumentUploadedEvent(
-                this, documentId, doc.getFilePath(), doc.getFileType(), doc.getFileName());
+                this, documentId, doc.getTenantId(), doc.getOwnerUserId(),
+                doc.getFilePath(), doc.getFileType(), doc.getFileName());
         handleDocumentUpload(event);
     }
 }

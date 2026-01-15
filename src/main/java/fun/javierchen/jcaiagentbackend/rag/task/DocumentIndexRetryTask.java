@@ -98,7 +98,7 @@ public class DocumentIndexRetryTask {
 
         // 先删除可能存在的部分向量数据
         try {
-            vectorStoreService.deleteByDocumentId(doc.getId());
+            vectorStoreService.deleteByDocumentId(doc.getId(), doc.getTenantId());
         } catch (Exception e) {
             log.warn("清理向量数据失败: id={}", doc.getId(), e);
         }
@@ -107,6 +107,8 @@ public class DocumentIndexRetryTask {
         eventPublisher.publishEvent(new DocumentUploadedEvent(
                 this,
                 doc.getId(),
+                doc.getTenantId(),
+                doc.getOwnerUserId(),
                 doc.getFilePath(),
                 doc.getFileType(),
                 doc.getFileName()));

@@ -42,9 +42,12 @@ public class DocumentUploadService {
      * @return 文档ID
      */
     @Transactional
-    public Long uploadDocument(String filename, String fileType, byte[] fileBytes) throws IOException {
+    public Long uploadDocument(String filename, String fileType, byte[] fileBytes, Long tenantId, Long ownerUserId) throws IOException {
+        if (tenantId == null || ownerUserId == null) {
+            throw new IllegalArgumentException("tenantId/ownerUserId不能为空");
+        }
         // 1. 检查是否已存在相同文件（可选的去重逻辑）
-        StudyFriendDocument existing = documentRepository.findByFileNameAndType(filename, fileType);
+        StudyFriendDocument existing = documentRepository.findByFileNameAndType(filename, fileType, tenantId);
         if (existing != null && existing.getStatus() == DocumentStatus.INDEXED) {
             log.info("文档已存在且已索引，返回现有文档: id={}, filename={}", existing.getId(), filename);
             return existing.getId();
@@ -53,7 +56,7 @@ public class DocumentUploadService {
         // 2. 保存文件到磁盘
         String fileId = UUID.randomUUID().toString();
         // todo: 安全问题
-        Path filePath = Paths.get(UPLOAD_DIR, fileId, filename);
+        Path filePath = Paths.get(UPLOAD_DIR, tenantId.toString(), fileId, filename);
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, fileBytes);
 
@@ -61,6 +64,8 @@ public class DocumentUploadService {
 
         // 3. 保存文档记录（状态：UPLOADED）
         StudyFriendDocument document = new StudyFriendDocument();
+        document.setTenantId(tenantId);
+        document.setOwnerUserId(ownerUserId);
         document.setFileName(filename);
         document.setFilePath(filePath.toString());
         document.setFileType(fileType);
@@ -71,7 +76,7 @@ public class DocumentUploadService {
 
         // 4. 发布事件（触发异步索引）
         eventPublisher.publishEvent(new DocumentUploadedEvent(
-                this, document.getId(), filePath.toString(), fileType, filename));
+                this, document.getId(), tenantId, ownerUserId, filePath.toString(), fileType, filename));
 
         return document.getId();
     }
@@ -82,7 +87,15 @@ public class DocumentUploadService {
      * @param documentId 文档ID
      * @return 文档实体
      */
-    public StudyFriendDocument getDocument(Long documentId) {
+    public StudyFriendDocument getDocument(Long documentId, Long tenantId) {
+        return documentRepository.findByIdAndTenantId(documentId, tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("文档不存在: " + documentId));
+    }
+
+    /**
+     * 管理员获取文档
+     */
+    public StudyFriendDocument getDocumentById(Long documentId) {
         return documentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("文档不存在: " + documentId));
     }
@@ -90,7 +103,14 @@ public class DocumentUploadService {
     /**
      * 获取所有文档
      */
-    public List<StudyFriendDocument> getAllDocuments() {
+    public List<StudyFriendDocument> getAllDocuments(Long tenantId) {
+        return documentRepository.findAllByTenantId(tenantId);
+    }
+
+    /**
+     * 管理员获取全部文档
+     */
+    public List<StudyFriendDocument> getAllDocumentsByAdmin() {
         return documentRepository.findAll();
     }
 
@@ -100,15 +120,15 @@ public class DocumentUploadService {
      * @param documentId 文档ID
      */
     @Transactional
-    public void deleteDocument(Long documentId, VectorStoreService vectorStoreService) {
-        StudyFriendDocument doc = documentRepository.findById(documentId).orElse(null);
+    public void deleteDocument(Long documentId, Long tenantId, VectorStoreService vectorStoreService) {
+        StudyFriendDocument doc = documentRepository.findByIdAndTenantId(documentId, tenantId).orElse(null);
         if (doc == null) {
             log.warn("文档不存在，跳过删除: id={}", documentId);
             return;
         }
 
         // 删除向量数据
-        vectorStoreService.deleteByDocumentId(documentId);
+        vectorStoreService.deleteByDocumentId(documentId, tenantId);
 
         // 删除文件
         try {
@@ -121,7 +141,31 @@ public class DocumentUploadService {
         }
 
         // 删除数据库记录
-        documentRepository.deleteById(documentId);
+        documentRepository.deleteByIdAndTenantId(documentId, tenantId);
         log.info("文档删除成功: id={}", documentId);
+    }
+
+    /**
+     * 管理员删除文档
+     */
+    @Transactional
+    public void deleteDocumentByAdmin(Long documentId, VectorStoreService vectorStoreService) {
+        StudyFriendDocument doc = documentRepository.findById(documentId).orElse(null);
+        if (doc == null) {
+            log.warn("文档不存在，跳过删除: id={}", documentId);
+            return;
+        }
+        vectorStoreService.deleteByDocumentId(documentId, doc.getTenantId());
+
+        try {
+            Path filePath = Paths.get(doc.getFilePath());
+            Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath.getParent());
+        } catch (IOException e) {
+            log.warn("删除文件失败: path={}", doc.getFilePath(), e);
+        }
+
+        documentRepository.deleteById(documentId);
+        log.info("管理员删除文档成功: id={}", documentId);
     }
 }

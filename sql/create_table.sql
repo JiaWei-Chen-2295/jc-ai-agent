@@ -1,6 +1,8 @@
 -- 用户文档表
 CREATE TABLE  IF NOT EXISTS study_friend_document (
                                        id              BIGSERIAL PRIMARY KEY,
+                                       tenant_id       BIGINT NOT NULL,
+                                       owner_user_id   BIGINT NOT NULL,
 
                                        file_name       VARCHAR(255) NOT NULL,
                                        file_path       TEXT NOT NULL,
@@ -17,8 +19,14 @@ CREATE TABLE  IF NOT EXISTS study_friend_document (
 
 CREATE INDEX idx_study_friend_document_status
     ON study_friend_document(status);
+CREATE INDEX idx_study_friend_document_tenant
+    ON study_friend_document(tenant_id);
+CREATE INDEX idx_study_friend_document_tenant_status
+    ON study_friend_document(tenant_id, status);
+CREATE INDEX idx_study_friend_document_tenant_owner
+    ON study_friend_document(tenant_id, owner_user_id);
 --
---
+-- 
 -- 用户表
 --
 -- 在 PGSQL 如果没有单独配置且每加上双引号 就会把驼峰命名的字段折叠为全部小写

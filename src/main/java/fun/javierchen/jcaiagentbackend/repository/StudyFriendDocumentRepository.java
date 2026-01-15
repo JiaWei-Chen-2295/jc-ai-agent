@@ -34,6 +34,8 @@ public class StudyFriendDocumentRepository {
     private final RowMapper<StudyFriendDocument> rowMapper = (rs, rowNum) -> {
         StudyFriendDocument doc = new StudyFriendDocument();
         doc.setId(rs.getLong("id"));
+        doc.setTenantId(rs.getLong("tenant_id"));
+        doc.setOwnerUserId(rs.getLong("owner_user_id"));
         doc.setFileName(rs.getString("file_name"));
         doc.setFilePath(rs.getString("file_path"));
         doc.setFileType(rs.getString("file_type"));
@@ -61,8 +63,8 @@ public class StudyFriendDocumentRepository {
      */
     private StudyFriendDocument insert(StudyFriendDocument document) {
         String sql = """
-                    INSERT INTO %s (file_name, file_path, file_type, status, error_message, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO %s (tenant_id, owner_user_id, file_name, file_path, file_type, status, error_message, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     RETURNING id
                 """.formatted(TABLE_NAME);
 
@@ -71,6 +73,8 @@ public class StudyFriendDocumentRepository {
         document.setUpdatedAt(now);
 
         Long generatedId = jdbcTemplate.queryForObject(sql, Long.class,
+                document.getTenantId(),
+                document.getOwnerUserId(),
                 document.getFileName(),
                 document.getFilePath(),
                 document.getFileType(),
@@ -118,11 +122,20 @@ public class StudyFriendDocumentRepository {
     }
 
     /**
+     * 根据ID和租户查询
+     */
+    public Optional<StudyFriendDocument> findByIdAndTenantId(Long id, Long tenantId) {
+        String sql = "SELECT * FROM %s WHERE id = ? AND tenant_id = ?".formatted(TABLE_NAME);
+        List<StudyFriendDocument> results = jdbcTemplate.query(sql, rowMapper, id, tenantId);
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    /**
      * 根据文件名和文件类型查询（用于去重）
      */
-    public StudyFriendDocument findByFileNameAndType(String fileName, String fileType) {
-        String sql = "SELECT * FROM %s WHERE file_name = ? AND file_type = ? LIMIT 1".formatted(TABLE_NAME);
-        List<StudyFriendDocument> results = jdbcTemplate.query(sql, rowMapper, fileName, fileType);
+    public StudyFriendDocument findByFileNameAndType(String fileName, String fileType, Long tenantId) {
+        String sql = "SELECT * FROM %s WHERE file_name = ? AND file_type = ? AND tenant_id = ? LIMIT 1".formatted(TABLE_NAME);
+        List<StudyFriendDocument> results = jdbcTemplate.query(sql, rowMapper, fileName, fileType, tenantId);
         return results.isEmpty() ? null : results.get(0);
     }
 
@@ -172,10 +185,26 @@ public class StudyFriendDocumentRepository {
     }
 
     /**
+     * 根据ID和租户删除
+     */
+    public void deleteByIdAndTenantId(Long id, Long tenantId) {
+        String sql = "DELETE FROM %s WHERE id = ? AND tenant_id = ?".formatted(TABLE_NAME);
+        jdbcTemplate.update(sql, id, tenantId);
+    }
+
+    /**
      * 查询所有文档
      */
     public List<StudyFriendDocument> findAll() {
         String sql = "SELECT * FROM %s ORDER BY created_at DESC".formatted(TABLE_NAME);
         return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    /**
+     * 按租户查询所有文档
+     */
+    public List<StudyFriendDocument> findAllByTenantId(Long tenantId) {
+        String sql = "SELECT * FROM %s WHERE tenant_id = ? ORDER BY created_at DESC".formatted(TABLE_NAME);
+        return jdbcTemplate.query(sql, rowMapper, tenantId);
     }
 }

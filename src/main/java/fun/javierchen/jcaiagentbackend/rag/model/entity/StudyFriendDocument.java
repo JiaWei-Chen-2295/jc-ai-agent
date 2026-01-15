@@ -23,6 +23,18 @@ public class StudyFriendDocument {
     private Long id;
 
     /**
+     * 租户 ID
+     */
+    @Schema(description = "租户 ID", example = "100")
+    private Long tenantId;
+
+    /**
+     * 归属用户 ID
+     */
+    @Schema(description = "归属用户 ID", example = "1")
+    private Long ownerUserId;
+
+    /**
      * 文件名
      */
     @Schema(description = "文件名", example = "demo.pdf")

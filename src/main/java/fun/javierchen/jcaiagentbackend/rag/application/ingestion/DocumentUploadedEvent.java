@@ -18,6 +18,16 @@ public class DocumentUploadedEvent extends ApplicationEvent {
     private final Long documentId;
 
     /**
+     * 租户ID
+     */
+    private final Long tenantId;
+
+    /**
+     * 归属用户ID
+     */
+    private final Long ownerUserId;
+
+    /**
      * 文件存储路径
      */
     private final String filePath;
@@ -32,9 +42,12 @@ public class DocumentUploadedEvent extends ApplicationEvent {
      */
     private final String filename;
 
-    public DocumentUploadedEvent(Object source, Long documentId, String filePath, String fileType, String filename) {
+    public DocumentUploadedEvent(Object source, Long documentId, Long tenantId, Long ownerUserId,
+                                 String filePath, String fileType, String filename) {
         super(source);
         this.documentId = documentId;
+        this.tenantId = tenantId;
+        this.ownerUserId = ownerUserId;
         this.filePath = filePath;
         this.fileType = fileType;
         this.filename = filename;

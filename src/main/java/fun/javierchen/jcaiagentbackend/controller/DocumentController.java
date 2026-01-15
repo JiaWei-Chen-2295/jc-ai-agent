@@ -1,13 +1,19 @@
 package fun.javierchen.jcaiagentbackend.controller;
 
 import fun.javierchen.jcaiagentbackend.common.BaseResponse;
+import fun.javierchen.jcaiagentbackend.common.ErrorCode;
 import fun.javierchen.jcaiagentbackend.common.ResultUtils;
+import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
 import fun.javierchen.jcaiagentbackend.controller.dto.DocumentUploadResponse;
+import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
+import fun.javierchen.jcaiagentbackend.model.entity.User;
 import fun.javierchen.jcaiagentbackend.rag.model.entity.StudyFriendDocument;
 import fun.javierchen.jcaiagentbackend.rag.model.enums.DocumentStatus;
 import fun.javierchen.jcaiagentbackend.rag.application.ingestion.DocumentUploadService;
 import fun.javierchen.jcaiagentbackend.rag.config.VectorStoreService;
 import fun.javierchen.jcaiagentbackend.rag.application.ingestion.indexer.DocumentAsyncIndexer;
+import fun.javierchen.jcaiagentbackend.service.TenantService;
+import fun.javierchen.jcaiagentbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -42,6 +49,8 @@ public class DocumentController {
     private final DocumentUploadService documentUploadService;
     private final VectorStoreService vectorStoreService;
     private final DocumentAsyncIndexer documentAsyncIndexer;
+    private final UserService userService;
+    private final TenantService tenantService;
 
     /**
      * 上传文档
@@ -67,17 +76,23 @@ public class DocumentController {
             @Parameter(description = "上传的文档文件，支持 pdf/pptx/docx/md 等", required = true,
                     content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                             schema = @Schema(type = "string", format = "binary")))
-            @RequestParam("file") MultipartFile file)
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request)
             throws IOException {
         if (file.isEmpty()) {
             return ResultUtils.error(400, "文件不能为空");
+        }
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
         }
 
         String filename = file.getOriginalFilename();
         String fileType = extractFileType(filename);
         byte[] fileBytes = file.getBytes();
 
-        Long documentId = documentUploadService.uploadDocument(filename, fileType, fileBytes);
+        Long documentId = documentUploadService.uploadDocument(filename, fileType, fileBytes, tenantId, loginUser.getId());
 
         DocumentUploadResponse result = new DocumentUploadResponse(
                 documentId,
@@ -103,8 +118,16 @@ public class DocumentController {
     })
     public BaseResponse<StudyFriendDocument> getDocument(
             @Parameter(description = "文档唯一标识 ID", required = true, example = "1001")
-            @PathVariable Long documentId) {
-        StudyFriendDocument document = documentUploadService.getDocument(documentId);
+            @PathVariable Long documentId,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        StudyFriendDocument document = userService.isAdmin(loginUser)
+                ? documentUploadService.getDocumentById(documentId)
+                : documentUploadService.getDocument(documentId, tenantId);
         return ResultUtils.success(document);
     }
 
@@ -117,8 +140,15 @@ public class DocumentController {
     @Operation(summary = "查询所有文档", description = "获取所有文档列表及其状态")
     @ApiResponse(responseCode = "200", description = "文档列表",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = StudyFriendDocument.class))))
-    public BaseResponse<List<StudyFriendDocument>> listDocuments() {
-        List<StudyFriendDocument> documents = documentUploadService.getAllDocuments();
+    public BaseResponse<List<StudyFriendDocument>> listDocuments(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        List<StudyFriendDocument> documents = userService.isAdmin(loginUser)
+                ? documentUploadService.getAllDocumentsByAdmin()
+                : documentUploadService.getAllDocuments(tenantId);
         return ResultUtils.success(documents);
     }
 
@@ -138,8 +168,16 @@ public class DocumentController {
     })
     public BaseResponse<String> deleteDocument(
             @Parameter(description = "文档唯一标识 ID", required = true, example = "1001")
-            @PathVariable Long documentId) {
-        documentUploadService.deleteDocument(documentId, vectorStoreService);
+            @PathVariable Long documentId,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (userService.isAdmin(loginUser)) {
+            documentUploadService.deleteDocumentByAdmin(documentId, vectorStoreService);
+        } else {
+            tenantService.requireAdmin(tenantId, loginUser.getId());
+            documentUploadService.deleteDocument(documentId, tenantId, vectorStoreService);
+        }
         return ResultUtils.success("文档删除成功");
     }
 
@@ -159,7 +197,14 @@ public class DocumentController {
     })
     public BaseResponse<String> reindexDocument(
             @Parameter(description = "文档唯一标识 ID", required = true, example = "1001")
-            @PathVariable Long documentId) {
+            @PathVariable Long documentId,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireAdmin(tenantId, loginUser.getId());
+            documentUploadService.getDocument(documentId, tenantId);
+        }
         documentAsyncIndexer.reindexDocument(documentId);
         return ResultUtils.success("重新索引任务已提交");
     }
@@ -172,5 +217,11 @@ public class DocumentController {
             return "unknown";
         }
         return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+    }
+
+    private Long requireTenantId() {
+        Long tenantId = TenantContextHolder.getTenantId();
+        ThrowUtils.throwIf(tenantId == null, ErrorCode.NO_AUTH_ERROR, "未选择租户");
+        return tenantId;
     }
 }

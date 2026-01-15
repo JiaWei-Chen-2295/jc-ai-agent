@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import fun.javierchen.jcaiagentbackend.service.UserService;
 
 @Slf4j
 @RestController
@@ -25,6 +26,9 @@ public class StudyFriendController {
 
     @Resource
     private StudyFriend studyFriend;
+
+    @Resource
+    private UserService userService;
 
     @GetMapping(value = "/do_chat/async", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(
@@ -42,7 +46,9 @@ public class StudyFriendController {
             }
     )
     public String doChatWithRAG(@RequestParam("chatMessage") String chatMessage,
-                                @RequestParam("chatId") String chatId) {
+                                @RequestParam("chatId") String chatId,
+                                jakarta.servlet.http.HttpServletRequest request) {
+        userService.getLoginUser(request);
         return studyFriend.doChatWithRAG(chatMessage, chatId);
     }
 
@@ -60,7 +66,9 @@ public class StudyFriendController {
             examples = @ExampleObject(value = "data: 正在为你整理要点\\n\\n")
     ))
     public SseEmitter doChatWithRAGStream(@RequestParam("chatMessage") String chatMessage,
-                                          @RequestParam("chatId") String chatId) {
+                                          @RequestParam("chatId") String chatId,
+                                          jakarta.servlet.http.HttpServletRequest request) {
+        userService.getLoginUser(request);
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         studyFriend.doChatWithRAGStream(chatMessage, chatId).subscribe(
                 chunk -> {
@@ -94,7 +102,9 @@ public class StudyFriendController {
             examples = @ExampleObject(value = "data: 我去调用工具查询...\\n\\n")
     ))
     public SseEmitter doChatWithRAGStreamTool(@RequestParam("chatMessage") String chatMessage,
-                                              @RequestParam("chatId") String chatId) {
+                                              @RequestParam("chatId") String chatId,
+                                              jakarta.servlet.http.HttpServletRequest request) {
+        userService.getLoginUser(request);
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         studyFriend.doChatWithRAGStreamTool(chatMessage, chatId).subscribe(
                 chunk -> {

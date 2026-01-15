@@ -12,6 +12,11 @@ public interface UserConstant {
      */
     String USER_LOGIN_STATE = "user_login";
 
+    /**
+     * 当前租户 ID
+     */
+    String USER_ACTIVE_TENANT_ID = "active_tenant_id";
+
     //  region 权限
 
     /**
