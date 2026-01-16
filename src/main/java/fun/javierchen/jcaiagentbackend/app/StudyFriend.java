@@ -13,8 +13,11 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -33,7 +36,7 @@ public class StudyFriend {
 
     private final ChatClient chatClient;
     private static final int RAG_TOP_K = 3;
-    private static final double RAG_SIMILARITY_THRESHOLD = 0.75;
+    private static final double RAG_SIMILARITY_THRESHOLD = 0.50;
     private static final List<String> RAG_SKIP_KEYWORDS = List.of(
             "出一个题", "出一道题", "出题", "考察我", "考考我", "练习题", "给我一道题", "测试我"
     );
@@ -64,6 +67,10 @@ public class StudyFriend {
     private VectorStore studyFriendPGvectorStore;
 
     public String doChatWithRAG(String chatMessage, String chatId) {
+        return doChatWithRAG(chatMessage, chatId, TenantContextHolder.getTenantId());
+    }
+
+    public String doChatWithRAG(String chatMessage, String chatId, Long tenantId) {
         ChatResponse chatResponse;
         if (shouldUseRag(chatMessage)) {
             chatResponse = chatClient.prompt().user(chatMessage)
@@ -71,7 +78,7 @@ public class StudyFriend {
                     .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                             .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                     .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage))
+                    .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .call().chatResponse();
         } else {
             chatResponse = chatClient.prompt().user(chatMessage)
@@ -87,13 +94,17 @@ public class StudyFriend {
     }
 
     public Flux<String> doChatWithRAGStream(String chatMessage, String chatId) {
+        return doChatWithRAGStream(chatMessage, chatId, TenantContextHolder.getTenantId());
+    }
+
+    public Flux<String> doChatWithRAGStream(String chatMessage, String chatId, Long tenantId) {
         if (shouldUseRag(chatMessage)) {
             return chatClient.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
                     .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                             .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                     .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage))
+                    .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .stream().content();
         }
         return chatClient.prompt().user(chatMessage)
@@ -107,6 +118,10 @@ public class StudyFriend {
 //    @Resource
 //    private ToolCallback[] toolCallback;
     public String doChatWithTools(String chatMessage, String chatId) {
+        return doChatWithTools(chatMessage, chatId, TenantContextHolder.getTenantId());
+    }
+
+    public String doChatWithTools(String chatMessage, String chatId, Long tenantId) {
         ChatResponse chatResponse;
         if (shouldUseRag(chatMessage)) {
             chatResponse = chatClient.prompt().user(chatMessage)
@@ -114,7 +129,7 @@ public class StudyFriend {
                     .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                             .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                     .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage))
+                    .advisors(buildRagAdvisor(chatMessage, tenantId))
 //                .tools(toolCallback)
                     .call().chatResponse();
         } else {
@@ -132,13 +147,17 @@ public class StudyFriend {
     }
 
     public Flux<String> doChatWithRAGStreamTool(String chatMessage, String chatId) {
+        return doChatWithRAGStreamTool(chatMessage, chatId, TenantContextHolder.getTenantId());
+    }
+
+    public Flux<String> doChatWithRAGStreamTool(String chatMessage, String chatId, Long tenantId) {
         if (shouldUseRag(chatMessage)) {
             return chatClient.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
                     .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                             .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                     .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage))
+                    .advisors(buildRagAdvisor(chatMessage, tenantId))
 //                .tools(toolCallback)
                     .stream().content();
         }
@@ -163,12 +182,17 @@ public class StudyFriend {
         return true;
     }
 
-    private QuestionAnswerAdvisor buildRagAdvisor(String chatMessage) {
-        SearchRequest searchRequest = SearchRequest.builder()
+    private QuestionAnswerAdvisor buildRagAdvisor(String chatMessage, Long tenantId) {
+        SearchRequest.Builder builder = SearchRequest.builder()
                 .query(chatMessage)
                 .topK(RAG_TOP_K)
-                .similarityThreshold(RAG_SIMILARITY_THRESHOLD)
-                .build();
+                .similarityThreshold(RAG_SIMILARITY_THRESHOLD);
+        if (tenantId != null) {
+            FilterExpressionBuilder filterBuilder = new FilterExpressionBuilder();
+            Filter.Expression filter = filterBuilder.eq("tenantId", tenantId.toString()).build();
+            builder.filterExpression(filter);
+        }
+        SearchRequest searchRequest = builder.build();
         return new QuestionAnswerAdvisor(studyFriendPGvectorStore, searchRequest);
     }
 }

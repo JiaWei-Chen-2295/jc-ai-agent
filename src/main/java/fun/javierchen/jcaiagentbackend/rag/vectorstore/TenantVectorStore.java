@@ -119,7 +119,7 @@ public class TenantVectorStore implements VectorStore {
         if (request == null || !StringUtils.hasText(request.getQuery())) {
             return Collections.emptyList();
         }
-        Long tenantId = TenantContextHolder.getTenantId();
+        Long tenantId = resolveTenantId(request.getFilterExpression());
         if (tenantId == null) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "租户未选择");
         }
@@ -184,7 +184,15 @@ public class TenantVectorStore implements VectorStore {
         return TenantContextHolder.getTenantId();
     }
 
-    private String resolveDocumentIdFilter(Filter.Expression filterExpression) {
+    private Long resolveTenantId(Filter.Expression filterExpression) {
+        Long tenantId = resolveTenantIdFromExpression(filterExpression);
+        if (tenantId != null) {
+            return tenantId;
+        }
+        return TenantContextHolder.getTenantId();
+    }
+
+    private Long resolveTenantIdFromExpression(Filter.Expression filterExpression) {
         if (filterExpression == null) {
             return null;
         }
@@ -194,12 +202,71 @@ public class TenantVectorStore implements VectorStore {
             if (left instanceof Filter.Key && right instanceof Filter.Value) {
                 Filter.Key key = (Filter.Key) left;
                 Filter.Value value = (Filter.Value) right;
-                if ("documentId".equals(key.key())) {
+                if ("tenantId".equals(key.key()) && value.value() != null) {
+                    try {
+                        return Long.valueOf(String.valueOf(value.value()));
+                    } catch (NumberFormatException ignored) {
+                        return null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // 尽量递归兼容 AND/OR/NOT 等组合表达式
+        Object left = filterExpression.left();
+        Object right = filterExpression.right();
+        if (left instanceof Filter.Expression) {
+            Long tenantId = resolveTenantIdFromExpression((Filter.Expression) left);
+            if (tenantId != null) {
+                return tenantId;
+            }
+        }
+        if (right instanceof Filter.Expression) {
+            Long tenantId = resolveTenantIdFromExpression((Filter.Expression) right);
+            if (tenantId != null) {
+                return tenantId;
+            }
+        }
+        return null;
+    }
+
+    private String resolveDocumentIdFilter(Filter.Expression filterExpression) {
+        return resolveFilterValue(filterExpression, "documentId");
+    }
+
+    private String resolveFilterValue(Filter.Expression filterExpression, String keyName) {
+        if (filterExpression == null) {
+            return null;
+        }
+        if (filterExpression.type() == Filter.ExpressionType.EQ) {
+            Object left = filterExpression.left();
+            Object right = filterExpression.right();
+            if (left instanceof Filter.Key && right instanceof Filter.Value) {
+                Filter.Key key = (Filter.Key) left;
+                Filter.Value value = (Filter.Value) right;
+                if (keyName.equals(key.key())) {
                     return String.valueOf(value.value());
                 }
             }
+            return null;
         }
-        throw new UnsupportedOperationException("Unsupported search filter expression");
+
+        Object left = filterExpression.left();
+        Object right = filterExpression.right();
+        if (left instanceof Filter.Expression) {
+            String value = resolveFilterValue((Filter.Expression) left, keyName);
+            if (value != null) {
+                return value;
+            }
+        }
+        if (right instanceof Filter.Expression) {
+            String value = resolveFilterValue((Filter.Expression) right, keyName);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private PGobject toJsonObject(Map<String, Object> metadata) {

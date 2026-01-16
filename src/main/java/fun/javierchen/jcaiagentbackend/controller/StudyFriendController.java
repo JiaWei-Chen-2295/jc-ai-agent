@@ -2,6 +2,7 @@ package fun.javierchen.jcaiagentbackend.controller;
 
 
 import fun.javierchen.jcaiagentbackend.app.StudyFriend;
+import fun.javierchen.jcaiagentbackend.agent.service.StudyFriendAgentEventStreamService;
 import fun.javierchen.jcaiagentbackend.common.BaseResponse;
 import fun.javierchen.jcaiagentbackend.common.ErrorCode;
 import fun.javierchen.jcaiagentbackend.common.ResultUtils;
@@ -46,6 +47,9 @@ public class StudyFriendController {
 
     @Resource
     private TenantService tenantService;
+
+    @Resource
+    private StudyFriendAgentEventStreamService studyFriendAgentEventStreamService;
 
     @PostMapping(value = "/session", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Create chat session", description = "Create a StudyFriend chat session and return chatId.")
@@ -154,7 +158,7 @@ public class StudyFriendController {
         }
         studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
-        String content = studyFriend.doChatWithRAG(chatMessage, chatId);
+        String content = studyFriend.doChatWithRAG(chatMessage, chatId, tenantId);
         studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(), content);
         return content;
     }
@@ -183,9 +187,12 @@ public class StudyFriendController {
         }
         studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
+        // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
-        studyFriend.doChatWithRAGStream(chatMessage, chatId).subscribe(
+        // 增量内容直接透传给前端，完成后补全持久化
+        studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId).subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -232,9 +239,12 @@ public class StudyFriendController {
         }
         studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
+        // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
-        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId).subscribe(
+        // 增量内容直接透传给前端，完成后补全持久化
+        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId).subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -254,6 +264,61 @@ public class StudyFriendController {
                 }
         );
         return sseEmitter;
+    }
+
+    // AgentEvent -> DisplayEvent 的 SSE 接口
+    @GetMapping(value = "/do_chat/sse/agent/emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(
+            summary = "SSE 流式聊天（AgentEvent）",
+            description = "以 text/event-stream 返回 DisplayEvent JSON，前端按 display 事件渲染。",
+            parameters = {
+                    @Parameter(name = "chatMessage", description = "用户提问或对话内容", required = true, example = "请帮我总结这段话"),
+                    @Parameter(name = "chatId", description = "会话唯一标识，复用以保持上下文", required = true, example = "session-001")
+            }
+    )
+    @ApiResponse(responseCode = "200", description = "SSE 数据流（data 字段为 DisplayEvent JSON）", content = @Content(
+            mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+            examples = @ExampleObject(value = "data: {\"type\":\"display\",\"stage\":\"output\",\"format\":\"text\",\"content\":\"...\",\"delta\":true}\\n\\n")
+    ))
+    public SseEmitter doChatWithAgentEventStream(@RequestParam("chatMessage") String chatMessage,
+                                                 @RequestParam("chatId") String chatId,
+                                                 @RequestParam(value = "messageId", required = false) String messageId,
+                                                 jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, false);
+    }
+
+    @GetMapping(value = "/do_chat/sse_with_tool/agent/emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(
+            summary = "SSE 流式聊天（AgentEvent，可触发工具调用）",
+            description = "与上一个接口一致，但内部可调用工具。",
+            parameters = {
+                    @Parameter(name = "chatMessage", description = "用户提问或对话内容", required = true, example = "帮我查询最新的课程表"),
+                    @Parameter(name = "chatId", description = "会话唯一标识，复用以保持上下文", required = true, example = "session-001")
+            }
+    )
+    @ApiResponse(responseCode = "200", description = "SSE 数据流（data 字段为 DisplayEvent JSON）", content = @Content(
+            mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+            examples = @ExampleObject(value = "data: {\"type\":\"display\",\"stage\":\"output\",\"format\":\"text\",\"content\":\"...\",\"delta\":true}\\n\\n")
+    ))
+    public SseEmitter doChatWithAgentEventStreamTool(@RequestParam("chatMessage") String chatMessage,
+                                                     @RequestParam("chatId") String chatId,
+                                                     @RequestParam(value = "messageId", required = false) String messageId,
+                                                     jakarta.servlet.http.HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (!userService.isAdmin(loginUser)) {
+            tenantService.requireMember(tenantId, loginUser.getId());
+        }
+        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, true);
     }
 
     private Long requireTenantId() {
