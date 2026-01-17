@@ -11,10 +11,6 @@ spring:
         options:
 #          默认 维度为 1536
           model: text-embedding-v2
-    ollama:
-      base-url: http://localhost:11434
-      chat:
-        model: gemma3:4b
     mcp:
       client:
         request-timeout: 60s
