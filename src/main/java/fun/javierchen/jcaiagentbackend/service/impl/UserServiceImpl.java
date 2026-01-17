@@ -16,6 +16,8 @@ import fun.javierchen.jcaiagentbackend.model.entity.User;
 import fun.javierchen.jcaiagentbackend.repository.UserRepository;
 import fun.javierchen.jcaiagentbackend.service.TenantService;
 import fun.javierchen.jcaiagentbackend.service.UserService;
+import fun.javierchen.jcaiagentbackend.storage.StorageReadUrlService;
+import fun.javierchen.jcaiagentbackend.storage.StorageUrlResolver;
 import fun.javierchen.jcaiagentbackend.utils.SqlUtils;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +54,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TenantService tenantService;
+    private final StorageUrlResolver storageUrlResolver;
+    private final StorageReadUrlService storageReadUrlService;
     @Override
     @Transactional
     public long userRegister(UserRegisterRequest request) {
@@ -151,7 +155,7 @@ public class UserServiceImpl implements UserService {
                 user.getId(),
                 user.getUserAccount(),
                 user.getUserName(),
-                user.getUserAvatar(),
+                storageReadUrlService.toReadUrl(user.getUserAvatar()),
                 user.getUserProfile(),
                 user.getUserRole(),
                 user.getCreateTime(),
@@ -194,7 +198,7 @@ public class UserServiceImpl implements UserService {
         user.setUserAccount(userAccount);
         user.setUserPassword(passwordEncoder.encode(userPassword));
         user.setUserName(StringUtils.trimToNull(request.getUserName()));
-        user.setUserAvatar(StringUtils.trimToNull(request.getUserAvatar()));
+        user.setUserAvatar(storageUrlResolver.toKeyIfMatchesDomain(request.getUserAvatar()));
         user.setUserProfile(StringUtils.trimToNull(request.getUserProfile()));
         user.setUserRole(role);
         user.setUnionId(StringUtils.trimToNull(request.getUnionId()));
@@ -236,7 +240,7 @@ public class UserServiceImpl implements UserService {
             user.setUserName(StringUtils.trimToNull(request.getUserName()));
         }
         if (request.getUserAvatar() != null) {
-            user.setUserAvatar(StringUtils.trimToNull(request.getUserAvatar()));
+            user.setUserAvatar(storageUrlResolver.toKeyIfMatchesDomain(request.getUserAvatar()));
         }
         if (request.getUserProfile() != null) {
             user.setUserProfile(StringUtils.trimToNull(request.getUserProfile()));
@@ -310,7 +314,7 @@ public class UserServiceImpl implements UserService {
             user.setUserName(StringUtils.trimToNull(request.getUserName()));
         }
         if (request.getUserAvatar() != null) {
-            user.setUserAvatar(StringUtils.trimToNull(request.getUserAvatar()));
+            user.setUserAvatar(storageUrlResolver.toKeyIfMatchesDomain(request.getUserAvatar()));
         }
         if (request.getUserProfile() != null) {
             user.setUserProfile(StringUtils.trimToNull(request.getUserProfile()));

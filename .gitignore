@@ -37,3 +37,4 @@ build/
 /upload_file
 /doc/*
 /src/main/resources/doc/
+/src/main/resources/application-local.yml

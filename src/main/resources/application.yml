@@ -40,6 +40,28 @@ server:
   port: 8525
   servlet:
     context-path: /api
+
+# 对象存储（用于头像等静态资源）
+# - 数据库建议仅存 Key（如 avatar/1024/2026/01/xxx.jpg）
+# - 前端直传：后端仅生成上传凭证 + 记录 key
+storage:
+  # 可选：oss / none（后续可扩展为 s3 / minio 等）
+  type: oss
+  # 访问域名（可为 OSS 域名或 CDN 域名），用于把 Key 拼成可访问 URL
+  domain: ${JC_STORAGE_DOMAIN:}
+  oss:
+    endpoint: ${JC_OSS_ENDPOINT:}
+    bucket: ${JC_OSS_BUCKET:}
+    access-key-id: ${JC_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${JC_OSS_ACCESS_KEY_SECRET:}
+    # 前端直传上传策略有效期（秒）
+    expire-seconds: 300
+    # 头像最大大小（MB）
+    max-size-mb: 2
+    # Bucket 若为私有读，开启后端返回“读取签名 URL”，避免前端直接访问报错：You have no right to access this object because of bucket acl
+    sign-read-url: false
+    # 读取签名 URL 有效期（秒）
+    read-url-expire-seconds: 3600
 # springdoc-openapi项目配置
 springdoc:
   swagger-ui:
