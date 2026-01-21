@@ -9,6 +9,14 @@ import java.util.Set;
 import java.util.UUID;
 
 @Component
+/**
+ * 自定义 Key 生成器
+ * <p>
+ * Key 格式：avatar/{userId}/{yyyy}/{mm}/{uuid}.{ext}
+ * <p>
+ * 例如：avatar/12345/2023/04/1234567890.jpg
+ * 保证 Key 的唯一性和安全性
+ */
 public class AvatarObjectKeyFactory {
 
     private static final Set<String> ALLOWED_EXT = Set.of("jpg", "jpeg", "png", "gif", "webp");

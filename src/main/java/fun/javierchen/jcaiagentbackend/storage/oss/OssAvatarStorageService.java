@@ -10,6 +10,7 @@ import fun.javierchen.jcaiagentbackend.storage.StorageReadUrlService;
 import fun.javierchen.jcaiagentbackend.storage.avatar.AvatarObjectKeyFactory;
 import fun.javierchen.jcaiagentbackend.storage.avatar.AvatarStorageService;
 import fun.javierchen.jcaiagentbackend.storage.avatar.AvatarUploadToken;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "storage", name = "type", havingValue = "oss")
 public class OssAvatarStorageService implements AvatarStorageService {
 
@@ -28,17 +30,6 @@ public class OssAvatarStorageService implements AvatarStorageService {
     private final StorageReadUrlService storageReadUrlService;
     private final AvatarObjectKeyFactory avatarObjectKeyFactory;
 
-    public OssAvatarStorageService(
-            OSS ossClient,
-            StorageProperties storageProperties,
-            StorageReadUrlService storageReadUrlService,
-            AvatarObjectKeyFactory avatarObjectKeyFactory
-    ) {
-        this.ossClient = ossClient;
-        this.storageProperties = storageProperties;
-        this.storageReadUrlService = storageReadUrlService;
-        this.avatarObjectKeyFactory = avatarObjectKeyFactory;
-    }
 
     @Override
     public AvatarUploadToken createAvatarUploadToken(long userId, String fileName) {

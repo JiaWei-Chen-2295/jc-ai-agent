@@ -1,23 +1,23 @@
 package fun.javierchen.jcaiagentbackend.storage;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
+
 @Component
+@RequiredArgsConstructor
 public class StorageUrlResolver {
 
     private final StorageProperties storageProperties;
-
-    public StorageUrlResolver(StorageProperties storageProperties) {
-        this.storageProperties = storageProperties;
-    }
 
     /**
      * 把 Key 或 URL 转为可访问 URL：
      * - 入参已经是 http(s) URL：原样返回
      * - 入参是 Key：使用 storage.domain 拼接
      */
-    public String toPublicUrl(String keyOrUrl) {
+    public String toPublicUrl(@Nullable String keyOrUrl) {
         String value = StringUtils.trimToNull(keyOrUrl);
         if (value == null) {
             return null;
