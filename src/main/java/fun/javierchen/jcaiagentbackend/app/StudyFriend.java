@@ -3,6 +3,7 @@ package fun.javierchen.jcaiagentbackend.app;
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
 import jakarta.annotation.Resource;
+import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -14,7 +15,6 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.filter.Filter;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
@@ -188,8 +188,7 @@ public class StudyFriend {
                 .topK(RAG_TOP_K)
                 .similarityThreshold(RAG_SIMILARITY_THRESHOLD);
         if (tenantId != null) {
-            FilterExpressionBuilder filterBuilder = new FilterExpressionBuilder();
-            Filter.Expression filter = filterBuilder.eq("tenantId", tenantId.toString()).build();
+            Filter.Expression filter = VectorStoreFilterUtils.buildTenantIdFilter(tenantId);
             builder.filterExpression(filter);
         }
         SearchRequest searchRequest = builder.build();

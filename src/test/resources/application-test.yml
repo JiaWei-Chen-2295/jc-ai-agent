@@ -1,0 +1,24 @@
+# 测试环境配置
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/love_app
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# 禁用 AI 相关配置
+jc-ai-agent:
+  api_key: test-api-key
+  email_account: test@test.com
+  email_password: test-password
+  tenant:
+    max-create-teams: 5
+
+# 禁用 MCP
+spring.ai.mcp.client.stdio.enabled: false

@@ -1,12 +1,12 @@
 package fun.javierchen.jcaiagentbackend.rag.config;
 
+import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,8 +145,7 @@ public class VectorStoreService {
         if (tenantId == null) {
             throw new IllegalArgumentException("tenantId不能为空");
         }
-        FilterExpressionBuilder filterBuilder = new FilterExpressionBuilder();
-        Filter.Expression filter = filterBuilder.eq("documentId", documentId.toString()).build();
+        Filter.Expression filter = VectorStoreFilterUtils.buildEqFilter("documentId", documentId.toString());
 
         SearchRequest searchRequest = SearchRequest.builder()
                 .query(query)

@@ -40,7 +40,7 @@ import java.util.List;
  * @author JavierChen
  */
 @RestController
-@RequestMapping("/api/document")
+@RequestMapping("/document")
 @Tag(name = "文档管理", description = "文档上传与索引管理接口")
 @Slf4j
 @RequiredArgsConstructor

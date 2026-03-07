@@ -1,20 +1,19 @@
 package fun.javierchen.jcaiagentbackend.rag.application.retrieval;
 
 import fun.javierchen.jcaiagentbackend.rag.model.enums.LoveAppMetaDataStatusEnum;
+import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 
 public class LoveAppRagCustomAdvisorFactory {
 
     public static Advisor create(VectorStore store, LoveAppMetaDataStatusEnum status) {
         // 创建过滤器 过滤元信息的状态
-        Filter.Expression expression = new FilterExpressionBuilder()
-                .eq("status", status.getText()).build();
+        Filter.Expression expression = VectorStoreFilterUtils.buildEqFilter("status", status.getText());
 
         DocumentRetriever documentRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(store)

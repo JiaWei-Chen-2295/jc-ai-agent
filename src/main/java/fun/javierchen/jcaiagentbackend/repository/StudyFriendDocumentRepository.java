@@ -207,4 +207,40 @@ public class StudyFriendDocumentRepository {
         String sql = "SELECT * FROM %s WHERE tenant_id = ? ORDER BY created_at DESC".formatted(TABLE_NAME);
         return jdbcTemplate.query(sql, rowMapper, tenantId);
     }
+
+    /**
+     * 根据ID列表批量查询文档
+     *
+     * @param ids 文档ID列表
+     * @return 文档列表
+     */
+    public List<StudyFriendDocument> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        String placeholders = String.join(",", ids.stream().map(id -> "?").toList());
+        String sql = "SELECT * FROM %s WHERE id IN (%s) ORDER BY created_at DESC".formatted(TABLE_NAME, placeholders);
+        return jdbcTemplate.query(sql, rowMapper, ids.toArray());
+    }
+
+    /**
+     * 根据ID列表和租户ID批量查询文档
+     *
+     * @param ids      文档ID列表
+     * @param tenantId 租户ID
+     * @return 文档列表
+     */
+    public List<StudyFriendDocument> findByIdsAndTenantId(List<Long> ids, Long tenantId) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        String placeholders = String.join(",", ids.stream().map(id -> "?").toList());
+        String sql = "SELECT * FROM %s WHERE id IN (%s) AND tenant_id = ? ORDER BY created_at DESC".formatted(TABLE_NAME, placeholders);
+        Object[] params = new Object[ids.size() + 1];
+        for (int i = 0; i < ids.size(); i++) {
+            params[i] = ids.get(i);
+        }
+        params[ids.size()] = tenantId;
+        return jdbcTemplate.query(sql, rowMapper, params);
+    }
 }
