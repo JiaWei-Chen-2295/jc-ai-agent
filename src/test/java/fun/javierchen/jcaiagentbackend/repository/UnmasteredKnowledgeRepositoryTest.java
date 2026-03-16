@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +68,24 @@ class UnmasteredKnowledgeRepositoryTest {
     }
 
     @Test
+    @DisplayName("按概念查询活跃缺口时不应返回已解决记录")
+    void findActiveByUserIdAndConcept_shouldIgnoreResolvedGap() {
+        savedGap.setStatus(KnowledgeGapStatus.RESOLVED);
+        entityManager.persistAndFlush(savedGap);
+
+        UnmasteredKnowledge activeGap = createKnowledgeGap("多线程同步", GapType.CONCEPTUAL, Severity.HIGH, 4);
+        activeGap.setStatus(KnowledgeGapStatus.ACTIVE);
+        entityManager.persistAndFlush(activeGap);
+        entityManager.clear();
+
+        Optional<UnmasteredKnowledge> found = repository.findActiveByUserIdAndConcept(USER_ID, "多线程同步");
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getStatus()).isEqualTo(KnowledgeGapStatus.ACTIVE);
+        assertThat(found.get().getFailureCount()).isEqualTo(4);
+    }
+
+    @Test
     @DisplayName("统计活跃缺口数量")
     void countActiveGapsByUserId_shouldReturnCount() {
         long count = repository.countActiveGapsByUserId(USER_ID);
@@ -78,7 +96,7 @@ class UnmasteredKnowledgeRepositoryTest {
     @DisplayName("批量标记为已解决")
     void markAsResolved_shouldUpdateStatus() {
         List<UUID> ids = List.of(savedGap.getId());
-        int updated = repository.markAsResolved(ids, OffsetDateTime.now());
+        int updated = repository.markAsResolved(ids, LocalDateTime.now());
         entityManager.clear();
         assertThat(updated).isEqualTo(1);
         UnmasteredKnowledge reloaded = repository.findById(savedGap.getId()).orElseThrow();

@@ -253,6 +253,7 @@ CREATE TABLE IF NOT EXISTS agent_execution_log (
     output_data     JSONB NULL,                     -- 输出数据: Map<String, Object>
     
     -- 性能
+    timestamp       TIMESTAMP NULL,
     execution_time_ms INT NULL,
     
     -- 时间戳
@@ -270,3 +271,4 @@ COMMENT ON TABLE agent_execution_log IS 'Agent执行日志(ReAct循环记录) - 
 COMMENT ON COLUMN agent_execution_log.phase IS 'ReAct阶段: THOUGHT/ACTION/OBSERVATION';
 COMMENT ON COLUMN agent_execution_log.input_data IS '输入数据 (JSONB -> Map<String, Object>)';
 COMMENT ON COLUMN agent_execution_log.output_data IS '输出数据 (JSONB -> Map<String, Object>)';
+

@@ -1,5 +1,7 @@
 package fun.javierchen.jcaiagentbackend.agent.quiz.analyzer;
 
+import fun.javierchen.jcaiagentbackend.agent.quiz.cache.QuizRedisService;
+import fun.javierchen.jcaiagentbackend.agent.quiz.inventory.ConceptNormalizer;
 import fun.javierchen.jcaiagentbackend.model.entity.enums.ConceptMastery;
 import fun.javierchen.jcaiagentbackend.model.entity.enums.TopicType;
 import fun.javierchen.jcaiagentbackend.model.entity.quiz.QuestionResponse;
@@ -28,6 +30,8 @@ public class CognitiveAnalyzer {
 
     private final UserKnowledgeStateRepository knowledgeStateRepository;
     private final QuestionResponseRepository responseRepository;
+    private final QuizRedisService quizRedisService;
+    private final ConceptNormalizer conceptNormalizer;
 
     // 权重配置 (可通过配置文件调优)
     private static final double W_CHOICE_ACCURACY = 0.3;
@@ -136,27 +140,24 @@ public class CognitiveAnalyzer {
 
     /**
      * 更新用户知识状态
+     * Phase 2b: 写 Redis 而非直接写 DB (Write-Behind 模式)
+     * Phase 4: 使用概念名称标准化
      */
     public UserKnowledgeState updateKnowledgeState(Long tenantId, Long userId,
             String concept, QuestionResponse latestResponse) {
+        return updateKnowledgeState(tenantId, userId, concept, latestResponse, null);
+    }
 
-        // 查找或创建知识状态
-        UserKnowledgeState state = knowledgeStateRepository
-                .findActiveByUserAndTopic(tenantId, userId, TopicType.CONCEPT, concept)
-                .orElseGet(() -> {
-                    UserKnowledgeState newState = new UserKnowledgeState();
-                    newState.setTenantId(tenantId);
-                    newState.setUserId(userId);
-                    newState.setTopicType(TopicType.CONCEPT);
-                    newState.setTopicId(concept);
-                    newState.setTopicName(concept);
-                    return newState;
-                });
+    /**
+     * 更新用户知识状态（带 sessionId 版本，优先写 Redis）
+     */
+    public UserKnowledgeState updateKnowledgeState(Long tenantId, Long userId,
+            String concept, QuestionResponse latestResponse, String sessionId) {
 
-        // 更新统计
-        state.setTotalQuestions(state.getTotalQuestions() + 1);
-        if (Boolean.TRUE.equals(latestResponse.getIsCorrect())) {
-            state.setCorrectAnswers(state.getCorrectAnswers() + 1);
+        // Phase 4: 概念名称标准化
+        String normalizedConcept = conceptNormalizer.normalize(concept, sessionId);
+        if (!concept.equals(normalizedConcept)) {
+            log.debug("概念名已标准化: '{}' -> '{}'", concept, normalizedConcept);
         }
 
         // 获取最近的回答记录
@@ -167,6 +168,50 @@ public class CognitiveAnalyzer {
         int newDepth = calculateUnderstandingDepth(userId, concept);
         int newLoad = calculateCognitiveLoad(userId, recentResponses);
         int newStability = calculateStability(userId, concept);
+
+        // Phase 2b: 优先写 Redis
+        if (sessionId != null) {
+            try {
+                quizRedisService.updateKnowledgeState(sessionId, normalizedConcept,
+                        newDepth, newLoad, newStability,
+                        Boolean.TRUE.equals(latestResponse.getIsCorrect()));
+                log.debug("认知指标已写入 Redis: concept={}, D={}, L={}, S={}",
+                        normalizedConcept, newDepth, newLoad, newStability);
+
+                // 返回一个内存中的 state 对象（不写 DB）
+                UserKnowledgeState memState = new UserKnowledgeState();
+                memState.setTenantId(tenantId);
+                memState.setUserId(userId);
+                memState.setTopicType(TopicType.CONCEPT);
+                memState.setTopicId(normalizedConcept);
+                memState.setTopicName(normalizedConcept);
+                memState.setUnderstandingDepth(newDepth);
+                memState.setCognitiveLoadScore(newLoad);
+                memState.setStabilityScore(newStability);
+                return memState;
+            } catch (Exception e) {
+                log.warn("Redis 写入失败，降级为直接写 DB: {}", e.getMessage());
+            }
+        }
+
+        // 降级: 直接写 DB
+        UserKnowledgeState state = knowledgeStateRepository
+                .findActiveByUserAndTopic(tenantId, userId, TopicType.CONCEPT, normalizedConcept)
+                .orElseGet(() -> {
+                    UserKnowledgeState newState = new UserKnowledgeState();
+                    newState.setTenantId(tenantId);
+                    newState.setUserId(userId);
+                    newState.setTopicType(TopicType.CONCEPT);
+                    newState.setTopicId(normalizedConcept);
+                    newState.setTopicName(normalizedConcept);
+                    return newState;
+                });
+
+        // 更新统计
+        state.setTotalQuestions(state.getTotalQuestions() + 1);
+        if (Boolean.TRUE.equals(latestResponse.getIsCorrect())) {
+            state.setCorrectAnswers(state.getCorrectAnswers() + 1);
+        }
 
         // 使用加权移动平均更新
         state.updateScores(newDepth, newLoad, newStability);

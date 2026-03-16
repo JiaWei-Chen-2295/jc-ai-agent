@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(find /d/a_project_with_yupi/f-ai-agent/jc-ai-agent-backend -name \"*Embedding*\" -o -name \"*embedding*\" 2>/dev/null | head -20)",
+      "Bash(cd \"D:/a_project_with_yupi/f-ai-agent/jc-ai-agent-backend\" && mvn test -pl . -Dtest=\"fun.javierchen.jcaiagentbackend.rag.benchmark.metrics.RetrievalMetricsTest\" -Dsurefire.useFile=false 2>&1 | tail -80)",
+      "Bash(cd \"D:\\\\a_project_with_yupi\\\\f-ai-agent\\\\jc-ai-agent-backend\" && mvn compile -pl . -q 2>&1 | tail -30)",
+      "Bash(cd \"D:\\\\a_project_with_yupi\\\\f-ai-agent\\\\jc-ai-agent-backend\" && mvn test-compile -pl . -q 2>&1 | tail -30)",
+      "Bash(cd \"D:\\\\a_project_with_yupi\\\\f-ai-agent\\\\jc-ai-agent-backend\" && mvn test -pl . -Dtest=\"fun.javierchen.jcaiagentbackend.rag.benchmark.metrics.RetrievalMetricsTest\" -Dsurefire.useFile=false 2>&1 | tail -60)"
+    ]
+  }
+}

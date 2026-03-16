@@ -50,4 +50,9 @@ public interface QuizSessionService {
      * 获取下一题
      */
     QuestionVO getNextQuestion(UUID sessionId, Long userId);
+
+    /**
+     * 获取会话的知识覆盖率
+     */
+    KnowledgeCoverageVO getKnowledgeCoverage(UUID sessionId, Long userId);
 }

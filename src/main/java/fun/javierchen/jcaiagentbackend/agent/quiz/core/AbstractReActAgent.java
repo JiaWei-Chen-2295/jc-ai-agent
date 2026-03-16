@@ -206,12 +206,23 @@ public abstract class AbstractReActAgent implements BaseAgent {
                 inputData.put("type", decision.getType());
                 inputData.put("toolName", decision.getToolName());
                 outputData.put("reasoning", decision.getReasoning());
+                // THOUGHT 阶段记录要调用的工具名称
+                if (decision.getToolName() != null) {
+                    logEntry.setToolName(decision.getToolName());
+                }
             } else if (data instanceof ToolResult result) {
                 inputData.put("actionName", result.getActionName());
                 inputData.put("success", result.isSuccess());
                 outputData.put("terminal", result.isTerminal());
                 if (result.getErrorMessage() != null) {
                     outputData.put("error", result.getErrorMessage());
+                }
+                // ACTION 阶段记录工具名称和执行耗时
+                if (result.getActionName() != null) {
+                    logEntry.setToolName(result.getActionName());
+                }
+                if (result.getExecutionTimeMs() != null) {
+                    logEntry.setExecutionTimeMs(result.getExecutionTimeMs().intValue());
                 }
             } else if (data instanceof AgentState state) {
                 inputData.put("iteration", state.getIteration());

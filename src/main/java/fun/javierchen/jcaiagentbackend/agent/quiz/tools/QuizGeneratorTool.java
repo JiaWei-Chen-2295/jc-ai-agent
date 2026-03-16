@@ -1,5 +1,7 @@
 package fun.javierchen.jcaiagentbackend.agent.quiz.tools;
 
+import fun.javierchen.jcaiagentbackend.agent.quiz.cache.QuizRedisService;
+import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
 import fun.javierchen.jcaiagentbackend.agent.quiz.core.ToolResult;
 import fun.javierchen.jcaiagentbackend.rag.model.entity.StudyFriendDocument;
 import fun.javierchen.jcaiagentbackend.repository.StudyFriendDocumentRepository;
@@ -16,10 +18,8 @@ import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 题目生成工具
@@ -35,6 +35,7 @@ public class QuizGeneratorTool implements AgentTool {
     private final ChatClient.Builder chatClientBuilder;
     private final VectorStore studyFriendPGvectorStore;
     private final StudyFriendDocumentRepository documentRepository;
+    private final QuizRedisService quizRedisService;
 
     private static final String TOOL_NAME = "QuizGenerator";
 
@@ -62,11 +63,13 @@ public class QuizGeneratorTool implements AgentTool {
             Object recentResponses = params.get("recentResponses");
             @SuppressWarnings("unchecked")
             List<Long> documentIds = (List<Long>) params.get("documentIds");
+            String sessionId = (String) params.get("sessionId");
+            Long tenantId = params.get("tenantId") instanceof Number n ? n.longValue() : null;
 
-            log.info("生成题目: topic={}, count={}, difficulty={}", topic, count, difficulty);
+            log.info("生成题目: topic={}, count={}, difficulty={}, tenantId={}", topic, count, difficulty, tenantId);
 
-            // 从向量库检索相关知识
-            List<Document> docs = retrieveKnowledge(topic, documentIds);
+            // 从向量库检索相关知识 (Phase 3: 去重 + 多样化)
+            List<Document> docs = retrieveKnowledge(topic, documentIds, sessionId, tenantId);
 
             String knowledgeContent;
             boolean fallbackMode = Boolean.TRUE.equals(forcedFallback);
@@ -85,12 +88,22 @@ public class QuizGeneratorTool implements AgentTool {
                 knowledgeContent = sb.toString();
             }
 
+            // Phase 4: 获取已知概念名列表用于 prompt 注入
+            Set<String> knownConcepts = Set.of();
+            if (sessionId != null) {
+                try {
+                    knownConcepts = quizRedisService.getConcepts(sessionId);
+                } catch (Exception e) {
+                    log.debug("获取概念清单失败: {}", e.getMessage());
+                }
+            }
+
             // 生成题目
-            String prompt = fallbackMode 
+            String prompt = fallbackMode
                     ? buildFallbackPrompt(knowledgeContent, count, difficulty, depth, load, stability,
                             fallbackReason, recentResponses)
                     : buildPrompt(knowledgeContent, count, difficulty, depth, load, stability,
-                            recentResponses, fallbackReason);
+                            recentResponses, fallbackReason, knownConcepts);
 
             ChatClient chatClient = chatClientBuilder
                     .defaultOptions(ChatOptions.builder().build())
@@ -122,12 +135,40 @@ public class QuizGeneratorTool implements AgentTool {
 
     /**
      * 从向量库检索相关知识
+     * Phase 3: topK 提升到 15, 去重已用 chunk, 取前 5 个未用的
      */
-    private List<Document> retrieveKnowledge(String topic, List<Long> documentIds) {
+    private List<Document> retrieveKnowledge(String topic, List<Long> documentIds, String sessionId, Long tenantId) {
+        try {
+            // 确保 TenantContextHolder 可用，防止向量检索因"租户未选择"失败
+            Long prevTenantId = TenantContextHolder.getTenantId();
+            boolean tenantIdRestored = false;
+            if (prevTenantId == null && tenantId != null) {
+                TenantContextHolder.setTenantId(tenantId);
+                tenantIdRestored = true;
+                log.debug("retrieveKnowledge: 补设 TenantContextHolder, tenantId={}", tenantId);
+            }
+
+            try {
+                return doRetrieveKnowledge(topic, documentIds, sessionId);
+            } finally {
+                if (tenantIdRestored) {
+                    TenantContextHolder.clear();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("向量检索失败: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * 实际执行向量检索逻辑（TenantContextHolder 已就绪）
+     */
+    private List<Document> doRetrieveKnowledge(String topic, List<Long> documentIds, String sessionId) {
         try {
             SearchRequest.Builder requestBuilder = SearchRequest.builder()
                     .query(topic)
-                    .topK(5);
+                    .topK(15);  // Phase 3: 从 5 提升到 15
 
             // 如果指定了文档范围，添加过滤条件
             if (documentIds != null && !documentIds.isEmpty()) {
@@ -137,9 +178,45 @@ public class QuizGeneratorTool implements AgentTool {
                 }
             }
 
-            return studyFriendPGvectorStore.similaritySearch(requestBuilder.build());
+            List<Document> allDocs = studyFriendPGvectorStore.similaritySearch(requestBuilder.build());
+
+            // Phase 3: 去重已用 chunk
+            if (sessionId != null && !allDocs.isEmpty()) {
+                Set<String> usedChunks = quizRedisService.getUsedChunks(sessionId);
+                log.debug("chunk 去重: 检索到={}, 已用={}", allDocs.size(), usedChunks.size());
+
+                List<Document> unusedDocs = allDocs.stream()
+                        .filter(doc -> !usedChunks.contains(doc.getId()))
+                        .limit(5)
+                        .collect(Collectors.toList());
+
+                // 记录新使用的 chunk
+                List<String> newChunkIds = unusedDocs.stream()
+                        .map(Document::getId)
+                        .filter(Objects::nonNull)
+                        .toList();
+                if (!newChunkIds.isEmpty()) {
+                    quizRedisService.addUsedChunks(sessionId, newChunkIds);
+                }
+
+                // 如果未用的不足 5 个，补充已用的（避免无内容可出题）
+                if (unusedDocs.size() < 3 && allDocs.size() > unusedDocs.size()) {
+                    log.info("未用 chunk 不足，补充已用 chunk: unused={}, total={}",
+                            unusedDocs.size(), allDocs.size());
+                    for (Document doc : allDocs) {
+                        if (unusedDocs.size() >= 5) break;
+                        if (!unusedDocs.contains(doc)) {
+                            unusedDocs.add(doc);
+                        }
+                    }
+                }
+
+                return unusedDocs;
+            }
+
+            // 无 sessionId 时取前 5
+            return allDocs.stream().limit(5).collect(Collectors.toList());
         } catch (Exception e) {
-            // this can be todo: something
             log.warn("向量检索失败: {}", e.getMessage());
             return List.of();
         }
@@ -147,14 +224,22 @@ public class QuizGeneratorTool implements AgentTool {
 
     /**
      * 构建题目生成提示词
+     * Phase 4: 注入已知概念名列表，引导 LLM 使用标准名称
      */
     private String buildPrompt(String knowledge, int count, String difficulty,
-            int depth, int load, int stability, Object recentResponses, String fallbackReason) {
+            int depth, int load, int stability, Object recentResponses,
+            String fallbackReason, Set<String> knownConcepts) {
         String questionTypes = selectQuestionTypes(load);
         String recentResponsesSection = buildRecentResponsesSection(recentResponses);
         String fallbackSection = (fallbackReason != null && !fallbackReason.isBlank())
                 ? "## 额外调度信号\n- " + fallbackReason + "\n\n"
                 : "";
+        // Phase 4: 构建概念名列表段落
+        String conceptSection = "";
+        if (knownConcepts != null && !knownConcepts.isEmpty()) {
+            conceptSection = "## 已知概念清单（related_concept 必须从以下列表中选取）\n"
+                    + String.join("、", knownConcepts) + "\n\n";
+        }
         return String.format("""
                 你是一个智能测验助手，负责根据用户的知识库文档生成多元化的测验题目。
 
@@ -169,6 +254,7 @@ public class QuizGeneratorTool implements AgentTool {
                 ## 建议题型
                 %s
 
+                %s\
                 %s\
                 %s\
                 ## 知识库内容
@@ -210,8 +296,10 @@ public class QuizGeneratorTool implements AgentTool {
                 6. difficulty 必须是 EASY、MEDIUM 或 HARD 之一
                 7. 每道题要有明确的知识点关联
                 8. 要结合最近作答情况，避免重复问法，并针对用户的薄弱点出题
+                9. related_concept 必须使用已知概念清单中的名称（如果提供了概念清单）
                 """,
-                depth, load, stability, difficulty, questionTypes, fallbackSection, recentResponsesSection,
+                depth, load, stability, difficulty, questionTypes,
+                fallbackSection, recentResponsesSection, conceptSection,
                 knowledge, count, difficulty);
     }
 

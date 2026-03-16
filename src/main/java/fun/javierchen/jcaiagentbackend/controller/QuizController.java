@@ -124,6 +124,17 @@ public class QuizController {
         return ResultUtils.success(question);
     }
 
+    @GetMapping("/session/{id}/coverage")
+    @Operation(summary = "获取知识覆盖率", description = "获取当前会话的知识覆盖率，包括各概念的掌握状态")
+    public BaseResponse<KnowledgeCoverageVO> getKnowledgeCoverage(
+            @PathVariable("id") UUID sessionId,
+            HttpServletRequest httpRequest) {
+        User loginUser = userService.getLoginUser(httpRequest);
+        KnowledgeCoverageVO coverage = quizSessionService.getKnowledgeCoverage(
+                sessionId, loginUser.getId());
+        return ResultUtils.success(coverage);
+    }
+
     // ==================== 分析接口 ====================
 
     @GetMapping("/analysis/user/{userId}")

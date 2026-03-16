@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -79,10 +79,17 @@ public interface UnmasteredKnowledgeRepository extends JpaRepository<UnmasteredK
             Long userId, String conceptName, Integer isDelete);
 
     /**
+     * 查询用户特定概念的活跃知识缺口
+     */
+    Optional<UnmasteredKnowledge> findByUserIdAndConceptNameAndStatusAndIsDelete(
+            Long userId, String conceptName, KnowledgeGapStatus status, Integer isDelete);
+
+    /**
      * 查询用户特定概念的知识缺口 (默认)
      */
     default Optional<UnmasteredKnowledge> findActiveByUserIdAndConcept(Long userId, String conceptName) {
-        return findByUserIdAndConceptNameAndIsDelete(userId, conceptName, 0);
+        return findByUserIdAndConceptNameAndStatusAndIsDelete(
+                userId, conceptName, KnowledgeGapStatus.ACTIVE, 0);
     }
 
     // ==================== 按严重程度查询 ====================
@@ -217,7 +224,7 @@ public interface UnmasteredKnowledgeRepository extends JpaRepository<UnmasteredK
     @Query("UPDATE UnmasteredKnowledge u " +
             "SET u.status = 'RESOLVED', u.resolvedAt = :resolvedAt " +
             "WHERE u.id IN :ids AND u.isDelete = 0")
-    int markAsResolved(@Param("ids") List<UUID> ids, @Param("resolvedAt") OffsetDateTime resolvedAt);
+    int markAsResolved(@Param("ids") List<UUID> ids, @Param("resolvedAt") LocalDateTime resolvedAt);
 
     /**
      * 增加失败计数

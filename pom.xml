@@ -248,6 +248,18 @@
             <version>3.17.4</version>
         </dependency>
 
+        <!-- Redis（Quiz Agent 写缓冲 + 概念清单缓存） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Elasticsearch -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
