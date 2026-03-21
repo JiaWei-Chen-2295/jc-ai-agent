@@ -3,6 +3,7 @@ package fun.javierchen.jcaiagentbackend.agent.quiz.tools;
 import fun.javierchen.jcaiagentbackend.agent.quiz.cache.QuizRedisService;
 import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
 import fun.javierchen.jcaiagentbackend.agent.quiz.core.ToolResult;
+import fun.javierchen.jcaiagentbackend.rag.retrieval.HybridRetriever;
 import fun.javierchen.jcaiagentbackend.rag.model.entity.StudyFriendDocument;
 import fun.javierchen.jcaiagentbackend.repository.StudyFriendDocumentRepository;
 import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
@@ -12,10 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class QuizGeneratorTool implements AgentTool {
 
     private final ChatClient.Builder chatClientBuilder;
-    private final VectorStore studyFriendPGvectorStore;
+    private final HybridRetriever hybridRetriever;
     private final StudyFriendDocumentRepository documentRepository;
     private final QuizRedisService quizRedisService;
 
@@ -178,7 +178,7 @@ public class QuizGeneratorTool implements AgentTool {
                 }
             }
 
-            List<Document> allDocs = studyFriendPGvectorStore.similaritySearch(requestBuilder.build());
+            List<Document> allDocs = hybridRetriever.search(requestBuilder.build());
 
             // Phase 3: 去重已用 chunk
             if (sessionId != null && !allDocs.isEmpty()) {

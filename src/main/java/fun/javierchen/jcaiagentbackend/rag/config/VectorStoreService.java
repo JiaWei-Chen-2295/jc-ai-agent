@@ -1,5 +1,6 @@
 package fun.javierchen.jcaiagentbackend.rag.config;
 
+import fun.javierchen.jcaiagentbackend.rag.elasticsearch.service.EsKeywordSearchService;
 import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import java.util.List;
 public class VectorStoreService {
 
     private final VectorStore studyFriendPGvectorStore;
+    private final EsKeywordSearchService esKeywordSearchService;
     private final JdbcTemplate jdbcTemplate;
 
     private static final String VECTOR_TABLE = "study_friends";
@@ -51,6 +53,11 @@ public class VectorStoreService {
         });
 
         studyFriendPGvectorStore.add(documents);
+        try {
+            esKeywordSearchService.index(documents, documentId, tenantId);
+        } catch (Exception e) {
+            log.warn("ES 写入失败（不影响主流程）: documentId={}, error={}", documentId, e.getMessage());
+        }
         log.info("向量写入成功: documentId={}, chunkCount={}", documentId, documents.size());
     }
 
@@ -84,6 +91,11 @@ public class VectorStoreService {
                         documentId, fallbackDeleted);
                 deleted = fallbackDeleted;
             }
+        }
+        try {
+            esKeywordSearchService.deleteByDocumentId(documentId, tenantId);
+        } catch (Exception e) {
+            log.warn("ES 删除失败（不影响主流程）: documentId={}, error={}", documentId, e.getMessage());
         }
         log.info("删除向量成功: documentId={}, count={}", documentId, deleted);
         return deleted;

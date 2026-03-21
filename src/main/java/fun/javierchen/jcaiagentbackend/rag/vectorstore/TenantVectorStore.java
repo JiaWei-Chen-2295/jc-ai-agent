@@ -124,8 +124,13 @@ public class TenantVectorStore implements VectorStore {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "租户未选择");
         }
 
-        String documentIdFilter = resolveDocumentIdFilter(request.getFilterExpression());
+        List<String> documentIdFilters = resolveFilterValues(request.getFilterExpression(), "documentId");
         float[] queryEmbedding = embeddingModel.embed(request.getQuery());
+        String documentFilterSql = "";
+        if (!documentIdFilters.isEmpty()) {
+            String placeholders = String.join(",", Collections.nCopies(documentIdFilters.size(), "?"));
+            documentFilterSql = "AND metadata->>'documentId' IN (" + placeholders + ")";
+        }
         String sql = """
                 SELECT id, content, metadata, (embedding <=> ?) AS distance
                 FROM %s
@@ -133,13 +138,13 @@ public class TenantVectorStore implements VectorStore {
                 %s
                 ORDER BY distance
                 LIMIT ?
-                """.formatted(tableName, documentIdFilter == null ? "" : "AND metadata->>'documentId' = ?");
+                """.formatted(tableName, documentFilterSql);
 
         List<Object> params = new ArrayList<>();
         params.add(toVectorObject(queryEmbedding));
         params.add(tenantId);
-        if (documentIdFilter != null) {
-            params.add(documentIdFilter);
+        if (!documentIdFilters.isEmpty()) {
+            params.addAll(documentIdFilters);
         }
         params.add(request.getTopK());
 
@@ -231,42 +236,50 @@ public class TenantVectorStore implements VectorStore {
         return null;
     }
 
-    private String resolveDocumentIdFilter(Filter.Expression filterExpression) {
-        return resolveFilterValue(filterExpression, "documentId");
+    private List<String> resolveFilterValues(Filter.Expression filterExpression, String keyName) {
+        List<String> values = new ArrayList<>();
+        collectFilterValues(filterExpression, keyName, values);
+        return values;
     }
 
-    private String resolveFilterValue(Filter.Expression filterExpression, String keyName) {
+    private void collectFilterValues(Filter.Expression filterExpression, String keyName, List<String> values) {
         if (filterExpression == null) {
-            return null;
+            return;
         }
-        if (filterExpression.type() == Filter.ExpressionType.EQ) {
-            Object left = filterExpression.left();
+        if ((filterExpression.type() == Filter.ExpressionType.EQ || filterExpression.type() == Filter.ExpressionType.IN)
+                && filterExpression.left() instanceof Filter.Key key
+                && keyName.equals(key.key())) {
             Object right = filterExpression.right();
-            if (left instanceof Filter.Key && right instanceof Filter.Value) {
-                Filter.Key key = (Filter.Key) left;
-                Filter.Value value = (Filter.Value) right;
-                if (keyName.equals(key.key())) {
-                    return String.valueOf(value.value());
-                }
+            if (right instanceof Filter.Value value && value.value() != null) {
+                values.add(String.valueOf(value.value()));
+                return;
             }
-            return null;
+            if (right instanceof Object[] array) {
+                for (Object item : array) {
+                    if (item != null) {
+                        values.add(String.valueOf(item));
+                    }
+                }
+                return;
+            }
+            if (right instanceof Iterable<?> iterable) {
+                for (Object item : iterable) {
+                    if (item != null) {
+                        values.add(String.valueOf(item));
+                    }
+                }
+                return;
+            }
         }
 
         Object left = filterExpression.left();
         Object right = filterExpression.right();
-        if (left instanceof Filter.Expression) {
-            String value = resolveFilterValue((Filter.Expression) left, keyName);
-            if (value != null) {
-                return value;
-            }
+        if (left instanceof Filter.Expression leftExpression) {
+            collectFilterValues(leftExpression, keyName, values);
         }
-        if (right instanceof Filter.Expression) {
-            String value = resolveFilterValue((Filter.Expression) right, keyName);
-            if (value != null) {
-                return value;
-            }
+        if (right instanceof Filter.Expression rightExpression) {
+            collectFilterValues(rightExpression, keyName, values);
         }
-        return null;
     }
 
     private PGobject toJsonObject(Map<String, Object> metadata) {

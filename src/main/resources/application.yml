@@ -18,14 +18,18 @@ spring:
           servers-configuration: classpath:mcp-server.json
 
 
-    # 上线配置
-    #  datasource:
-    #    url: ${JC_AI_AGENT_POSTGRES_URL}
-    #    username: ${JC_AI_AGENT_POSTGRES_USER_NAME}
-    #    password: ${JC_AI_AGENT_POSTGRES_PWD}
   datasource:
-    url: jdbc:postgresql://localhost:5432/love_app
-    username: postgres
+    url: ${JC_AI_AGENT_POSTGRES_URL:jdbc:postgresql://localhost:5432/love_app}
+    username: ${JC_AI_AGENT_POSTGRES_USER_NAME:postgres}
+    password: ${JC_AI_AGENT_POSTGRES_PWD:}
+  data:
+    redis:
+      host: ${JC_REDIS_HOST:localhost}
+      port: ${JC_REDIS_PORT:6379}
+      password: ${JC_REDIS_PASSWORD:}
+      database: ${JC_REDIS_DATABASE:0}
+      repositories:
+        enabled: false
   jpa:
     hibernate:
 #      ddl-auto: update
@@ -38,12 +42,22 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 60MB
+  elasticsearch:
+    uris: ${JC_ES_URIS:http://localhost:9200}
+    username: ${JC_ES_USERNAME:elastic}
+    password: ${JC_ES_PASSWORD:}
 jc-ai-agent:
   api_key: ${JC_AI_AGENT_API_KEY}
   email_account: ${JC_AI_AGENT_EMAIL_USERNAME}
   email_password: ${JC_AI_AGENT_EMAIL_PASSWORD}
   tenant:
     max-create-teams: 5
+  rag:
+    hybrid-search:
+      enabled: ${JC_HYBRID_SEARCH_ENABLED:true}
+      keyword-index: ${JC_HYBRID_SEARCH_INDEX:study_friends_bm25}
+      rrf-k: ${JC_HYBRID_SEARCH_RRF_K:60}
+      sync-on-startup: ${JC_HYBRID_SEARCH_SYNC_ON_STARTUP:false}
 server:
   port: 8525
   servlet:

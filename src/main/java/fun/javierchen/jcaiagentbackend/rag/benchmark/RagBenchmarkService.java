@@ -5,9 +5,11 @@ import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
 import fun.javierchen.jcaiagentbackend.rag.benchmark.metrics.RetrievalMetrics;
 import fun.javierchen.jcaiagentbackend.rag.benchmark.model.*;
 import fun.javierchen.jcaiagentbackend.rag.config.VectorStoreService;
+import fun.javierchen.jcaiagentbackend.rag.retrieval.HybridRetriever;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,9 +28,15 @@ import java.util.List;
 public class RagBenchmarkService {
 
     private final VectorStoreService vectorStoreService;
+    private final HybridRetriever hybridRetriever;
     private final ObjectMapper objectMapper;
 
     private static final int CONTENT_SNIPPET_LENGTH = 200;
+
+    public enum RetrievalMode {
+        VECTOR,
+        HYBRID
+    }
 
     /**
      * 从 JSON 字符串加载数据集并运行基准测试
@@ -38,9 +46,13 @@ public class RagBenchmarkService {
      * @return 基准测试报告
      */
     public BenchmarkReport runFromJson(String json, int defaultTopK) {
+        return runFromJson(json, defaultTopK, RetrievalMode.VECTOR);
+    }
+
+    public BenchmarkReport runFromJson(String json, int defaultTopK, RetrievalMode retrievalMode) {
         try {
             BenchmarkDataset dataset = objectMapper.readValue(json, BenchmarkDataset.class);
-            return execute(dataset, defaultTopK);
+            return execute(dataset, defaultTopK, retrievalMode);
         } catch (Exception e) {
             throw new RuntimeException("解析基准测试数据集失败: " + e.getMessage(), e);
         }
@@ -54,18 +66,22 @@ public class RagBenchmarkService {
      * @return 基准测试报告
      */
     public BenchmarkReport execute(BenchmarkDataset dataset, int defaultTopK) {
+        return execute(dataset, defaultTopK, RetrievalMode.VECTOR);
+    }
+
+    public BenchmarkReport execute(BenchmarkDataset dataset, int defaultTopK, RetrievalMode retrievalMode) {
         if (dataset.getTestCases() == null || dataset.getTestCases().isEmpty()) {
             throw new IllegalArgumentException("数据集测试用例为空");
         }
 
-        log.info("开始 RAG 基准测试: dataset={}, testCases={}, defaultTopK={}",
-                dataset.getName(), dataset.getTestCases().size(), defaultTopK);
+        log.info("开始 RAG 基准测试: dataset={}, mode={}, testCases={}, defaultTopK={}",
+                dataset.getName(), retrievalMode, dataset.getTestCases().size(), defaultTopK);
 
         List<BenchmarkQueryResult> results = new ArrayList<>();
 
         long benchStartNanos = System.nanoTime();
         for (BenchmarkTestCase testCase : dataset.getTestCases()) {
-            BenchmarkQueryResult result = executeTestCase(testCase, defaultTopK, dataset.getTenantId());
+            BenchmarkQueryResult result = executeTestCase(testCase, defaultTopK, dataset.getTenantId(), retrievalMode);
             results.add(result);
         }
         long totalDurationMs = (System.nanoTime() - benchStartNanos) / 1_000_000;
@@ -82,7 +98,8 @@ public class RagBenchmarkService {
     /**
      * 执行单条测试用例
      */
-    private BenchmarkQueryResult executeTestCase(BenchmarkTestCase testCase, int defaultTopK, Long tenantId) {
+    private BenchmarkQueryResult executeTestCase(BenchmarkTestCase testCase, int defaultTopK, Long tenantId,
+                                                 RetrievalMode retrievalMode) {
         int effectiveTopK = testCase.getTopK() != null ? testCase.getTopK() : defaultTopK;
 
         try {
@@ -92,7 +109,7 @@ public class RagBenchmarkService {
 
             // 测量检索延迟
             long startNanos = System.nanoTime();
-            List<Document> docs = vectorStoreService.similaritySearch(testCase.getQuery(), effectiveTopK);
+            List<Document> docs = searchDocuments(testCase.getQuery(), effectiveTopK, tenantId, retrievalMode);
             long latencyNanos = System.nanoTime() - startNanos;
 
             // 构建相关性标记和分级相关度列表
@@ -168,6 +185,17 @@ public class RagBenchmarkService {
         } finally {
             TenantContextHolder.clear();
         }
+    }
+
+    private List<Document> searchDocuments(String query, int topK, Long tenantId, RetrievalMode retrievalMode) {
+        if (retrievalMode == RetrievalMode.HYBRID) {
+            SearchRequest.Builder builder = SearchRequest.builder().query(query).topK(topK);
+            if (tenantId != null) {
+                builder.filterExpression(fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils.buildTenantIdFilter(tenantId));
+            }
+            return hybridRetriever.search(builder.build());
+        }
+        return vectorStoreService.similaritySearch(query, topK);
     }
 
     /**

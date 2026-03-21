@@ -12,6 +12,8 @@ import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
 import fun.javierchen.jcaiagentbackend.model.entity.User;
 import fun.javierchen.jcaiagentbackend.model.entity.enums.AgentPhase;
 import fun.javierchen.jcaiagentbackend.model.entity.quiz.AgentExecutionLog;
+import fun.javierchen.jcaiagentbackend.rag.observability.RagRetrievalTrace;
+import fun.javierchen.jcaiagentbackend.rag.observability.RagTraceStore;
 import fun.javierchen.jcaiagentbackend.repository.AgentExecutionLogRepository;
 import fun.javierchen.jcaiagentbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +44,7 @@ public class AgentObservabilityController {
 
     private final AgentExecutionLogRepository logRepository;
     private final UserService userService;
+    private final RagTraceStore ragTraceStore;
 
     /**
      * 获取会话执行时间线
@@ -227,5 +230,32 @@ public class AgentObservabilityController {
                 .timeout(log.isTimeout())
                 .timestamp(log.getTimestamp())
                 .build();
+    }
+
+    @GetMapping("/rag/latest")
+    @Operation(summary = "查询最近 RAG 检索轨迹", description = "开发观测接口：查看 Vector/ES/RRF 的命中与耗时")
+    public BaseResponse<List<RagRetrievalTrace>> getLatestRagTraces(
+            @Parameter(description = "返回数量，默认20，最大200", example = "20")
+            @RequestParam(defaultValue = "20") int limit,
+            HttpServletRequest httpRequest) {
+        userService.getLoginUser(httpRequest);
+        Long tenantId = requireTenantId();
+        List<RagRetrievalTrace> traces = ragTraceStore.latest(Math.min(limit, 200), tenantId);
+        return ResultUtils.success(traces);
+    }
+
+    @GetMapping("/rag/{traceId}")
+    @Operation(summary = "查询单条 RAG 检索轨迹", description = "开发观测接口：按 traceId 查看完整检索细节")
+    public BaseResponse<RagRetrievalTrace> getRagTraceById(
+            @Parameter(description = "RAG 轨迹ID", required = true)
+            @PathVariable String traceId,
+            HttpServletRequest httpRequest) {
+        userService.getLoginUser(httpRequest);
+        Long tenantId = requireTenantId();
+        RagRetrievalTrace trace = ragTraceStore.get(traceId);
+        ThrowUtils.throwIf(trace == null, ErrorCode.NOT_FOUND_ERROR, "RAG 轨迹不存在");
+        ThrowUtils.throwIf(trace.getTenantId() != null && !tenantId.equals(trace.getTenantId()),
+                ErrorCode.NO_AUTH_ERROR, "无权查看该 RAG 轨迹");
+        return ResultUtils.success(trace);
     }
 }

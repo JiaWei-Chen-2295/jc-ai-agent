@@ -2,6 +2,7 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
+import fun.javierchen.jcaiagentbackend.rag.retrieval.HybridSearchVectorStore;
 import jakarta.annotation.Resource;
 import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +65,7 @@ public class StudyFriend {
     }
 
     @Resource
-    private VectorStore studyFriendPGvectorStore;
+    private HybridSearchVectorStore hybridSearchVectorStore;
 
     public String doChatWithRAG(String chatMessage, String chatId) {
         return doChatWithRAG(chatMessage, chatId, TenantContextHolder.getTenantId());
@@ -192,6 +193,6 @@ public class StudyFriend {
             builder.filterExpression(filter);
         }
         SearchRequest searchRequest = builder.build();
-        return new QuestionAnswerAdvisor(studyFriendPGvectorStore, searchRequest);
+        return new QuestionAnswerAdvisor(hybridSearchVectorStore, searchRequest);
     }
 }

@@ -1,16 +1,32 @@
 # 测试环境配置
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/love_app
-    username: postgres
+    url: ${JC_TEST_DB_URL:jdbc:postgresql://localhost:5432/love_app}
+    username: ${JC_TEST_DB_USERNAME:postgres}
+    password: ${JC_TEST_DB_PASSWORD:}
+  data:
+    redis:
+      repositories:
+        enabled: false
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  elasticsearch:
+    uris: ${JC_ES_URIS:http://localhost:9200}
+    username: ${JC_ES_USERNAME:elastic}
+    password: ${JC_ES_PASSWORD:598puGN6}
+  ai:
+    dashscope:
+      api-key: test-api-key
+    mcp:
+      client:
+        stdio:
+          enabled: false
 
 # 禁用 AI 相关配置
 jc-ai-agent:

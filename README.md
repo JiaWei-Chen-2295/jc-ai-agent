@@ -1,5 +1,40 @@
 # AI 智能体练手项目
 
+## 服务器部署
+
+### 环境依赖
+- JDK 21+
+- PostgreSQL 15+（需安装 pgvector 扩展）
+- Redis 6+
+- Elasticsearch 8.x
+
+### 数据库初始化
+依次执行 `sql/` 目录下：
+1. `create_table.sql`
+2. `create_PGvector_store.sql`
+3. `quiz_module_tables.sql`
+4. `user_document_persistence.sql`
+
+### 配置环境变量
+```bash
+# 编辑 deploy.env 填入实际值
+vim deploy.env
+
+# 加载环境变量
+source deploy.env
+```
+
+### 构建与运行
+```bash
+./mvnw clean package -DskipTests
+java $JAVA_OPTS -jar target/jc-ai-agent-backend-0.0.1-SNAPSHOT.jar
+```
+
+### 验证
+- 端口：`8525`
+- Swagger：`http://IP:8525/api/swagger-ui.html`
+
+---
 
 ## 用户与租户管理变更
 - 每个用户默认拥有一个“个人团队”（personal tenant），登录/注册时自动创建并写入 session 的 `active_tenant_id`。

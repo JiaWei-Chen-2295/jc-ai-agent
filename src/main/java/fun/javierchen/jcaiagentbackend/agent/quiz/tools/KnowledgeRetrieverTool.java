@@ -1,11 +1,14 @@
 package fun.javierchen.jcaiagentbackend.agent.quiz.tools;
 
 import fun.javierchen.jcaiagentbackend.agent.quiz.core.ToolResult;
+import fun.javierchen.jcaiagentbackend.common.TenantContextHolder;
+import fun.javierchen.jcaiagentbackend.rag.retrieval.HybridRetriever;
+import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -24,7 +27,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KnowledgeRetrieverTool implements AgentTool {
 
-    private final VectorStore studyFriendPGvectorStore;
+    private final HybridRetriever hybridRetriever;
 
     private static final String TOOL_NAME = "KnowledgeRetriever";
 
@@ -54,14 +57,21 @@ public class KnowledgeRetrieverTool implements AgentTool {
             }
 
             // 构建检索请求
-            SearchRequest request = SearchRequest.builder()
+            SearchRequest.Builder requestBuilder = SearchRequest.builder()
                     .query(query)
                     .topK(topK)
-                    .similarityThreshold(similarityThreshold)
-                    .build();
+                    .similarityThreshold(similarityThreshold);
+            if (documentIds != null && !documentIds.isEmpty()) {
+                Filter.Expression filter = VectorStoreFilterUtils.buildDocumentIdFilter(documentIds);
+                if (filter != null) {
+                    requestBuilder.filterExpression(filter);
+                }
+            } else if (TenantContextHolder.getTenantId() != null) {
+                requestBuilder.filterExpression(VectorStoreFilterUtils.buildTenantIdFilter(TenantContextHolder.getTenantId()));
+            }
 
             // 执行检索
-            List<Document> documents = studyFriendPGvectorStore.similaritySearch(request);
+            List<Document> documents = hybridRetriever.search(requestBuilder.build());
 
             if (documents.isEmpty()) {
                 log.info("未找到相关文档");

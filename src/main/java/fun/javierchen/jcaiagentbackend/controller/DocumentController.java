@@ -10,6 +10,7 @@ import fun.javierchen.jcaiagentbackend.model.entity.User;
 import fun.javierchen.jcaiagentbackend.rag.model.entity.StudyFriendDocument;
 import fun.javierchen.jcaiagentbackend.rag.model.enums.DocumentStatus;
 import fun.javierchen.jcaiagentbackend.rag.application.ingestion.DocumentUploadService;
+import fun.javierchen.jcaiagentbackend.rag.elasticsearch.sync.PgToEsSyncService;
 import fun.javierchen.jcaiagentbackend.rag.config.VectorStoreService;
 import fun.javierchen.jcaiagentbackend.rag.application.ingestion.indexer.DocumentAsyncIndexer;
 import fun.javierchen.jcaiagentbackend.service.TenantService;
@@ -49,6 +50,7 @@ public class DocumentController {
     private final DocumentUploadService documentUploadService;
     private final VectorStoreService vectorStoreService;
     private final DocumentAsyncIndexer documentAsyncIndexer;
+    private final PgToEsSyncService pgToEsSyncService;
     private final UserService userService;
     private final TenantService tenantService;
 
@@ -207,6 +209,33 @@ public class DocumentController {
         }
         documentAsyncIndexer.reindexDocument(documentId);
         return ResultUtils.success("重新索引任务已提交");
+    }
+
+    @PostMapping("/{documentId}/sync-es")
+    @Operation(summary = "手动同步单文档到 ES", description = "从 PGVector 文本数据中重建指定文档在 ES 中的 BM25 索引")
+    public BaseResponse<String> syncDocumentToEs(
+            @Parameter(description = "文档唯一标识 ID", required = true, example = "1001")
+            @PathVariable Long documentId,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long tenantId = requireTenantId();
+        if (userService.isAdmin(loginUser)) {
+            documentUploadService.getDocumentById(documentId);
+        } else {
+            tenantService.requireAdmin(tenantId, loginUser.getId());
+            documentUploadService.getDocument(documentId, tenantId);
+        }
+        int synced = pgToEsSyncService.syncDocument(documentId);
+        return ResultUtils.success("ES 文档同步完成，chunkCount=" + synced);
+    }
+
+    @PostMapping("/sync-es/full")
+    @Operation(summary = "手动全量同步到 ES", description = "管理员手动触发 PGVector 文本数据全量同步到 ES")
+    public BaseResponse<String> syncAllDocumentsToEs(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(!userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "仅管理员可执行全量同步");
+        int synced = pgToEsSyncService.fullSync();
+        return ResultUtils.success("ES 全量同步完成，chunkCount=" + synced);
     }
 
     /**
