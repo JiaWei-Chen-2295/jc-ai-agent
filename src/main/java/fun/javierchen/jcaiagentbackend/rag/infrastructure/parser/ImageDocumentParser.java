@@ -1,6 +1,5 @@
-package fun.javierchen.jcaiagentbackend.rag.application.ingestion.parser;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextDocumentReader;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;

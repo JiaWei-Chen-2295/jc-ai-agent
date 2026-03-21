@@ -1,12 +1,11 @@
-package fun.javierchen.jcaiagentbackend.pptreader;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.extractor;
 
-import org.apache.tika.extractor.EmbeddedDocumentExtractor;
+import  org.apache.tika.extractor.EmbeddedDocumentExtractor;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

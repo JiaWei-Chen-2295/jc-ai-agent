@@ -1,6 +1,6 @@
-package fun.javierchen.jcaiagentbackend.documentreader.strategy;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.strategy;
 
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextContext;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.PhotoTextContext;
 import org.springframework.ai.document.Document;
 
 import java.util.List;

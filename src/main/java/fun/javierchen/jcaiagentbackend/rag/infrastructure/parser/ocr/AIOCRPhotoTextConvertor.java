@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader.convertor;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.ocr;
 
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
@@ -10,8 +10,8 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextContext;
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoType;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.PhotoTextContext;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.PhotoType;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResourceLoader;

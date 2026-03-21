@@ -1,7 +1,7 @@
 package fun.javierchen.jcaiagentbackend.rag.application.ingestion.loader;
 
 
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoTextDocumentReader;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.PhotoTextDocumentReader;
 import fun.javierchen.jcaiagentbackend.utils.PhotoUtils;
 import org.springframework.ai.document.Document;
 import org.springframework.core.io.Resource;

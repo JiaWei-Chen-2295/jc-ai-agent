@@ -1,6 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader.strategy;
-
-import fun.javierchen.jcaiagentbackend.documentreader.PhotoType;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.strategy;
 
 import java.util.HashMap;
 import java.util.Map;

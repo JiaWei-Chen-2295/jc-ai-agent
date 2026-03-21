@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
 import java.util.List;
 

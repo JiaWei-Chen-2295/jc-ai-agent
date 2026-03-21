@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

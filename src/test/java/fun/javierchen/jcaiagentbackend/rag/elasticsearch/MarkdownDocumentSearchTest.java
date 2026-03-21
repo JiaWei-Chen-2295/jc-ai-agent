@@ -9,7 +9,7 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fun.javierchen.jcaiagentbackend.rag.application.ingestion.parser.TikaDocumentParser;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.TikaDocumentParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;

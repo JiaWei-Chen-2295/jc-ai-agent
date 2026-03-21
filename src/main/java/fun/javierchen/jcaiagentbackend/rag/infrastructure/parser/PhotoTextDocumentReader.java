@@ -1,7 +1,7 @@
-package fun.javierchen.jcaiagentbackend.documentreader;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
-import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategy;
-import fun.javierchen.jcaiagentbackend.documentreader.strategy.PhotoTextDocumentReaderStrategyFactory;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.strategy.PhotoTextDocumentReaderStrategy;
+import fun.javierchen.jcaiagentbackend.rag.infrastructure.parser.strategy.PhotoTextDocumentReaderStrategyFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;

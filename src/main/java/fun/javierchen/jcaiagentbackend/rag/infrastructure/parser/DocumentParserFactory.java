@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag.application.ingestion.parser;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

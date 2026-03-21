@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag.application.ingestion.parser;
+package fun.javierchen.jcaiagentbackend.rag.infrastructure.parser;
 
 import org.springframework.ai.document.Document;
 
