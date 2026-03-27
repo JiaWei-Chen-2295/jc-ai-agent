@@ -1,228 +1,174 @@
-<mxfile host="app.diagrams.net" modified="2026-03-21T00:00:00.000Z" agent="Claude" version="24.0.0">
+<mxfile host="drawio-plugin" modified="2026-03-27T06:17:50.649Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="22.1.22" etag="dJUBUEtEtSFmRyEcbGF7" type="embed">
   <diagram id="data-flow" name="文档处理与检索数据流图">
-    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1481" dy="837" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-
-        <!-- Title -->
-        <mxCell id="title" value="文档处理与混合检索数据流图" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
-          <mxGeometry x="400" y="10" width="500" height="35" as="geometry"/>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="文档处理与混合检索数据流图" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="400" y="10" width="500" height="35" as="geometry" />
         </mxCell>
-
-        <!-- ==================== 外部实体 ==================== -->
-        <mxCell id="ext-user" value="用户" style="shape=doubleRect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="150" width="100" height="50" as="geometry"/>
+        <mxCell id="ext-user" value="用户" style="shape=doubleRect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;rounded=1;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="20" y="300" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="ext-ai" value="DashScope&#xa;AI 模型" style="shape=doubleRect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="500" width="100" height="50" as="geometry"/>
+        <mxCell id="ext-ai" value="DashScope&#xa;AI 模型" style="shape=doubleRect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;rounded=1;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="1360" y="465" width="100" height="50" as="geometry" />
         </mxCell>
-
-        <!-- ==================== PART 1: 文档上传与索引 ==================== -->
-        <mxCell id="section1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FFF0;strokeColor=#82b366;dashed=1;arcSize=5;" vertex="1" parent="1">
-          <mxGeometry x="180" y="60" width="1180" height="310" as="geometry"/>
+        <mxCell id="section1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FFF0;strokeColor=#82b366;dashed=1;arcSize=5;" parent="1" vertex="1">
+          <mxGeometry x="170" y="90" width="1180" height="310" as="geometry" />
         </mxCell>
-        <mxCell id="section1-title" value="文档上传与索引流程 (写入路径)" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="190" y="65" width="300" height="25" as="geometry"/>
+        <mxCell id="section1-title" value="文档上传与索引流程 (写入路径)" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="190" y="65" width="300" height="25" as="geometry" />
         </mxCell>
-
-        <!-- Process 1: Upload -->
-        <mxCell id="p1-upload" value="1.0&#xa;文档上传" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="220" y="120" width="120" height="70" as="geometry"/>
+        <mxCell id="p1-upload" value="1.0&#xa;文档上传" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="120" width="120" height="70" as="geometry" />
         </mxCell>
-
-        <!-- Process 2: Parse -->
-        <mxCell id="p2-parse" value="2.0&#xa;文档解析" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="410" y="120" width="120" height="70" as="geometry"/>
+        <mxCell id="p2-parse" value="2.0&#xa;文档解析" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="410" y="120" width="120" height="70" as="geometry" />
         </mxCell>
-
-        <!-- Process 3: Chunk & Embed -->
-        <mxCell id="p3-chunk" value="3.0&#xa;分块 &amp; 向量化" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="610" y="120" width="130" height="70" as="geometry"/>
+        <mxCell id="p3-chunk" value="3.0&#xa;分块 &amp; 向量化" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="610" y="120" width="130" height="70" as="geometry" />
         </mxCell>
-
-        <!-- Process 4: Keyword Extract -->
-        <mxCell id="p4-keyword" value="4.0&#xa;关键词提取" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="610" y="250" width="130" height="70" as="geometry"/>
+        <mxCell id="p4-keyword" value="4.0&#xa;关键词提取" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="610" y="260" width="130" height="70" as="geometry" />
         </mxCell>
-
-        <!-- Data Store: PGVector -->
-        <mxCell id="ds-pgvector" value="D1  PGVector 向量库" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="840" y="105" width="170" height="45" as="geometry"/>
+        <mxCell id="ds-pgvector" value="D1  PGVector 向量库" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="845" y="130" width="170" height="45" as="geometry" />
         </mxCell>
-
-        <!-- Data Store: ES -->
-        <mxCell id="ds-es" value="D2  Elasticsearch BM25" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="840" y="250" width="180" height="45" as="geometry"/>
+        <mxCell id="ds-es" value="D2  Elasticsearch BM25" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="840" y="272.5" width="180" height="45" as="geometry" />
         </mxCell>
-
-        <!-- Data Store: PG metadata -->
-        <mxCell id="ds-pg" value="D3  PostgreSQL 元数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="1080" y="105" width="170" height="45" as="geometry"/>
+        <mxCell id="ds-pg" value="D3  PostgreSQL 元数据" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="130" width="170" height="45" as="geometry" />
         </mxCell>
-
-        <!-- Process 5: Sync -->
-        <mxCell id="p5-sync" value="5.0&#xa;PG→ES 同步" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="860" y="175" width="120" height="60" as="geometry"/>
+        <mxCell id="p5-sync" value="5.0&#xa;PG→ES 同步" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="865" y="200" width="120" height="60" as="geometry" />
         </mxCell>
-
-        <!-- Parsers note -->
-        <mxCell id="note-parsers" value="解析器:&#xa;- PdfDocumentParser&#xa;- TikaDocumentParser (DOCX/PPTX)&#xa;- ImageDocumentParser (OCR)&#xa;- MarkdownDocumentReader" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10;align=left;spacingLeft=5;" vertex="1" parent="1">
-          <mxGeometry x="380" y="220" width="200" height="90" as="geometry"/>
+        <mxCell id="note-parsers" value="解析器:&#xa;- PdfDocumentParser&#xa;- TikaDocumentParser (DOCX/PPTX)&#xa;- ImageDocumentParser (OCR)&#xa;- MarkdownDocumentReader" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10;align=left;spacingLeft=5;" parent="1" vertex="1">
+          <mxGeometry x="380" y="220" width="200" height="90" as="geometry" />
         </mxCell>
-
-        <!-- Upload Flow Arrows -->
-        <mxCell id="a-u-p1" value="PDF/DOCX/PPTX&#xa;/MD/图片" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="ext-user" target="p1-upload">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-u-p1" value="PDF/DOCX/PPTX&#xa;/MD/图片" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#333333;fontSize=10;" parent="1" source="ext-user" target="p1-upload" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a-p1-p2" value="原始文件" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" edge="1" parent="1" source="p1-upload" target="p2-parse">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-p1-p2" value="原始文件" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" parent="1" source="p1-upload" target="p2-parse" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a-p2-p3" value="文本内容" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" edge="1" parent="1" source="p2-parse" target="p3-chunk">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-p2-p3" value="文本内容" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" parent="1" source="p2-parse" target="p3-chunk" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a-p3-pgv" value="向量嵌入" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;fontStyle=1;" edge="1" parent="1" source="p3-chunk" target="ds-pgvector">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p3-p4" value="文本块" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" edge="1" parent="1" source="p3-chunk" target="p4-keyword">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p4-es" value="关键词索引" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" edge="1" parent="1" source="p4-keyword" target="ds-es">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p1-pg" value="文档元数据" style="html=1;verticalAlign=top;endArrow=block;rounded=1;strokeColor=#666666;fontSize=10;" edge="1" parent="1" source="p1-upload" target="ds-pg">
+        <mxCell id="a-p3-pgv" value="向量嵌入" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;fontStyle=1;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
+            <mxPoint x="744.7531819212836" y="151.95279143899847" as="sourcePoint" />
+            <mxPoint x="840" y="150" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="280" y="95"/>
-              <mxPoint x="1165" y="95"/>
+              <mxPoint x="800" y="150" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="a-p5-sync" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" edge="1" parent="1" source="ds-pgvector" target="p5-sync">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-p3-p4" value="文本块" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" parent="1" source="p3-chunk" target="p4-keyword" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a-p5-es" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" edge="1" parent="1" source="p5-sync" target="ds-es">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-p4-es" value="关键词索引" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" parent="1" source="p4-keyword" target="ds-es" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- async label -->
-        <mxCell id="async-label" value="异步后台执行" style="text;html=1;align=center;fontSize=10;fontStyle=3;fontColor=#CC6600;rotation=-8;" vertex="1" parent="1">
-          <mxGeometry x="435" y="95" width="90" height="20" as="geometry"/>
-        </mxCell>
-
-        <!-- ==================== PART 2: 混合检索 ==================== -->
-        <mxCell id="section2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5F5;strokeColor=#b85450;dashed=1;arcSize=5;" vertex="1" parent="1">
-          <mxGeometry x="180" y="400" width="1180" height="340" as="geometry"/>
-        </mxCell>
-        <mxCell id="section2-title" value="混合检索流程 (读取路径)" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#b85450;" vertex="1" parent="1">
-          <mxGeometry x="190" y="405" width="250" height="25" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 6: Query -->
-        <mxCell id="p6-query" value="6.0&#xa;用户提问" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="220" y="450" width="120" height="60" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 7: Hybrid Retrieve -->
-        <mxCell id="p7-hybrid" value="7.0&#xa;HybridRetriever&#xa;混合检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="420" y="440" width="150" height="80" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 7a: Vector Search -->
-        <mxCell id="p7a-vec" value="7a. 向量&#xa;语义检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="650" y="435" width="120" height="55" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 7b: BM25 -->
-        <mxCell id="p7b-bm25" value="7b. BM25&#xa;关键词检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="650" y="520" width="120" height="55" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 8: RRF -->
-        <mxCell id="p8-rrf" value="8.0&#xa;RRF 排序融合&#xa;(k=60)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="450" width="140" height="70" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 9: LLM Generate -->
-        <mxCell id="p9-llm" value="9.0&#xa;LLM 生成回答&#xa;(RAG / 出题)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1070" y="450" width="150" height="80" as="geometry"/>
-        </mxCell>
-
-        <!-- Process 10: Response -->
-        <mxCell id="p10-resp" value="10.0&#xa;返回结果&#xa;(SSE/JSON)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1070" y="570" width="140" height="70" as="geometry"/>
-        </mxCell>
-
-        <!-- Data Store refs in read path -->
-        <mxCell id="ds2-pgvector" value="D1  PGVector" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="830" y="410" width="120" height="30" as="geometry"/>
-        </mxCell>
-        <mxCell id="ds2-es" value="D2  Elasticsearch" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="830" y="575" width="130" height="30" as="geometry"/>
-        </mxCell>
-
-        <!-- Redis cache -->
-        <mxCell id="ds-redis" value="D4  Redis 缓存" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" vertex="1" parent="1">
-          <mxGeometry x="1080" y="670" width="130" height="30" as="geometry"/>
-        </mxCell>
-
-        <!-- Read path arrows -->
-        <mxCell id="a-u-p6" value="问题" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="ext-user" target="p6-query">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p6-p7" value="query + tenantId" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" edge="1" parent="1" source="p6-query" target="p7-hybrid">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p7-7a" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" edge="1" parent="1" source="p7-hybrid" target="p7a-vec">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-p7-7b" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" edge="1" parent="1" source="p7-hybrid" target="p7b-bm25">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-7a-pgv" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;dashed=1;" edge="1" parent="1" source="p7a-vec" target="ds2-pgvector">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-7b-es" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" edge="1" parent="1" source="p7b-bm25" target="ds2-es">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-7a-rrf" value="语义结果" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" edge="1" parent="1" source="ds2-pgvector" target="p8-rrf">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-7b-rrf" value="关键词结果" style="html=1;verticalAlign=top;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" edge="1" parent="1" source="ds2-es" target="p8-rrf">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-rrf-llm" value="融合排序后&#xa;Top-K 文档块" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#9673a6;fontSize=10;fontStyle=1;" edge="1" parent="1" source="p8-rrf" target="p9-llm">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-ai-llm" value="Prompt +&#xa;Context" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#b85450;fontSize=10;" edge="1" parent="1" source="ext-ai" target="p9-llm">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-llm-resp" value="AI 生成内容" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" edge="1" parent="1" source="p9-llm" target="p10-resp">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="a-resp-user" value="SSE 流式 / JSON 响应" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#333333;fontSize=10;fontStyle=1;exitX=0;exitY=0.5;" edge="1" parent="1" source="p10-resp">
+        <mxCell id="a-p1-pg" value="文档元数据" style="html=1;verticalAlign=top;endArrow=block;rounded=1;strokeColor=#666666;fontSize=10;" parent="1" source="p1-upload" target="ds-pg" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="90" y="605" as="targetPoint"/>
             <Array as="points">
-              <mxPoint x="200" y="605"/>
-              <mxPoint x="90" y="605"/>
+              <mxPoint x="280" y="95" />
+              <mxPoint x="1165" y="95" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="a-resp-redis" value="缓存状态" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#CC0000;fontSize=10;dashed=1;" edge="1" parent="1" source="p10-resp" target="ds-redis">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="a-p5-sync" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" parent="1" source="ds-pgvector" target="p5-sync" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- parallel label -->
-        <mxCell id="par-label2" value="并行" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#3399FF;rotation=0;" vertex="1" parent="1">
-          <mxGeometry x="580" y="485" width="40" height="20" as="geometry"/>
+        <mxCell id="a-p5-es" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" parent="1" source="p5-sync" target="ds-es" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- Degradation note -->
-        <mxCell id="note-degrade" value="降级策略：&#xa;1. 向量+BM25 → RRF 融合&#xa;2. 向量失败 → 仅 BM25&#xa;3. 全部失败 → 降级模式&#xa;    (仅 LLM 自身知识回答)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10;align=left;spacingLeft=5;" vertex="1" parent="1">
-          <mxGeometry x="200" y="600" width="200" height="90" as="geometry"/>
+        <mxCell id="async-label" value="&lt;p style=&quot;line-height: 120%;&quot;&gt;异步后台执行&lt;/p&gt;" style="text;align=center;rotation=352;verticalAlign=middle;horizontal=1;html=1;whiteSpace=wrap;spacingTop=0;spacingLeft=0;labelBackgroundColor=none;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="435.07" y="100" width="74.93" height="20" as="geometry" />
         </mxCell>
-
+        <mxCell id="section2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5F5;strokeColor=#b85450;dashed=1;arcSize=5;" parent="1" vertex="1">
+          <mxGeometry x="170" y="405" width="1180" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="section2-title" value="混合检索流程 (读取路径)" style="text;html=1;align=left;fontSize=13;fontStyle=1;fontColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="190" y="405" width="250" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p6-query" value="6.0&#xa;用户提问" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="450" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p7-hybrid" value="7.0&#xa;HybridRetriever&#xa;混合检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="420" y="440" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p7a-vec" value="7a. 向量&#xa;语义检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="650" y="410" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p7b-bm25" value="7b. BM25&#xa;关键词检索" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="640" y="562.5" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p8-rrf" value="8.0&#xa;RRF 排序融合&#xa;(k=60)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="820" y="460" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p9-llm" value="9.0&#xa;LLM 生成回答&#xa;(RAG / 出题)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1070" y="450" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p10-resp" value="10.0&#xa;返回结果&#xa;(SSE/JSON)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1075" y="570" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ds2-pgvector" value="D1  PGVector" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="825" y="410" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ds2-es" value="D2  Elasticsearch" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="825" y="575" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-redis" value="D4  Redis 缓存" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC0000;fontSize=10;fontStyle=1;top=0;left=0;bottom=1;right=0;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="680" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="a-u-p6" value="问题" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#333333;fontSize=10;" parent="1" source="ext-user" target="p6-query" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-p6-p7" value="query + tenantId" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" parent="1" source="p6-query" target="p7-hybrid" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-p7-7a" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" parent="1" source="p7-hybrid" target="p7a-vec" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-p7-7b" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" parent="1" source="p7-hybrid" target="p7b-bm25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-7a-pgv" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;dashed=1;" parent="1" source="p7a-vec" target="ds2-pgvector" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-7b-es" value="" style="html=1;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;dashed=1;" parent="1" source="p7b-bm25" target="ds2-es" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-7a-rrf" value="语义结果" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#3399FF;fontSize=10;" parent="1" source="ds2-pgvector" target="p8-rrf" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-7b-rrf" value="关键词结果" style="html=1;verticalAlign=top;endArrow=block;rounded=1;strokeColor=#D6B656;fontSize=10;" parent="1" source="ds2-es" target="p8-rrf" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-rrf-llm" value="融合排序后&#xa;Top-K 文档块" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#9673a6;fontSize=10;fontStyle=1;" parent="1" source="p8-rrf" target="p9-llm" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-ai-llm" value="Prompt +&#xa;Context" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#b85450;fontSize=10;" parent="1" source="ext-ai" target="p9-llm" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-llm-resp" value="AI 生成内容" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#82b366;fontSize=10;" parent="1" source="p9-llm" target="p10-resp" edge="1">
+          <mxGeometry x="0.4061" y="38" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-resp-redis" value="缓存状态" style="html=1;verticalAlign=bottom;endArrow=block;rounded=1;strokeColor=#CC0000;fontSize=10;dashed=1;" parent="1" source="p10-resp" target="ds-redis" edge="1">
+          <mxGeometry x="0.6044" y="36" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="par-label2" value="并行" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#3399FF;rotation=0;" parent="1" vertex="1">
+          <mxGeometry x="590" y="485" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note-degrade" value="降级策略：&#xa;1. 向量+BM25 → RRF 融合&#xa;2. 向量失败 → 仅 BM25&#xa;3. 全部失败 → 降级模式&#xa;    (仅 LLM 自身知识回答)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFFFCC;strokeColor=#CCCC00;fontSize=10;align=left;spacingLeft=5;" parent="1" vertex="1">
+          <mxGeometry x="200" y="600" width="200" height="90" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

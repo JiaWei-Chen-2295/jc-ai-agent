@@ -1,17 +1,17 @@
-<mxfile host="drawio-plugin" modified="2026-03-21T03:04:32.098Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="22.1.22" etag="O901nMGct2jIyxSYbmgV" type="embed">
+<mxfile host="drawio-plugin" modified="2026-03-27T06:26:56.016Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" etag="QKUJKiHTropyY9oLQAQt" version="22.1.22" type="embed">
   <diagram id="deployment" name="部署架构图">
-    <mxGraphModel dx="685" dy="620" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="880" math="0" shadow="0">
+    <mxGraphModel dx="1481" dy="837" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="880" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="title" value="JC-AI-Agent 部署架构图" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
-          <mxGeometry x="380" y="10" width="440" height="40" as="geometry" />
+          <mxGeometry x="365" y="10" width="440" height="40" as="geometry" />
         </mxCell>
         <mxCell id="browser" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg;" parent="1" vertex="1">
-          <mxGeometry x="545" y="58" width="45" height="45" as="geometry" />
+          <mxGeometry x="527.5" y="50" width="45" height="45" as="geometry" />
         </mxCell>
         <mxCell id="browser-label" value="用户浏览器&#xa;HTTP / SSE" style="text;html=1;align=center;fontSize=11;fontColor=#333333;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="505" y="108" width="125" height="30" as="geometry" />
+          <mxGeometry x="525" y="108" width="125" height="30" as="geometry" />
         </mxCell>
         <mxCell id="app-server" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F8FF;strokeColor=#4A90D9;arcSize=8;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="250" y="170" width="600" height="200" as="geometry" />
@@ -26,7 +26,7 @@
           <mxGeometry x="278" y="208" width="22" height="22" as="geometry" />
         </mxCell>
         <mxCell id="jvm-label" value="JVM (Java 21) -Xms512m -Xmx2g -XX:+UseG1GC" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" parent="1" vertex="1">
-          <mxGeometry x="302" y="208" width="300" height="20" as="geometry" />
+          <mxGeometry x="310" y="210" width="300" height="20" as="geometry" />
         </mxCell>
         <mxCell id="sb-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg;" parent="1" vertex="1">
           <mxGeometry x="290" y="240" width="30" height="30" as="geometry" />
@@ -95,13 +95,13 @@
           <mxGeometry x="365" y="475" width="130" height="125" as="geometry" />
         </mxCell>
         <mxCell id="cloud-area" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#FF6A00;arcSize=8;dashed=1;dashPattern=5 5;strokeWidth=2;" parent="1" vertex="1">
-          <mxGeometry x="600" y="440" width="580" height="210" as="geometry" />
+          <mxGeometry x="590" y="440" width="510" height="210" as="geometry" />
         </mxCell>
         <mxCell id="cloud-icon" value="" style="shape=image;aspect=fixed;image=https://img.alicdn.com/tfs/TB1Ly5oS3HqK1RjSZFPXXcwapXa-238-54.png;" parent="1" vertex="1">
-          <mxGeometry x="615" y="447" width="80" height="18" as="geometry" />
+          <mxGeometry x="640" y="452" width="80" height="18" as="geometry" />
         </mxCell>
         <mxCell id="cloud-title" value="阿里云服务" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#FF6A00;" parent="1" vertex="1">
-          <mxGeometry x="700" y="443" width="100" height="25" as="geometry" />
+          <mxGeometry x="808" y="445" width="100" height="25" as="geometry" />
         </mxCell>
         <mxCell id="dashscope-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg;" parent="1" vertex="1">
           <mxGeometry x="660" y="485" width="45" height="45" as="geometry" />
@@ -134,27 +134,54 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="arr-app-pg" value="JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#336791;strokeWidth=2;fontSize=10;fontColor=#336791;fontStyle=1;" parent="1" source="app-server" target="pg-box" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry x="0.2459" y="-30" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="270" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="arr-app-redis" value="Lettuce" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#DC382D;strokeWidth=2;fontSize=10;fontColor=#DC382D;fontStyle=1;" parent="1" source="app-server" target="redis-box" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry x="0.2987" y="-10" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="420" />
+              <mxPoint x="270" y="420" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="arr-app-es" value="REST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FEC514;strokeWidth=2;fontSize=10;fontColor=#FEC514;fontStyle=1;" parent="1" source="app-server" target="es-box" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry y="-12" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="arr-app-dash" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF6A00;strokeWidth=2;fontSize=10;fontColor=#FF6A00;fontStyle=1;" parent="1" source="app-server" target="dashscope-box" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry y="14" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="424" />
+              <mxPoint x="730" y="424" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="arr-app-oss" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF6A00;strokeWidth=1.5;fontSize=10;fontColor=#FF6A00;" parent="1" source="app-server" target="oss-box" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="arr-b-oss" value="前端直传" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673A6;strokeWidth=1.5;dashed=1;dashPattern=5 5;fontSize=10;fontColor=#9673A6;fontStyle=2;" parent="1" source="browser" target="oss-box" edge="1">
-          <mxGeometry relative="1" as="geometry">
+          <mxGeometry x="0.2402" y="14" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="980" y="80" />
-              <mxPoint x="980" y="470" />
-              <mxPoint x="857" y="470" />
+              <mxPoint x="550" y="424" />
+              <mxPoint x="890" y="424" />
             </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arr-b-oss" value="前端直传" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#CC99FF;strokeWidth=1.5;dashed=1;dashPattern=5 5;fontSize=10;fontColor=#000000;fontStyle=2;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="browser" edge="1">
+          <mxGeometry x="0.232" y="43" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1018" y="61" />
+              <mxPoint x="1018" y="485" />
+            </Array>
+            <mxPoint x="580" y="60" as="sourcePoint" />
+            <mxPoint x="925" y="485" as="targetPoint" />
+            <mxPoint y="1" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CCCCCC;arcSize=8;" parent="1" vertex="1">
