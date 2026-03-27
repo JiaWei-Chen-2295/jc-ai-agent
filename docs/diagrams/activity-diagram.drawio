@@ -1,0 +1,336 @@
+<mxfile host="drawio-plugin" modified="2026-03-21T04:00:00.000Z" agent="Claude" version="22.1.22" etag="activity-v1" type="embed">
+  <diagram id="activity" name="智能测验活动图">
+    <mxGraphModel dx="1200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="智能测验活动图 (Activity Diagram)" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="320" y="10" width="460" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== Swim Lanes ===== -->
+        <!-- Lane 1: Client -->
+        <mxCell id="lane1" value="客户端 (Client)" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="55" width="230" height="1510" as="geometry"/>
+        </mxCell>
+
+        <!-- Lane 2: Service / Agent -->
+        <mxCell id="lane2" value="测验服务 / ReAct Agent" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="55" width="430" height="1510" as="geometry"/>
+        </mxCell>
+
+        <!-- Lane 3: Data Store -->
+        <mxCell id="lane3" value="数据存储 (DB / Redis)" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="55" width="230" height="1510" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== Initial Node ===== -->
+        <mxCell id="start" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="130" y="105" width="22" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- A1: 发起创建测验请求 -->
+        <mxCell id="a1" value="发起创建测验请求&#xa;(指定难度模式 + 文档范围)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="55" y="155" width="190" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A2: 验证用户状态 -->
+        <mxCell id="a2" value="验证用户状态&#xa;检查是否已有进行中的测验" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="155" width="220" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- D1: 验证通过? -->
+        <mxCell id="d1" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="430" y="235" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- A-err: 返回错误 -->
+        <mxCell id="a-err" value="返回错误信息" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="55" y="240" width="140" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- End-err -->
+        <mxCell id="end-err" value="" style="ellipse;html=1;shape=doubleCircle;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="113" y="300" width="22" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- A3: 创建 QuizSession -->
+        <mxCell id="a3" value="创建 QuizSession&#xa;status = IN_PROGRESS" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="310" width="220" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- A4: 保存到DB -->
+        <mxCell id="a4" value="持久化 Session&#xa;到 PostgreSQL" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="310" width="150" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Fork 1 -->
+        <mxCell id="fork1" value="" style="line;html=1;strokeWidth=4;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="340" y="390" width="220" height="3" as="geometry"/>
+        </mxCell>
+
+        <!-- A5a: 提取概念清单 -->
+        <mxCell id="a5a" value="LLM 提取概念清单&#xa;(ConceptInventoryService)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="280" y="420" width="190" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A5b: 生成初始题目 -->
+        <mxCell id="a5b" value="ReAct Agent 生成初始题目&#xa;(Thought→Action→Observation)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="280" y="500" width="225" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A5c: Cache concepts -->
+        <mxCell id="a5c" value="缓存概念清单&#xa;到 Redis" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="420" width="130" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- A5d: Save questions -->
+        <mxCell id="a5d" value="保存题目&#xa;到 quiz_question" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="505" width="130" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Join 1 -->
+        <mxCell id="join1" value="" style="line;html=1;strokeWidth=4;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="340" y="585" width="220" height="3" as="geometry"/>
+        </mxCell>
+
+        <!-- A6: 返回首题 -->
+        <mxCell id="a6" value="返回首题给用户" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="75" y="615" width="150" height="38" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== Loop Region ===== -->
+        <mxCell id="loop-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673A6;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="680" width="880" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="loop-label" value="loop [对每道题目]" style="text;html=1;align=left;fontSize=12;fontStyle=3;fontColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="683" width="150" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- A7: 用户作答 -->
+        <mxCell id="a7" value="用户查看题目并作答&#xa;记录作答时间" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="65" y="720" width="170" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A8: 提交答案 -->
+        <mxCell id="a8" value="提交答案&#xa;POST /session/{id}/answer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="65" y="800" width="170" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A9: Agent 评估答案 -->
+        <mxCell id="a9" value="AnswerEvaluatorTool 评估答案&#xa;判定正确性 + 认知状态" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="310" y="800" width="230" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A10: 保存答题记录 -->
+        <mxCell id="a10" value="保存 QuestionResponse&#xa;+ 更新 Session 得分" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="800" width="160" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A11: 更新知识状态 -->
+        <mxCell id="a11" value="UserAnalyzerTool 更新三维认知状态&#xa;(理解深度 / 认知负荷 / 稳定性)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="885" width="260" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A11b: Redis buffer -->
+        <mxCell id="a11b" value="缓冲知识状态&#xa;至 Redis" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="890" width="130" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- D2: 是否达成完成条件? -->
+        <mxCell id="d2" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="400" y="970" width="45" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="d2-label" value="DecisionEngine:&#xa;是否完成?" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="310" y="975" width="90" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- A-complete: 完成测验 -->
+        <mxCell id="a-complete" value="完成测验&#xa;status = COMPLETED&#xa;flush Redis → DB" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="1070" width="200" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- D3: 有预生成题目? -->
+        <mxCell id="d3" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="550" y="970" width="45" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="d3-label" value="有预生成&#xa;题目?" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="595" y="975" width="70" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- A-next: 取下一题 -->
+        <mxCell id="a-next" value="取预生成的下一题&#xa;currentQuestionNo++" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="1170" width="200" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- A-gen: 动态生成新题 -->
+        <mxCell id="a-gen" value="ReAct Agent 动态生成新题" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1070" width="195" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- A-gen-save -->
+        <mxCell id="a-gen-save" value="保存新生成题目" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1075" width="130" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- A-return: 返回下一题 -->
+        <mxCell id="a-return" value="返回下一题给用户" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="75" y="1240" width="150" height="38" as="geometry"/>
+        </mxCell>
+
+        <!-- Loop back arrow (from a-return back to a7) -->
+
+        <!-- A-report: 展示测验报告 -->
+        <mxCell id="a-report" value="展示测验报告&#xa;(得分/认知分析/薄弱点)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="55" y="1420" width="190" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- A-flush: 批量刷盘 -->
+        <mxCell id="a-flush" value="Redis 知识状态&#xa;批量刷盘到 DB" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="1155" width="160" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- End -->
+        <mxCell id="end" value="" style="ellipse;html=1;shape=doubleCircle;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="137" y="1510" width="24" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== Arrows (Control Flow) ===== -->
+        <mxCell id="f1" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="start" target="a1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a1" target="a2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a2" target="d1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4" value="[否]" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#b85450;fontSize=10;fontStyle=1;" edge="1" parent="1" source="d1" target="a-err">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4b" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-err" target="end-err">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f5" value="[是]" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#82b366;fontSize=10;fontStyle=1;" edge="1" parent="1" source="d1" target="a3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f6" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a3" target="a4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f7" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a3" target="fork1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f8a" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="fork1" target="a5a">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f8c" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a5a" target="a5c">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f8b" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a5a" target="a5b">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f8d" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a5b" target="a5d">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f9" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a5b" target="join1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f10" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="join1" target="a6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Loop body -->
+        <mxCell id="f11" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a6" target="a7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f12" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a7" target="a8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f13" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a8" target="a9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f14" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a9" target="a10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f15" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a9" target="a11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f15b" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a11" target="a11b">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f16" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a11" target="d2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision: complete? -->
+        <mxCell id="f17" value="[是:&#xa;认知达标]" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#82b366;fontSize=9;fontStyle=1;" edge="1" parent="1" source="d2" target="a-complete">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f18" value="[否]" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#3399FF;fontSize=9;fontStyle=1;" edge="1" parent="1" source="d2" target="d3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision: has pre-generated? -->
+        <mxCell id="f19" value="[否:&#xa;需要新题]" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#b85450;fontSize=9;fontStyle=1;" edge="1" parent="1" source="d3" target="a-gen">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f19b" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-gen" target="a-gen-save">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f20" value="[是]" style="html=1;endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;fontSize=9;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="d3" target="a-next">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="573" y="1192"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f20b" value="" style="html=1;endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-gen" target="a-next">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="618" y="1145"/>
+              <mxPoint x="500" y="1145"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return next question -->
+        <mxCell id="f21" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-next" target="a-return">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Loop back arrow -->
+        <mxCell id="f-loop" value="继续答题" style="html=1;endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673A6;fontSize=9;fontStyle=3;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="a-return" target="a7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="48" y="1259"/>
+              <mxPoint x="48" y="745"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Complete → flush -->
+        <mxCell id="f22" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-complete" target="a-flush">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Complete → report -->
+        <mxCell id="f23" value="" style="html=1;endArrow=block;endFill=1;edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-complete" target="a-report">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="410" y="1380"/>
+              <mxPoint x="150" y="1380"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Report → End -->
+        <mxCell id="f24" value="" style="html=1;endArrow=block;endFill=1;rounded=1;strokeColor=#333333;" edge="1" parent="1" source="a-report" target="end">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

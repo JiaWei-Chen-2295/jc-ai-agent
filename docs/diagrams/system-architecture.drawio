@@ -1,0 +1,298 @@
+<mxfile host="app.diagrams.net" modified="2026-03-21T00:00:00.000Z" agent="Claude" version="24.0.0">
+  <diagram id="system-arch" name="系统架构图">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="JC-AI-Agent 系统架构图" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="550" y="10" width="500" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 客户端层 ==================== -->
+        <mxCell id="layer-client" value="客户端层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="1520" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="client-web" value="Web 前端&#xa;(Vue/React)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="80" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="client-mobile" value="移动端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="client-swagger" value="Swagger / Knife4j&#xa;API 文档" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="80" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="client-admin" value="管理后台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="80" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <!-- Client layer icons -->
+        <mxCell id="icon-chrome" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="173" y="89" width="22" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-swagger" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="813" y="89" width="22" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== API 网关层 ==================== -->
+        <mxCell id="layer-api" value="API 网关层　　Port: 8525 | Context: /api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="1520" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-session" value="Session 认证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-tenant" value="租户上下文注入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-cors" value="CORS 配置" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="560" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-exception" value="全局异常处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-sse" value="SSE 流式输出" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-swagger" value="OpenAPI 3.0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="192" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-spring-api" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="174" width="20" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== Controller 层 ==================== -->
+        <mxCell id="layer-ctrl" value="Controller 层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="1520" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-user" value="UserController&#xa;用户管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="120" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-tenant" value="TenantController&#xa;租户管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="200" y="300" width="120" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-chat" value="StudyFriendController&#xa;AI 对话" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-doc" value="DocumentController&#xa;文档管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="500" y="300" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-quiz" value="QuizController&#xa;测验系统" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="660" y="300" width="130" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-avatar" value="UserAvatarController&#xa;头像管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="810" y="300" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-obs" value="ObservabilityController&#xa;可观测性" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="970" y="300" width="145" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-health" value="HealthController&#xa;健康检查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1135" y="300" width="120" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl-display" value="AgentDisplayController&#xa;事件展示" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="300" width="145" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-spring-ctrl" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="284" width="20" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 业务服务层 ==================== -->
+        <mxCell id="layer-svc" value="业务服务层（Service）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="390" width="1520" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-user" value="UserService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-tenant" value="TenantService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="195" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-chat" value="StudyFriend&#xa;ChatService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="330" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-doc" value="DocumentUpload&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="465" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-quiz" value="QuizSession&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="600" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-analysis" value="UserAnalysis&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="735" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-avatar" value="UserAvatar&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="870" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-benchmark" value="RagBenchmark&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1005" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-flush" value="KnowledgeState&#xa;FlushService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="415" width="115" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc-concept" value="ConceptInventory&#xa;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="415" width="125" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-spring-svc" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1505" y="394" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-java-svc" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="394" width="20" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== AI Agent 层 ==================== -->
+        <mxCell id="layer-agent" value="AI Agent 层（ReAct Agent + Spring AI）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="510" width="1520" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent-abstract" value="AbstractReActAgent&#xa;(Thought→Action→Observation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="535" width="230" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent-quiz" value="QuizReActAgent&#xa;自适应出题引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="535" width="170" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent-study" value="StudyFriend&#xa;RAG 对话 App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="535" width="150" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Agent Tools -->
+        <mxCell id="tool-gen" value="QuizGenerator&#xa;Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="530" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tool-retrieve" value="KnowledgeRetriever&#xa;Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="830" y="530" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tool-analyze" value="UserAnalyzer&#xa;Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="970" y="530" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tool-eval" value="AnswerEvaluator&#xa;Tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="530" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent-event" value="AgentEvent 事件系统&#xa;(DisplayEvent / ThinkingProgress)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="530" width="200" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Agent -> Tools arrows -->
+        <mxCell id="arrow-agent-tools" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;" edge="1" parent="1" source="agent-quiz" target="tool-gen">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="icon-spring-agent" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="514" width="20" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== RAG 检索层 ==================== -->
+        <mxCell id="layer-rag" value="RAG 检索层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="650" width="1520" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-hybrid" value="HybridRetriever&#xa;混合检索引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="675" width="160" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-vector" value="TenantVectorStore&#xa;向量语义检索" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="675" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-es" value="EsKeywordSearch&#xa;BM25 关键词检索" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="530" y="675" width="150" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-rrf" value="RRF Merger&#xa;排序融合 k=60" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="675" width="130" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-indexer" value="DocumentAsyncIndexer&#xa;异步文档索引" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="930" y="675" width="160" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-keyword" value="KeywordEnricher&#xa;关键词提取" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="675" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="rag-trace" value="RagTraceStore&#xa;检索追踪" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="675" width="120" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: hybrid -> vector, es, rrf -->
+        <mxCell id="arr-h-v" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#3399FF;" edge="1" parent="1" source="rag-hybrid" target="rag-vector">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arr-h-e" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#3399FF;" edge="1" parent="1" source="rag-hybrid" target="rag-es">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 数据持久层 ==================== -->
+        <mxCell id="layer-data" value="数据持久层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="1520" height="110" as="geometry"/>
+        </mxCell>
+        <!-- PostgreSQL with icon -->
+        <mxCell id="db-pg-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="140" y="798" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-pg" value="PostgreSQL 15+&#xa;主数据库 + JPA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#336791;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="100" y="840" width="150" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- PGVector with icon -->
+        <mxCell id="db-pgv-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="380" y="798" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-pgvector" value="PGVector 向量存储&#xa;(1536 维)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#336791;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="330" y="840" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Redis with icon -->
+        <mxCell id="db-redis-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="620" y="798" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-redis" value="Redis 6+&#xa;缓存 &amp; 会话" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#DC382D;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="575" y="840" width="130" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Elasticsearch with icon -->
+        <mxCell id="db-es-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/elasticsearch/elasticsearch-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="870" y="798" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-es" value="Elasticsearch 8.x&#xa;BM25 全文检索" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#FEC514;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="810" y="840" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- 阿里云 OSS -->
+        <mxCell id="db-oss" value="阿里云 OSS&#xa;对象存储 (头像)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#FF6A00;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="840" width="150" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-oss-icon" value="" style="shape=image;aspect=fixed;image=https://img.alicdn.com/tfs/TB1_ZXuNcfpK1RjSZFOXXa6nFXa-32-32.ico;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="800" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- DashScope -->
+        <mxCell id="db-dashscope" value="DashScope (Qwen3)&#xa;大模型 + Embedding" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0F0;strokeColor=#FF6A00;fontSize=11;fontStyle=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="840" width="180" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="db-dash-icon" value="" style="shape=image;aspect=fixed;image=https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="800" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 连接线 ==================== -->
+        <!-- Client -> API -->
+        <mxCell id="arr-c-a1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;" edge="1" parent="1" source="client-web" target="api-session">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- API -> Controller -->
+        <mxCell id="arr-a-c1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="layer-api" target="layer-ctrl">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Controller -> Service -->
+        <mxCell id="arr-c-s" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="layer-ctrl" target="layer-svc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Service -> Agent -->
+        <mxCell id="arr-s-ag" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="layer-svc" target="layer-agent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Agent -> RAG -->
+        <mxCell id="arr-ag-r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="layer-agent" target="layer-rag">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- RAG -> Data -->
+        <mxCell id="arr-r-d" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#999999;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="layer-rag" target="layer-data">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

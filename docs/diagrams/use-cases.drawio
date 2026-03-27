@@ -1,0 +1,206 @@
+<mxfile host="app.diagrams.net" modified="2026-03-21T00:00:00.000Z" agent="Claude" version="24.0.0">
+  <diagram id="use-cases" name="用例图">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="JC-AI-Agent 用例图" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="550" y="10" width="400" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== Actors ==================== -->
+        <mxCell id="actor-student" value="学生用户" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor-admin" value="管理员" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="200" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor-ai" value="AI 大模型&#xa;(DashScope)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="600" width="40" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== System Boundary ==================== -->
+        <mxCell id="boundary" value="JC-AI-Agent 智能学习平台" style="shape=rect;rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;strokeWidth=2;dashed=1;verticalAlign=top;fontSize=14;fontStyle=1;spacingTop=8;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="150" y="55" width="1300" height="1000" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 用户系统 ==================== -->
+        <mxCell id="pkg-user" value="用户系统" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="180" y="75" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-register" value="注册账号" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="95" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-login" value="登录/登出" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="350" y="95" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-avatar" value="上传头像" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="95" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-profile" value="查看个人信息" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="650" y="95" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 多租户系统 ==================== -->
+        <mxCell id="pkg-tenant" value="多租户系统" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="180" y="170" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-create-team" value="创建团队" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="195" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-join-team" value="加入团队" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="350" y="195" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-leave-team" value="退出团队" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="195" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-switch-tenant" value="切换活跃租户" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="650" y="195" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-transfer-admin" value="转移管理权限" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="195" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== AI 对话 ==================== -->
+        <mxCell id="pkg-chat" value="AI 对话" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="180" y="270" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-create-session" value="创建对话会话" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="295" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-rag-chat" value="RAG 知识问答" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="295" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-sse-stream" value="SSE 流式对话" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="540" y="295" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-tool-call" value="工具调用对话" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="710" y="295" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-history" value="查看历史消息" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="880" y="295" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 文档与 RAG ==================== -->
+        <mxCell id="pkg-doc" value="文档与知识库" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#3399FF;" vertex="1" parent="1">
+          <mxGeometry x="180" y="375" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-upload-doc" value="上传文档" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-index-doc" value="异步向量化索引" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="400" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-manage-doc" value="管理文档&#xa;(查/删/重索引)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="550" y="400" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-sync-es" value="同步至 ES" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="400" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-hybrid-search" value="混合检索&#xa;(向量+BM25+RRF)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="400" width="150" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- include: upload -> index -->
+        <mxCell id="inc-upload-index" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=1;fontSize=10;fontColor=#666666;strokeColor=#666666;" edge="1" parent="1" source="uc-upload-doc" target="uc-index-doc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 智能测验 ==================== -->
+        <mxCell id="pkg-quiz" value="智能测验系统" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="180" y="480" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-create-quiz" value="创建测验" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="510" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-answer" value="提交答案" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="510" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-next-q" value="获取下一题&#xa;(Agent 动态生成)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="510" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-quiz-status" value="查看测验状态" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="510" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-pause" value="暂停/恢复/放弃" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="900" y="510" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-coverage" value="查看知识覆盖率" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="510" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 学习分析 ==================== -->
+        <mxCell id="pkg-analysis" value="学习分析" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="180" y="590" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-cognitive" value="查看三维认知状态&#xa;(深度/负荷/稳定)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="615" width="170" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-report" value="查看测验报告" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="410" y="615" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-gaps" value="查看知识薄弱点" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="580" y="615" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-resolve" value="标记薄弱点已解决" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="750" y="615" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 可观测性 ==================== -->
+        <mxCell id="pkg-obs" value="可观测性" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="180" y="700" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-timeline" value="查看 Agent&#xa;执行时间线" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="725" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-tool-stats" value="查看工具统计" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="370" y="725" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-rag-trace" value="查看 RAG&#xa;检索追踪" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="540" y="725" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== 管理员功能 ==================== -->
+        <mxCell id="pkg-admin" value="管理员功能" style="text;html=1;align=left;fontSize=11;fontStyle=5;fontColor=#CC3333;" vertex="1" parent="1">
+          <mxGeometry x="860" y="700" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-admin-user" value="管理用户&#xa;(增删改查)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC3333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="870" y="725" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-admin-chat" value="查看所有&#xa;用户对话" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC3333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="725" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc-admin-doc" value="全量同步&#xa;ES 索引" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#CC3333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="725" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== Actor Connections ==================== -->
+        <!-- Student -> use cases -->
+        <mxCell id="a-s-1" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-register"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-2" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-3" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-create-team"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-4" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-rag-chat"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-5" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-upload-doc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-6" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-create-quiz"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-7" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-answer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-8" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-cognitive"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-s-9" style="strokeColor=#666666;" edge="1" parent="1" source="actor-student" target="uc-gaps"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Admin -> use cases -->
+        <mxCell id="a-a-1" style="strokeColor=#CC3333;" edge="1" parent="1" source="actor-admin" target="uc-admin-user"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-a-2" style="strokeColor=#CC3333;" edge="1" parent="1" source="actor-admin" target="uc-admin-chat"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-a-3" style="strokeColor=#CC3333;" edge="1" parent="1" source="actor-admin" target="uc-admin-doc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-a-4" style="strokeColor=#CC3333;" edge="1" parent="1" source="actor-admin" target="uc-timeline"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- AI -> use cases -->
+        <mxCell id="a-ai-1" style="strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="actor-ai" target="uc-rag-chat"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-ai-2" style="strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="actor-ai" target="uc-next-q"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-ai-3" style="strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="actor-ai" target="uc-hybrid-search"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a-ai-4" style="strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="actor-ai" target="uc-index-doc"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
