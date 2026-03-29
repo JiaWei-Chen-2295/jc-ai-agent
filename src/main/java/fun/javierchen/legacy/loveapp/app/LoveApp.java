@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.app;
+package fun.javierchen.legacy.loveapp.app;
 
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
@@ -16,7 +16,6 @@ import org.springframework.ai.rag.Query;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -26,7 +25,6 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 @Slf4j
-@Component
 public class LoveApp {
 
     private static final String SYSTEM_PROMPT = "扮演深耕恋爱心理领域的专家。开场向用户表明身份，告知用户可倾诉恋爱难题。" +

@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag.application.retrieval;
+package fun.javierchen.legacy.loveapp.rag.application.retrieval;
 
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;

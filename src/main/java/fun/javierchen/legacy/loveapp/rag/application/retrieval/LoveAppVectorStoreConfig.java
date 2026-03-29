@@ -1,19 +1,17 @@
-package fun.javierchen.jcaiagentbackend.rag.application.retrieval;
+package fun.javierchen.legacy.loveapp.rag.application.retrieval;
 
 import fun.javierchen.jcaiagentbackend.rag.application.ingestion.enrichment.KeywordEnricher;
-import fun.javierchen.jcaiagentbackend.rag.application.ingestion.loader.LoveAppDocumentLoader;
+import fun.javierchen.legacy.loveapp.rag.application.ingestion.loader.LoveAppDocumentLoader;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 import java.util.List;
 
-//@Configuration
 @Slf4j
 public class LoveAppVectorStoreConfig {
 
@@ -23,8 +21,7 @@ public class LoveAppVectorStoreConfig {
     @Resource
     private KeywordEnricher keywordEnricher;
 
-    @Bean
-    VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
+    public VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         List<Document> documents = null;
         try {
             documents = loveAppDocumentLoader.loadMarkDowns();

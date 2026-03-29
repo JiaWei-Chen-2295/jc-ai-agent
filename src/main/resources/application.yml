@@ -81,9 +81,9 @@ storage:
     # 头像最大大小（MB）
     max-size-mb: 2
     # Bucket 若为私有读，开启后端返回“读取签名 URL”，避免前端直接访问报错：You have no right to access this object because of bucket acl
-    sign-read-url: false
+    sign-read-url: ${JC_OSS_SIGN_READ_URL:false}
     # 读取签名 URL 有效期（秒）
-    read-url-expire-seconds: 3600
+    read-url-expire-seconds: ${JC_OSS_READ_URL_EXPIRE_SECONDS:3600}
 # springdoc-openapi项目配置
 springdoc:
   swagger-ui:

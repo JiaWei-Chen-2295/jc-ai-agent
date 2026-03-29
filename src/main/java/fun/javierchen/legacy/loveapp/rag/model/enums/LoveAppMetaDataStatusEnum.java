@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag.model.enums;
+package fun.javierchen.legacy.loveapp.rag.model.enums;
 
 
 import lombok.AllArgsConstructor;

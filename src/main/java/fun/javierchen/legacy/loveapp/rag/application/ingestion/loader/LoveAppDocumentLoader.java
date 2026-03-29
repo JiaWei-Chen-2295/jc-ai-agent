@@ -1,4 +1,4 @@
-package fun.javierchen.jcaiagentbackend.rag.application.ingestion.loader;
+package fun.javierchen.legacy.loveapp.rag.application.ingestion.loader;
 
 
 import org.springframework.ai.document.Document;
@@ -6,7 +6,6 @@ import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfig;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.List;
  * @author JavierChen
  * @date 2025/05/24
  */
-@Component
 public class LoveAppDocumentLoader {
 
     private ResourcePatternResolver resourcePatternResolver;
@@ -35,7 +33,7 @@ public class LoveAppDocumentLoader {
      */
     public List<Document> loadMarkDowns() throws IOException {
         List<Document> documentList = new ArrayList<>();
-        Resource[] resources = resourcePatternResolver.getResources("classpath:doc/*.md");
+        Resource[] resources = resourcePatternResolver.getResources("classpath:loveapp/*.md");
         // 配置 DocumentReaderConfig
         for (Resource resource : resources) {
             String filename = resource.getFilename();

@@ -1,9 +1,10 @@
-package fun.javierchen.jcaiagentbackend.app;
+package fun.javierchen.legacy.loveapp.app;
 
 import cn.hutool.core.util.StrUtil;
 
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Disabled("Archived LoveApp tests are kept for historical reference only.")
 class LoveAppTest {
 
     @Resource
