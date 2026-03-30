@@ -31,14 +31,16 @@ public class ChatSessionRepository {
         session.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         session.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
         session.setIsDeleted(rs.getInt("is_deleted"));
+        session.setModelId(rs.getString("model_id"));
         return session;
     };
 
     public void insert(ChatSession session) {
         String sql = """
-                INSERT INTO %s (chat_id, tenant_id, user_id, app_code, title, last_message_at, created_at, updated_at, is_deleted)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO %s (chat_id, tenant_id, user_id, app_code, title, last_message_at, created_at, updated_at, is_deleted, model_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """.formatted(TABLE_NAME);
+        String modelId = session.getModelId() != null ? session.getModelId() : "qwen3-max";
         jdbcTemplate.update(sql,
                 session.getChatId(),
                 session.getTenantId(),
@@ -48,7 +50,8 @@ public class ChatSessionRepository {
                 Timestamp.valueOf(session.getLastMessageAt()),
                 Timestamp.valueOf(session.getCreatedAt()),
                 Timestamp.valueOf(session.getUpdatedAt()),
-                session.getIsDeleted());
+                session.getIsDeleted(),
+                modelId);
     }
 
     public Optional<ChatSession> findActiveByChatId(String chatId) {

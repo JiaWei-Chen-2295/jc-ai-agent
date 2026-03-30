@@ -2,6 +2,13 @@ spring:
   application:
     name: jc-ai-agent-backend
   ai:
+    openai:
+      # 禁用 OpenAI 自动配置，ChatModelRegistry 按需手动创建 OpenAI 兼容客户端
+      api-key: "disabled"
+      chat:
+        enabled: false
+      embedding:
+        enabled: false
     dashscope:
       api-key: ${JC_AI_AGENT_API_KEY}
       chat:

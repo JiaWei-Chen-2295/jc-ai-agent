@@ -56,8 +56,10 @@ public class StudyFriendAgentEventStreamService {
 
     /**
      * 基于 AgentEvent 生成展示事件并通过 SSE 推送
+     *
+     * @param modelId 用户在会话中选择的模型 ID
      */
-    public SseEmitter stream(Long tenantId, Long userId, String chatId, String chatMessage, boolean enableTool) {
+    public SseEmitter stream(Long tenantId, Long userId, String chatId, String chatMessage, boolean enableTool, String modelId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT_MILLIS);
         StringBuilder assistantBuffer = new StringBuilder();
         AtomicReference<StreamState> state = new AtomicReference<StreamState>(StreamState.NEW);
@@ -67,8 +69,8 @@ public class StudyFriendAgentEventStreamService {
         sendEvent(emitter, buildEvent(AgentEventTypes.THINKING_START, AgentEventStage.THINKING, null, chatId));
         sendEvent(emitter, buildEvent(AgentEventTypes.OUTPUT_START, AgentEventStage.OUTPUT, null, chatId));
         Flux<String> stream = enableTool
-                ? studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId)
-                : studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId);
+                ? studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId, modelId)
+                : studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId, modelId);
         Disposable disposable = stream.subscribe(
                 chunk -> {
                     if (!enterStreaming(state, initialTimeoutRef, fallbackCallRef)) {
@@ -98,7 +100,7 @@ public class StudyFriendAgentEventStreamService {
                     if (state.get() == StreamState.NEW) {
                         // 流式无输出且已完成，直接降级为一次性回复
                         cleanupInitialTimeout(initialTimeoutRef);
-                        triggerFallback(emitter, tenantId, userId, chatId, chatMessage, enableTool, assistantBuffer, state, streamRef, fallbackCallRef);
+                        triggerFallback(emitter, tenantId, userId, chatId, chatMessage, enableTool, modelId, assistantBuffer, state, streamRef, fallbackCallRef);
                         return;
                     }
                     if (state.get() == StreamState.STREAMING) {
@@ -110,7 +112,7 @@ public class StudyFriendAgentEventStreamService {
         );
         streamRef.set(disposable);
         Disposable initialTimeoutDisposable = Mono.delay(Duration.ofMillis(INITIAL_OUTPUT_TIMEOUT_MILLIS))
-                .subscribe(ignore -> triggerFallback(emitter, tenantId, userId, chatId, chatMessage, enableTool,
+                .subscribe(ignore -> triggerFallback(emitter, tenantId, userId, chatId, chatMessage, enableTool, modelId,
                         assistantBuffer, state, streamRef, fallbackCallRef));
         initialTimeoutRef.set(initialTimeoutDisposable);
         // SSE 结束后释放订阅
@@ -183,6 +185,7 @@ public class StudyFriendAgentEventStreamService {
                                  String chatId,
                                  String chatMessage,
                                  boolean enableTool,
+                                 String modelId,
                                  StringBuilder assistantBuffer,
                                  AtomicReference<StreamState> state,
                                  AtomicReference<Disposable> streamRef,
@@ -190,7 +193,7 @@ public class StudyFriendAgentEventStreamService {
         if (!state.compareAndSet(StreamState.NEW, StreamState.FALLBACK)) {
             return;
         }
-        Disposable fallbackCall = Mono.fromCallable(() -> safeSyncReply(chatMessage, chatId, enableTool, tenantId))
+        Disposable fallbackCall = Mono.fromCallable(() -> safeSyncReply(chatMessage, chatId, enableTool, tenantId, modelId))
                  .subscribeOn(Schedulers.boundedElastic())
                  .subscribe(content -> {
                      // 如果流式输出已开始，则忽略降级结果，避免双输出
@@ -227,10 +230,10 @@ public class StudyFriendAgentEventStreamService {
         fallbackCallRef.set(fallbackCall);
     }
 
-    private String safeSyncReply(String chatMessage, String chatId, boolean enableTool, Long tenantId) {
+    private String safeSyncReply(String chatMessage, String chatId, boolean enableTool, Long tenantId, String modelId) {
         String content = enableTool
-                ? studyFriend.doChatWithTools(chatMessage, chatId, tenantId)
-                : studyFriend.doChatWithRAG(chatMessage, chatId, tenantId);
+                ? studyFriend.doChatWithTools(chatMessage, chatId, tenantId, modelId)
+                : studyFriend.doChatWithRAG(chatMessage, chatId, tenantId, modelId);
         return content == null ? "" : content;
     }
 

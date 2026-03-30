@@ -2,7 +2,6 @@ package fun.javierchen.jcaiagentbackend.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
@@ -17,7 +16,7 @@ class StudyFriendRagAdvisorTest {
 
     @Test
     void buildRagAdvisor_includesTenantFilterWhenTenantProvided() throws Exception {
-        StudyFriend studyFriend = new StudyFriend(mock(ChatModel.class));
+        StudyFriend studyFriend = new StudyFriend(mock(ChatModelRegistry.class));
 
         VectorStore vectorStore = mock(VectorStore.class);
         setField(studyFriend, "studyFriendPGvectorStore", vectorStore);
@@ -44,7 +43,7 @@ class StudyFriendRagAdvisorTest {
 
     @Test
     void buildRagAdvisor_omitsTenantFilterWhenTenantNull() throws Exception {
-        StudyFriend studyFriend = new StudyFriend(mock(ChatModel.class));
+        StudyFriend studyFriend = new StudyFriend(mock(ChatModelRegistry.class));
         setField(studyFriend, "studyFriendPGvectorStore", mock(VectorStore.class));
 
         QuestionAnswerAdvisor advisor = invokeBuildRagAdvisor(studyFriend, "hello", null);

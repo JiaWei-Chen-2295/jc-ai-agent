@@ -55,13 +55,14 @@ public class StudyFriendController {
     @Operation(summary = "Create chat session", description = "Create a StudyFriend chat session and return chatId.")
     public BaseResponse<ChatSessionVO> createSession(
             @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "modelId", required = false) String modelId,
             jakarta.servlet.http.HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Long tenantId = requireTenantId();
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        ChatSessionVO session = studyFriendChatService.createSession(tenantId, loginUser.getId(), title);
+        ChatSessionVO session = studyFriendChatService.createSession(tenantId, loginUser.getId(), title, modelId);
         return ResultUtils.success(session);
     }
 
@@ -156,9 +157,10 @@ public class StudyFriendController {
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
-        String content = studyFriend.doChatWithRAG(chatMessage, chatId, tenantId);
+        String modelId = session.getModelId();
+        String content = studyFriend.doChatWithRAG(chatMessage, chatId, tenantId, modelId);
         studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(), content);
         return content;
     }
@@ -185,14 +187,15 @@ public class StudyFriendController {
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        String modelId = session.getModelId();
         // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
         // 增量内容直接透传给前端，完成后补全持久化
-        studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId).subscribe(
+        studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId, modelId).subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -237,14 +240,15 @@ public class StudyFriendController {
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
+        String modelId = session.getModelId();
         // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
         // 增量内容直接透传给前端，完成后补全持久化
-        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId).subscribe(
+        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId, modelId).subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -289,9 +293,9 @@ public class StudyFriendController {
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
-        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, false);
+        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, false, session.getModelId());
     }
 
     @GetMapping(value = "/do_chat/sse_with_tool/agent/emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -316,9 +320,9 @@ public class StudyFriendController {
         if (!userService.isAdmin(loginUser)) {
             tenantService.requireMember(tenantId, loginUser.getId());
         }
-        studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
+        var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
-        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, true);
+        return studyFriendAgentEventStreamService.stream(tenantId, loginUser.getId(), chatId, chatMessage, true, session.getModelId());
     }
 
     private Long requireTenantId() {

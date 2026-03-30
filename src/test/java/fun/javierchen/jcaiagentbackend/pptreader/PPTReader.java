@@ -1,7 +1,6 @@
 package fun.javierchen.jcaiagentbackend.pptreader;
 
 
-import fun.javierchen.jcaiagentbackend.pptreader.PhotoEmbeddedDocumentExtractor;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.extractor.EmbeddedDocumentExtractor;
 import org.apache.tika.metadata.Metadata;

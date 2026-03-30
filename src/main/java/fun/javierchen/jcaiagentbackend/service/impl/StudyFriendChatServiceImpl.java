@@ -9,10 +9,13 @@ import fun.javierchen.jcaiagentbackend.controller.dto.ChatMessageListResponse;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatMessageVO;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionListResponse;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionVO;
-import fun.javierchen.jcaiagentbackend.exception.BusinessException;
-import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
+import fun.javierchen.jcaiagentbackend.app.ChatModelRegistry;
+import fun.javierchen.jcaiagentbackend.model.entity.AiModelConfig;
+import fun.javierchen.jcaiagentbackend.repository.AiModelConfigRepository;
 import fun.javierchen.jcaiagentbackend.repository.ChatMessageRepository;
 import fun.javierchen.jcaiagentbackend.repository.ChatSessionRepository;
+import fun.javierchen.jcaiagentbackend.exception.BusinessException;
+import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
 import fun.javierchen.jcaiagentbackend.service.StudyFriendChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,14 +36,16 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
 
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final AiModelConfigRepository modelConfigRepository;
 
     @Override
-    public ChatSessionVO createSession(Long tenantId, Long userId, String title) {
+    public ChatSessionVO createSession(Long tenantId, Long userId, String title, String modelId) {
         ThrowUtils.throwIf(tenantId == null || userId == null, ErrorCode.PARAMS_ERROR, "tenantId and userId are required");
         String finalTitle = StringUtils.hasText(title) ? title.trim() : DEFAULT_TITLE;
         if (finalTitle.length() > 255) {
             finalTitle = finalTitle.substring(0, 255);
         }
+        String resolvedModelId = StringUtils.hasText(modelId) ? modelId : ChatModelRegistry.DEFAULT_MODEL_ID;
         LocalDateTime now = LocalDateTime.now();
         ChatSession session = new ChatSession();
         session.setChatId(UUID.randomUUID().toString());
@@ -48,6 +53,7 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
         session.setUserId(userId);
         session.setAppCode(ChatConstant.APP_CODE_STUDY_FRIEND);
         session.setTitle(finalTitle);
+        session.setModelId(resolvedModelId);
         session.setLastMessageAt(now);
         session.setCreatedAt(now);
         session.setUpdatedAt(now);
@@ -193,6 +199,12 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
         vo.setTitle(session.getTitle());
         vo.setLastMessageAt(session.getLastMessageAt());
         vo.setCreatedAt(session.getCreatedAt());
+        vo.setModelId(session.getModelId());
+        // 补充模型展示名（数据库查找，允许 null）
+        if (session.getModelId() != null) {
+            modelConfigRepository.findByModelId(session.getModelId())
+                    .ifPresent(cfg -> vo.setModelDisplayName(cfg.getDisplayName()));
+        }
         return vo;
     }
 

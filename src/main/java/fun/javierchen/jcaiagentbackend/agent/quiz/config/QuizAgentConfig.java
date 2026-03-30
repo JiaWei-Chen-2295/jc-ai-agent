@@ -1,6 +1,7 @@
 package fun.javierchen.jcaiagentbackend.agent.quiz.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +18,7 @@ public class QuizAgentConfig {
      * 使用 Spring AI Alibaba 提供的 ChatModel
      */
     @Bean
-    public ChatClient.Builder chatClientBuilder(org.springframework.ai.chat.model.ChatModel chatModel) {
+    public ChatClient.Builder chatClientBuilder(@Qualifier("dashscopeChatModel") org.springframework.ai.chat.model.ChatModel chatModel) {
         return ChatClient.builder(chatModel);
     }
 }

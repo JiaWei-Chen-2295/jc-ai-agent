@@ -197,6 +197,13 @@
             <version>1.0.0-M6</version>
         </dependency>
 
+        <!-- OpenAI 兼容模型支持（DeepSeek / Kimi / GLM / GPT 等），无 Spring Boot 自动配置，由 ChatModelRegistry 手动管理 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+            <version>1.0.0-M6</version>
+        </dependency>
+
 
         <!--用于 JSON 序列化-->
         <dependency>

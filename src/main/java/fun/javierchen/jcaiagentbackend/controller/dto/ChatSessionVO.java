@@ -20,4 +20,10 @@ public class ChatSessionVO {
 
     @Schema(description = "Created time")
     private LocalDateTime createdAt;
+
+    @Schema(description = "AI model ID used in this session")
+    private String modelId;
+
+    @Schema(description = "AI model display name")
+    private String modelDisplayName;
 }

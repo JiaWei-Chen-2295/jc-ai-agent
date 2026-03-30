@@ -9,7 +9,19 @@ import java.time.LocalDateTime;
 
 public interface StudyFriendChatService {
 
-    ChatSessionVO createSession(Long tenantId, Long userId, String title);
+    /**
+     * 创建会话（指定模型 ID）
+     *
+     * @param modelId 用户选择的模型 ID，为空时使用默认模型
+     */
+    ChatSessionVO createSession(Long tenantId, Long userId, String title, String modelId);
+
+    /**
+     * 创建会话（使用默认模型）
+     */
+    default ChatSessionVO createSession(Long tenantId, Long userId, String title) {
+        return createSession(tenantId, userId, title, null);
+    }
 
     ChatSession requireSessionForUser(String chatId, Long tenantId, Long userId);
 

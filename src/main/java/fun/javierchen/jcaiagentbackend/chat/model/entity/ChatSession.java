@@ -35,4 +35,7 @@ public class ChatSession {
 
     @Schema(description = "Soft delete flag")
     private Integer isDeleted;
+
+    @Schema(description = "Selected AI model ID for this session")
+    private String modelId;
 }
