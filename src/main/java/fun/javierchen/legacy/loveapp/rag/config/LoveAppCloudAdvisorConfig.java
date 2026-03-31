@@ -6,7 +6,7 @@ import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetriever;
 import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetrieverOptions;
 import fun.javierchen.legacy.loveapp.rag.application.ingestion.loader.LoveAppDocumentLoader;
 import jakarta.annotation.Resource;
-import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -30,7 +30,7 @@ public class LoveAppCloudAdvisorConfig {
 
         final String INDEX_NAME = "恋爱ing";
 
-        DashScopeApi dashScopeApi = new DashScopeApi(apiKey);
+        DashScopeApi dashScopeApi = DashScopeApi.builder().apiKey(apiKey).build();
         DocumentRetriever dashScopeDocumentRetriever = new DashScopeDocumentRetriever(dashScopeApi,
                 DashScopeDocumentRetrieverOptions.builder()
                         .withIndexName(INDEX_NAME)

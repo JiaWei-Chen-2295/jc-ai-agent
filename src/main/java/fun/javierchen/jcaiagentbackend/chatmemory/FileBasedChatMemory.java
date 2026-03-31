@@ -44,10 +44,8 @@ public class FileBasedChatMemory implements ChatMemory {
     }
 
     @Override
-    public List<Message> get(String conversationId, int lastN) {
-        List<Message> messages = getOrCreateConversation(conversationId);
-        // 获取最后N条消息
-        return messages.subList(Math.max(messages.size() - lastN, 0), messages.size());
+    public List<Message> get(String conversationId) {
+        return getOrCreateConversation(conversationId);
     }
 
     @Override

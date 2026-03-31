@@ -8,11 +8,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.rag.Query;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -21,8 +22,7 @@ import reactor.core.publisher.Flux;
 import java.io.File;
 import java.util.List;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
+
 
 @Slf4j
 public class LoveApp {
@@ -51,7 +51,7 @@ public class LoveApp {
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
                         // 基于内存的记忆方式
-                        new MessageChatMemoryAdvisor(chatMemory),
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         // 基于文件的记忆方式
                         // 添加日志记录功能
                         new AgentLoggerAdvisor()
@@ -70,8 +70,7 @@ public class LoveApp {
      */
     public String doChat(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("ai content: {}", content);
@@ -91,8 +90,7 @@ public class LoveApp {
     public LoveReport doChatWithReport(String chatMessage, String chatId) {
         LoveReport loveReport = chatClient.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT + "每次对话结束都要生成恋爱报告，标题为{用户名}的恋爱报告，内容为建议列表")
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .call().entity(LoveReport.class);
         log.info("ai generate report: {}", loveReport);
         return loveReport;
@@ -111,13 +109,14 @@ public class LoveApp {
         String rewritePrompt = queryRewriter.rewrite(chatMessage);
         ChatResponse chatResponse = chatClient.prompt().user(rewritePrompt)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // 通过云端文档检索功能
 //                .advisors(loveAppCloudAdvisor)
-                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
+                .advisors(RetrievalAugmentationAdvisor.builder()
+                        .documentRetriever(VectorStoreDocumentRetriever.builder().vectorStore(pgVectorStore).build())
+                        .build())
                 // 配置 RAG
 //                .advisors(LoveAppRagCustomAdvisorFactory.create(loveAppVectorStore, LoveAppMetaDataStatusEnum.SINGLE_PERSON))
                 .call().chatResponse();
@@ -136,8 +135,7 @@ public class LoveApp {
         String rewritePrompt = alibabaMachineTranslationQueryTransformer.transform(new Query(chatMessage)).text();
         ChatResponse chatResponse = chatClient.prompt().user(rewritePrompt)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .call().chatResponse();
@@ -148,8 +146,7 @@ public class LoveApp {
 
     public void doChatWithStream(String chatMessage, String chatId, java.util.function.Consumer<String> onSubscribeChunk, Runnable onComplete) {
         Flux<String> contentFlux = chatClient.prompt().system(SYSTEM_PROMPT).user(chatMessage)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream().content();
 
 
@@ -164,8 +161,7 @@ public class LoveApp {
     public String doChatWithTool(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .tools(allTools)
@@ -180,8 +176,7 @@ public class LoveApp {
     public String doChatWithMCP(String chatMessage, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
 //                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .tools(toolCallbackProvider)

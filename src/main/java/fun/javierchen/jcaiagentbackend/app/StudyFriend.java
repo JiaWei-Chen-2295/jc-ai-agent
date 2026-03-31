@@ -8,11 +8,12 @@ import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,8 +23,7 @@ import reactor.core.publisher.Flux;
 import java.io.File;
 import java.util.List;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
+
 
 @Slf4j
 @Component
@@ -70,16 +70,14 @@ public class StudyFriend {
         if (shouldUseRag(chatMessage)) {
             chatResponse = client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .call().chatResponse();
         } else {
             chatResponse = client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .call().chatResponse();
         }
@@ -101,16 +99,14 @@ public class StudyFriend {
         if (shouldUseRag(chatMessage)) {
             return client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .stream().content();
         }
         return client.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
                 .stream().content();
     }
@@ -129,16 +125,14 @@ public class StudyFriend {
         if (shouldUseRag(chatMessage)) {
             chatResponse = client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .call().chatResponse();
         } else {
             chatResponse = client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .call().chatResponse();
         }
@@ -160,16 +154,14 @@ public class StudyFriend {
         if (shouldUseRag(chatMessage)) {
             return client.prompt().user(chatMessage)
                     .system(SYSTEM_PROMPT)
-                    .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                            .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .stream().content();
         }
         return client.prompt().user(chatMessage)
                 .system(SYSTEM_PROMPT)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 .advisors(new AgentLoggerAdvisor())
                 .stream().content();
     }
@@ -187,7 +179,7 @@ public class StudyFriend {
         return ChatClient.builder(chatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(chatMemory),
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         new AgentLoggerAdvisor()
                 )
                 .build();
@@ -205,17 +197,18 @@ public class StudyFriend {
         return true;
     }
 
-    private QuestionAnswerAdvisor buildRagAdvisor(String chatMessage, Long tenantId) {
-        SearchRequest.Builder builder = SearchRequest.builder()
-                .query(chatMessage)
+    private Advisor buildRagAdvisor(String chatMessage, Long tenantId) {
+        VectorStoreDocumentRetriever.Builder builder = VectorStoreDocumentRetriever.builder()
+                .vectorStore(hybridSearchVectorStore)
                 .topK(RAG_TOP_K)
                 .similarityThreshold(RAG_SIMILARITY_THRESHOLD);
         if (tenantId != null) {
             Filter.Expression filter = VectorStoreFilterUtils.buildTenantIdFilter(tenantId);
             builder.filterExpression(filter);
         }
-        SearchRequest searchRequest = builder.build();
-        return new QuestionAnswerAdvisor(hybridSearchVectorStore, searchRequest);
+        return RetrievalAugmentationAdvisor.builder()
+                .documentRetriever(builder.build())
+                .build();
     }
 }
 

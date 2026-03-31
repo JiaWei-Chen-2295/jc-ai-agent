@@ -18,7 +18,7 @@ public class QuizAgentConfig {
      * 使用 Spring AI Alibaba 提供的 ChatModel
      */
     @Bean
-    public ChatClient.Builder chatClientBuilder(@Qualifier("dashscopeChatModel") org.springframework.ai.chat.model.ChatModel chatModel) {
+    public ChatClient.Builder chatClientBuilder(@Qualifier("dashScopeChatModel") org.springframework.ai.chat.model.ChatModel chatModel) {
         return ChatClient.builder(chatModel);
     }
 }

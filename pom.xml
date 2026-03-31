@@ -28,7 +28,19 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <spring-ai.version>1.1.2</spring-ai.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -89,24 +101,15 @@
             </exclusions>
         </dependency>
 
-        <!--Spring AI Alibaba-->
-        <!-- 排除掉这个依赖的 Logger 防止控制台报错 -->
+        <!--Spring AI Alibaba (DashScope)-->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
-            <artifactId>spring-ai-alibaba-starter</artifactId>
-            <version>1.0.0-M6.1</version>
+            <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+            <version>1.1.2.2</version>
             <exclusions>
                 <exclusion>
                     <artifactId>logback-classic</artifactId>
                     <groupId>ch.qos.logback</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba.nacos</groupId>
-                    <artifactId>nacos-logback-adapter-12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba.nacos</groupId>
-                    <artifactId>nacos-log4j2-adapter</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -128,7 +131,6 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-markdown-document-reader</artifactId>
-            <version>1.0.0-M6</version>
         </dependency>
         <!--向量数据库整合-->
         <dependency>
@@ -146,7 +148,6 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-pgvector-store</artifactId>
-            <version>1.0.0-M6</version>
         </dependency>
 
         <!-- 第三方翻译接口-->
@@ -162,7 +163,6 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-jsoup-document-reader</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <!--PDF 生成工具-->
@@ -190,18 +190,15 @@
         </dependency>
 
         <!--Java MCP Client -->
-        <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-mcp-client-spring-boot-starter -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
-            <version>1.0.0-M6</version>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
         </dependency>
 
         <!-- OpenAI 兼容模型支持（DeepSeek / Kimi / GLM / GPT 等），无 Spring Boot 自动配置，由 ChatModelRegistry 手动管理 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-openai</artifactId>
-            <version>1.0.0-M6</version>
         </dependency>
 
 

@@ -44,7 +44,7 @@ public class ChatModelRegistry {
     private static final String DEFAULT_COMPLETIONS_PATH = "/v1/chat/completions";
 
     public ChatModelRegistry(
-            @Qualifier("dashscopeChatModel") ChatModel dashscopeChatModel,
+            @Qualifier("dashScopeChatModel") ChatModel dashscopeChatModel,
             AiModelConfigRepository modelConfigRepo,
             ApiKeyEncryptor apiKeyEncryptor) {
         this.dashscopeChatModel = dashscopeChatModel;
@@ -140,6 +140,9 @@ public class ChatModelRegistry {
 
         log.info("ChatModelRegistry: creating OpenAI-compatible model '{}' provider='{}' baseUrl='{}' completionsPath='{}'",
                 config.getModelId(), config.getProvider(), config.getBaseUrl(), completionsPath);
-        return new OpenAiChatModel(openAiApi, options);
+        return OpenAiChatModel.builder()
+                .openAiApi(openAiApi)
+                .defaultOptions(options)
+                .build();
     }
 }

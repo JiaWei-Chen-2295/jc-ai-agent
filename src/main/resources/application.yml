@@ -22,7 +22,7 @@ spring:
       client:
         request-timeout: 60s
         stdio:
-          servers-configuration: classpath:mcp-server.json
+          connections: {}
 
 
   datasource:
