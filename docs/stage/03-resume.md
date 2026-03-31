@@ -1,3 +1,7 @@
+# 智能测验 Agent 阶段总结
+
+> 规划日期：2026-03-16
+
 智能测验 Agent — Quiz ReAct Agent
 技术栈: Spring Boot 3 / Spring AI / PostgreSQL + PGVector / Redis / 通义千问
 

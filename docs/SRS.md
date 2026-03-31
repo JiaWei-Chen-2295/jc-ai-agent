@@ -1,9 +1,9 @@
 # JC-AI-Agent 软件需求规格说明书 (SRS)
 
 > **项目名称：** JC-AI-Agent 智能学习平台后端
-> **版本：** v1.0
-> **编写日期：** 2026-03-21
-> **文档状态：** 已实现需求提取
+> **版本：** v1.1
+> **编写日期：** 2026-03-31
+> **文档状态：** 已按当前实现补全并校正
 
 ---
 
@@ -49,19 +49,23 @@
 | **SSE** | Server-Sent Events，服务端推送事件流 |
 | **Tenant** | 租户，系统中的数据隔离单元（个人空间或团队） |
 | **DashScope** | 阿里云大模型服务平台 |
+| **MCP** | Model Context Protocol，模型上下文协议，用于扩展工具能力 |
+| **Model ID** | 模型业务标识，如 `qwen3-max`、`deepseek-chat` |
 
 ### 1.4 技术栈概览
 
 | 层级 | 技术选型 |
 |------|----------|
 | 应用框架 | Spring Boot 3.4.4 / Java 21 |
-| AI 框架 | Spring AI |
-| 大模型 | 阿里云 DashScope (Qwen3) |
+| AI 框架 | Spring AI 1.1.2 / Spring AI Alibaba 1.1.2.2 |
+| 大模型 | 阿里云 DashScope (Qwen3) + OpenAI 兼容模型注册中心 |
 | 嵌入模型 | text-embedding-v2 (1536 维) |
 | 主数据库 | PostgreSQL 15+ (pgvector 扩展) |
 | 缓存 | Redis 6+ |
 | 搜索引擎 | Elasticsearch 8.x |
 | 对象存储 | 阿里云 OSS |
+| 模型扩展 | `spring-ai-openai` + `ai_model_config` 动态模型配置 |
+| 工具扩展 | Spring AI MCP Client |
 | API 文档 | Swagger / Knife4j (OpenAPI 3.0) |
 
 ---
@@ -78,11 +82,11 @@
 |------|------|
 | **客户端层** | Web 前端、移动端、Swagger 文档、管理后台 |
 | **API 网关层** | Session 认证、租户上下文注入、CORS、全局异常处理、SSE 流式输出、OpenAPI |
-| **Controller 层** | 9 个 Controller，处理 HTTP 请求路由 |
-| **业务服务层** | UserService、TenantService、ChatService、QuizService 等 11+ 服务 |
-| **AI Agent 层** | AbstractReActAgent、QuizReActAgent、StudyFriend ChatClient，4 个 Agent 工具 |
+| **Controller 层** | User / Tenant / StudyFriend / Document / Quiz / Avatar / AiModel / AgentObservability 等接口 |
+| **业务服务层** | UserService、TenantService、StudyFriendChatService、DocumentService、QuizSessionService 等 |
+| **AI Agent 层** | AbstractReActAgent、QuizReActAgent、StudyFriend ChatClient、ChatModelRegistry、MCP Tool Calling |
 | **RAG 检索层** | HybridRetriever（混合检索引擎）、TenantVectorStore、EsKeywordSearch、RRF Merger |
-| **数据持久层** | PostgreSQL + PGVector、Redis、Elasticsearch、阿里云 OSS、DashScope API |
+| **数据持久层** | PostgreSQL + PGVector、Redis、Elasticsearch、阿里云 OSS、DashScope / OpenAI Compatible API |
 
 ### 2.2 部署架构
 
@@ -94,7 +98,7 @@
 | PostgreSQL | Port 5432, pgvector 扩展 |
 | Redis | Port 6379 |
 | Elasticsearch | Port 9200 |
-| 阿里云 DashScope | HTTPS 远程调用 |
+| 阿里云 DashScope / OpenAI Compatible API | HTTPS 远程调用 |
 | 阿里云 OSS | 前端直传 + 后端签名 |
 
 ### 2.3 核心类图
@@ -116,7 +120,7 @@
 | 角色 | 权限说明 |
 |------|----------|
 | **学生用户** | 注册登录、创建/加入团队、上传文档、AI 对话、参加测验、查看学习分析 |
-| **管理员** | 继承学生用户全部权限 + 用户管理（增删改查）、查看所有用户对话、全量 ES 同步、Agent 可观测性 |
+| **管理员** | 继承学生用户全部权限 + 用户管理（增删改查）、查看所有用户对话、全量 ES 同步、AI 模型配置管理、Agent 可观测性 |
 | **AI 大模型** | 系统参与者，提供对话生成、文档嵌入、Agent 推理等能力 |
 
 ---
@@ -166,6 +170,8 @@
 | UC-33 | 管理用户 (增删改查) | 管理员 | 管理功能 |
 | UC-34 | 查看所有用户对话 | 管理员 | 管理功能 |
 | UC-35 | 全量同步 ES 索引 | 管理员 | 管理功能 |
+| UC-36 | 获取可用 AI 模型列表 | 学生用户 | AI 对话 |
+| UC-37 | 管理 AI 模型配置 | 管理员 | AI 模型管理 |
 
 ---
 
@@ -182,10 +188,11 @@
 | FR-USER-005 | 管理员创建用户 | P1 | 管理员角色 |
 | FR-USER-006 | 管理员删除用户（逻辑删除） | P1 | 管理员角色 |
 | FR-USER-007 | 管理员更新用户信息 | P1 | 管理员角色 |
-| FR-USER-008 | 管理员搜索用户列表 | P1 | 管理员角色 |
+| FR-USER-008 | 管理员查询用户列表（列表 / 分页） | P1 | 管理员角色 |
 | FR-USER-009 | 用户注册时自动创建个人租户 (PERSONAL) | P0 | 无 |
-| FR-USER-010 | 用户获取 OSS 上传策略，前端直传头像至 OSS | P2 | 已登录 |
-| FR-USER-011 | 用户更新头像地址 | P2 | 已登录 |
+| FR-USER-010 | 用户获取头像上传凭证，前端直传头像至 OSS | P2 | 已登录 |
+| FR-USER-011 | 用户提交头像对象 Key 更新当前头像 | P2 | 已登录 |
+| FR-USER-012 | 用户更新自己的昵称、简介等个人资料 | P1 | 已登录 |
 
 ### 4.2 多租户系统 (FR-TENANT)
 
@@ -203,7 +210,7 @@
 
 | 需求编号 | 需求描述 | 优先级 | 前置条件 |
 |----------|----------|--------|----------|
-| FR-CHAT-001 | 创建对话会话（绑定租户和用户） | P0 | 已登录、已选租户 |
+| FR-CHAT-001 | 创建对话会话（绑定租户、用户，可选指定 modelId） | P0 | 已登录、已选租户 |
 | FR-CHAT-002 | 查询用户会话列表（游标分页，按最后消息时间降序） | P0 | 已登录 |
 | FR-CHAT-003 | 查询会话历史消息（游标分页） | P0 | 已登录 |
 | FR-CHAT-004 | 同步对话：发送问题 → RAG 检索 → LLM 生成 → 返回完整回答 | P1 | 会话已创建 |
@@ -213,6 +220,20 @@
 | FR-CHAT-008 | SSE + AgentEvent + Tool Calling：完整 Agent 能力流式对话 | P1 | 会话已创建 |
 | FR-CHAT-009 | 对话结束后持久化用户消息和 AI 回复消息 | P0 | - |
 | FR-CHAT-010 | 管理员查看所有用户的会话列表和消息内容 | P1 | 管理员角色 |
+| FR-CHAT-011 | 查询已启用的 AI 模型列表，供创建会话时选择 | P1 | 已登录 |
+| FR-CHAT-012 | 会话创建时未指定 modelId 则使用默认模型 `qwen3-max` | P1 | - |
+| FR-CHAT-013 | 每个对话会话持久化已选择的 modelId，后续消息沿用该模型 | P1 | 会话已创建 |
+| FR-CHAT-014 | 工具调用链支持通过 MCP 扩展外部能力 | P2 | 工具调用已启用 |
+
+### 4.3.1 AI 模型管理 (FR-MODEL)
+
+| 需求编号 | 需求描述 | 优先级 | 前置条件 |
+|----------|----------|--------|----------|
+| FR-MODEL-001 | 管理员创建 AI 模型配置，支持 DashScope 和 OpenAI 兼容提供商 | P1 | 管理员角色 |
+| FR-MODEL-002 | 管理员更新模型配置，并在配置变更后刷新模型缓存 | P1 | 管理员角色 |
+| FR-MODEL-003 | 管理员启用 / 禁用模型配置 | P1 | 管理员角色 |
+| FR-MODEL-004 | 管理员删除模型配置 | P1 | 管理员角色 |
+| FR-MODEL-005 | OpenAI 兼容模型 API Key 必须加密存储，不能明文回传 | P0 | 非 DashScope 模型 |
 
 ### 4.4 文档与 RAG 知识库 (FR-RAG)
 
@@ -252,6 +273,8 @@
 | FR-QUIZ-012 | 查看知识覆盖率指标 | P1 | - |
 | FR-QUIZ-013 | 查询用户测验历史列表 | P1 | 已登录 |
 | FR-QUIZ-014 | 软删除测验 | P2 | - |
+| FR-QUIZ-015 | 测验不设固定题量，系统在知识点未全部达标前持续出题 | P0 | 测验进行中 |
+| FR-QUIZ-016 | 用户可主动取消测验；除主动取消外，只有全部知识点达标后才结束 | P0 | 测验进行中 |
 
 #### 4.5.1 ReAct Agent 工具链
 
@@ -261,6 +284,13 @@
 | **KnowledgeRetrieverTool** | 混合检索知识库（向量+BM25），按租户隔离，可配置 top-K 和相似度阈值 |
 | **UserAnalyzerTool** | 分析用户三维认知状态（理解深度/认知负荷/稳定性），追踪知识掌握度 |
 | **AnswerEvaluatorTool** | 评估学生答案正确性，多题型批改，部分得分计算，反馈生成 |
+
+#### 4.5.2 自适应结束规则
+
+- 默认达标条件：`understandingDepth >= 70`、`cognitiveLoad <= 40`、`stability >= 70`
+- 仅当所有关联知识点均达标且不存在未解决薄弱点时，测验才会自动完成
+- 当用户主动放弃时，测验以 `ABANDONED` 结束
+- 上述阈值属于业务默认值，允许后续按运营数据调优
 
 ### 4.6 学习分析 (FR-ANALYSIS)
 
@@ -283,9 +313,10 @@
 |----------|----------|--------|----------|
 | FR-OBS-001 | 查看 ReAct Agent 完整执行时间线 (THOUGHT/ACTION/OBSERVATION) | P1 | 有 Agent 执行记录 |
 | FR-OBS-002 | 查看执行统计概览（迭代次数/总耗时） | P1 | - |
-| FR-OBS-003 | 分页查询 Agent 执行日志 | P1 | - |
-| FR-OBS-004 | 查看各工具的调用次数和执行耗时统计 | P2 | - |
-| FR-OBS-005 | 查看 RAG 检索追踪（向量/ES 延迟、融合操作、降级原因） | P2 | - |
+| FR-OBS-003 | 分页查询当前租户下的 Agent 执行日志 | P1 | 已登录、已选租户 |
+| FR-OBS-004 | 查看指定会话内各工具的调用次数和执行耗时统计 | P2 | 有 Agent 执行记录 |
+| FR-OBS-005 | 查看最近 RAG 检索追踪（向量/ES 延迟、融合操作、降级原因） | P2 | 已登录、已选租户 |
+| FR-OBS-006 | 按 traceId 查询单条 RAG 检索轨迹详情 | P2 | 已登录、已选租户 |
 
 ---
 
@@ -482,6 +513,7 @@
 | userId | BIGINT (FK) | → user.id |
 | appCode | VARCHAR | 应用编码 |
 | title | VARCHAR | 会话标题 |
+| modelId | VARCHAR | 会话绑定的 AI 模型 ID |
 | lastMessageAt | TIMESTAMP | 最后消息时间 |
 | createdAt / updatedAt | TIMESTAMP | 时间戳 |
 | isDeleted | BOOLEAN | 逻辑删除 |
@@ -498,6 +530,26 @@
 | content | TEXT | 消息内容 |
 | metadata | JSONB | 附加元数据 |
 | createdAt | TIMESTAMP | 创建时间 |
+
+**ai_model_config 表**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT (PK) | 主键 |
+| provider | VARCHAR | 提供商标识：dashscope / openai / deepseek / kimi / glm |
+| modelId | VARCHAR | 业务模型 ID，唯一 |
+| modelName | VARCHAR | API 实际模型名 |
+| displayName | VARCHAR | 前端展示名 |
+| baseUrl | VARCHAR | OpenAI 兼容端点，DashScope 可为空 |
+| completionsPath | VARCHAR | 自定义 completions 路径 |
+| apiKeyEnc | VARCHAR | AES-256-GCM 加密后的 API Key |
+| maxTokens | INT | 默认最大输出 token 数 |
+| temperature | DECIMAL | 默认温度 |
+| description | VARCHAR | 描述信息 |
+| iconUrl | VARCHAR | 图标地址 |
+| enabled | BOOLEAN | 是否启用 |
+| sortOrder | INT | 前端排序权重 |
+| createdAt / updatedAt | TIMESTAMP | 时间戳 |
 
 #### 6.2.3 文档模块
 
@@ -637,6 +689,7 @@
 | NFR-SEC-003 | 管理功能仅限 admin 角色 |
 | NFR-SEC-004 | 所有数据查询按 tenantId 隔离，防止越权 |
 | NFR-SEC-005 | OSS 上传使用签名策略，限制上传目录和文件大小 |
+| NFR-SEC-006 | 非 DashScope 模型 API Key 必须加密存储，主密钥通过环境变量提供 |
 
 ### 7.3 可用性
 
@@ -671,16 +724,30 @@
 | POST | `/add` | 创建用户 | 管理员 |
 | POST | `/delete` | 删除用户 | 管理员 |
 | POST | `/update` | 更新用户 | 管理员 |
-| GET | `/search` | 搜索用户 | 管理员 |
+| POST | `/update/my` | 更新我的资料 | 已登录 |
+| GET | `/get` | 按 id 获取用户 | 管理员 |
+| GET | `/list` | 查询用户列表 | 管理员 |
+| POST | `/list/page` | 分页查询用户 | 管理员 |
 
 ### 8.2 用户头像 `/api/user/avatar`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/upload-policy` | 获取 OSS 上传策略 | 已登录 |
-| POST | `/update-avatar` | 更新头像地址 | 已登录 |
+| POST | `/upload-token` | 获取头像上传凭证 | 已登录 |
+| POST | `/` | 更新当前用户头像 | 已登录 |
 
-### 8.3 多租户 `/api/tenant`
+### 8.3 AI 模型 `/api/ai`
+
+| 方法 | 路径 | 说明 | 权限 |
+|------|------|------|------|
+| GET | `/models` | 获取已启用模型列表 | 已登录 |
+| GET | `/admin/models` | 获取全部模型（含禁用） | 管理员 |
+| POST | `/admin/models` | 新增模型配置 | 管理员 |
+| PUT | `/admin/models/{id}` | 更新模型配置 | 管理员 |
+| PATCH | `/admin/models/{id}/toggle` | 启用 / 禁用模型 | 管理员 |
+| DELETE | `/admin/models/{id}` | 删除模型配置 | 管理员 |
+
+### 8.4 多租户 `/api/tenant`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
@@ -691,11 +758,11 @@
 | POST | `/transfer-admin` | 转移管理权限 | ADMIN |
 | POST | `/active` | 切换活跃租户 | 已登录 |
 
-### 8.4 AI 对话 `/api/ai_friend`
+### 8.5 AI 对话 `/api/ai_friend`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/session` | 创建会话 | 已登录 |
+| POST | `/session` | 创建会话（可选 modelId） | 已登录 |
 | GET | `/session/list` | 会话列表 | 已登录 |
 | GET | `/session/{chatId}/messages` | 历史消息 | 已登录 |
 | GET | `/admin/session/list` | 管理员查看所有会话 | 管理员 |
@@ -706,7 +773,7 @@
 | GET | `/do_chat/sse/agent/emitter` | SSE + AgentEvent | 已登录 |
 | GET | `/do_chat/sse_with_tool/agent/emitter` | SSE + Agent + Tool | 已登录 |
 
-### 8.5 文档管理 `/api/document`
+### 8.6 文档管理 `/api/document`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
@@ -718,7 +785,7 @@
 | POST | `/{documentId}/sync-es` | 手动同步 ES | 管理员 |
 | POST | `/sync-es/full` | 全量同步 ES | 管理员 |
 
-### 8.6 智能测验 `/api/v1/quiz`
+### 8.7 智能测验 `/api/v1/quiz`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
@@ -732,7 +799,7 @@
 | GET | `/session/{id}/next` | 获取下一题 | 已登录 |
 | GET | `/session/{id}/coverage` | 知识覆盖率 | 已登录 |
 
-### 8.7 学习分析 `/api/v1/quiz/analysis`
+### 8.8 学习分析 `/api/v1/quiz/analysis`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
@@ -741,17 +808,18 @@
 | GET | `/user/{userId}/gaps` | 知识薄弱点 | 已登录 |
 | POST | `/gap/{id}/resolve` | 标记已解决 | 已登录 |
 
-### 8.8 Agent 可观测性 `/api/v1/agent/observability`
+### 8.9 Agent 可观测性 `/api/v1/agent/observability`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/session/{sessionId}/timeline` | Agent 执行时间线 | 管理员 |
-| GET | `/session/{sessionId}/overview` | 执行统计概览 | 管理员 |
-| GET | `/session/{sessionId}/logs` | 分页查询日志 | 管理员 |
-| GET | `/tool-stats` | 工具调用统计 | 管理员 |
-| GET | `/rag-traces` | RAG 检索追踪 | 管理员 |
+| GET | `/session/{sessionId}/timeline` | Agent 执行时间线 | 已登录、已选租户 |
+| GET | `/session/{sessionId}/overview` | 执行统计概览 | 已登录、已选租户 |
+| GET | `/session/{sessionId}/tools` | 工具调用统计 | 已登录、已选租户 |
+| GET | `/tenant/logs` | 当前租户日志分页查询 | 已登录、已选租户 |
+| GET | `/rag/latest` | 最近 RAG 检索轨迹 | 已登录、已选租户 |
+| GET | `/rag/{traceId}` | 单条 RAG 检索轨迹详情 | 已登录、已选租户 |
 
-### 8.9 系统 `/api`
+### 8.10 系统 `/api`
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|

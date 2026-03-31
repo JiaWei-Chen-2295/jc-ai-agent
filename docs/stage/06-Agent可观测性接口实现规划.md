@@ -1,5 +1,7 @@
 # Agent 可观测性接口实现规划
 
+> 规划日期：2026-03-29
+
 ## 背景
 
 `agent_execution_log` 表已记录了完整的 ReAct 循环数据（Thought/Action/Observation），`AgentExecutionLogRepository` 已有丰富的查询方法，但没有 Controller 暴露这些能力。需要一个可观测性接口层，当前用于 debug，后期供管理员监控。

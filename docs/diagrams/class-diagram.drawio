@@ -5,12 +5,10 @@
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
 
-        <!-- Title -->
         <mxCell id="title" value="JC-AI-Agent 核心类图 (Class Diagram)" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
           <mxGeometry x="530" y="8" width="540" height="35" as="geometry"/>
         </mxCell>
 
-        <!-- ============ Section 1: Agent Core (ReAct Pattern) ============ -->
         <mxCell id="s1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5F5;strokeColor=#b85450;dashed=1;arcSize=3;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="20" y="50" width="620" height="590" as="geometry"/>
         </mxCell>
@@ -18,7 +16,6 @@
           <mxGeometry x="30" y="54" width="220" height="22" as="geometry"/>
         </mxCell>
 
-        <!-- «interface» BaseAgent -->
         <mxCell id="c-ba" value="&lt;&lt;interface&gt;&gt;&#xa;BaseAgent" style="swimlane;fontStyle=3;align=center;startSize=38;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="200" y="85" width="220" height="100" as="geometry"/>
         </mxCell>
@@ -29,7 +26,6 @@
           <mxGeometry y="46" width="220" height="54" as="geometry"/>
         </mxCell>
 
-        <!-- AbstractReActAgent {abstract} -->
         <mxCell id="c-ara" value="AbstractReActAgent {abstract}" style="swimlane;fontStyle=3;align=center;startSize=26;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="130" y="240" width="360" height="190" as="geometry"/>
         </mxCell>
@@ -43,7 +39,6 @@
           <mxGeometry y="84" width="360" height="106" as="geometry"/>
         </mxCell>
 
-        <!-- QuizReActAgent -->
         <mxCell id="c-qra" value="QuizReActAgent" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="160" y="490" width="300" height="135" as="geometry"/>
         </mxCell>
@@ -57,17 +52,14 @@
           <mxGeometry y="69" width="300" height="66" as="geometry"/>
         </mxCell>
 
-        <!-- Inheritance: BaseAgent <|-- AbstractReActAgent -->
         <mxCell id="r-ba-ara" value="" style="endArrow=block;endFill=0;html=1;rounded=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="1" source="c-ara" target="c-ba">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- Inheritance: AbstractReActAgent <|-- QuizReActAgent -->
         <mxCell id="r-ara-qra" value="" style="endArrow=block;endFill=0;html=1;rounded=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="1" source="c-qra" target="c-ara">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- ============ Section 2: Agent Tools ============ -->
         <mxCell id="s2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#FF6A00;dashed=1;arcSize=3;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="660" y="50" width="550" height="590" as="geometry"/>
         </mxCell>
@@ -75,7 +67,6 @@
           <mxGeometry x="670" y="54" width="220" height="22" as="geometry"/>
         </mxCell>
 
-        <!-- «interface» AgentTool -->
         <mxCell id="c-at" value="&lt;&lt;interface&gt;&gt;&#xa;AgentTool" style="swimlane;fontStyle=3;align=center;startSize=38;html=1;fillColor=#FFE6CC;strokeColor=#FF6A00;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="810" y="85" width="240" height="105" as="geometry"/>
         </mxCell>
@@ -86,7 +77,6 @@
           <mxGeometry y="46" width="240" height="59" as="geometry"/>
         </mxCell>
 
-        <!-- QuizGeneratorTool -->
         <mxCell id="c-qgt" value="QuizGeneratorTool" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#FFE6CC;strokeColor=#FF6A00;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="670" y="250" width="230" height="115" as="geometry"/>
         </mxCell>
@@ -100,7 +90,6 @@
           <mxGeometry y="64" width="230" height="51" as="geometry"/>
         </mxCell>
 
-        <!-- KnowledgeRetrieverTool -->
         <mxCell id="c-krt" value="KnowledgeRetrieverTool" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#FFE6CC;strokeColor=#FF6A00;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="920" y="250" width="230" height="90" as="geometry"/>
         </mxCell>
@@ -114,7 +103,6 @@
           <mxGeometry y="54" width="230" height="36" as="geometry"/>
         </mxCell>
 
-        <!-- AnswerEvaluatorTool -->
         <mxCell id="c-aet" value="AnswerEvaluatorTool" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#FFE6CC;strokeColor=#FF6A00;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="670" y="400" width="230" height="115" as="geometry"/>
         </mxCell>
@@ -128,7 +116,6 @@
           <mxGeometry y="54" width="230" height="61" as="geometry"/>
         </mxCell>
 
-        <!-- UserAnalyzerTool -->
         <mxCell id="c-uat" value="UserAnalyzerTool" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#FFE6CC;strokeColor=#FF6A00;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="920" y="400" width="230" height="105" as="geometry"/>
         </mxCell>
@@ -142,7 +129,6 @@
           <mxGeometry y="62" width="230" height="43" as="geometry"/>
         </mxCell>
 
-        <!-- DecisionEngine -->
         <mxCell id="c-de" value="DecisionEngine" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="690" y="545" width="240" height="85" as="geometry"/>
         </mxCell>
@@ -156,7 +142,6 @@
           <mxGeometry y="59" width="240" height="26" as="geometry"/>
         </mxCell>
 
-        <!-- Implements: Tools implement AgentTool -->
         <mxCell id="r-qgt-at" value="" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=5 3;strokeColor=#FF6A00;strokeWidth=1.5;" edge="1" parent="1" source="c-qgt" target="c-at">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
@@ -170,17 +155,14 @@
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- QuizReActAgent uses AgentTool (1..*) -->
         <mxCell id="r-qra-at" value="uses  1..*" style="endArrow=open;html=1;dashed=1;dashPattern=5 3;strokeColor=#333333;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="c-qra" target="c-at">
           <mxGeometry x="0.3" relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- QuizReActAgent uses DecisionEngine -->
         <mxCell id="r-qra-de" value="uses" style="endArrow=open;html=1;dashed=1;dashPattern=5 3;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="c-qra" target="c-de">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- ============ Section 3: Data Objects ============ -->
         <mxCell id="s3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F8FF;strokeColor=#6c8ebf;dashed=1;arcSize=3;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="1230" y="50" width="540" height="590" as="geometry"/>
         </mxCell>
@@ -188,7 +170,6 @@
           <mxGeometry x="1240" y="54" width="160" height="22" as="geometry"/>
         </mxCell>
 
-        <!-- AgentContext -->
         <mxCell id="c-ctx" value="AgentContext  «@Builder»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1250" y="85" width="240" height="105" as="geometry"/>
         </mxCell>
@@ -196,7 +177,6 @@
           <mxGeometry y="26" width="240" height="79" as="geometry"/>
         </mxCell>
 
-        <!-- AgentState -->
         <mxCell id="c-st" value="AgentState" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1510" y="85" width="240" height="150" as="geometry"/>
         </mxCell>
@@ -210,7 +190,6 @@
           <mxGeometry y="110" width="240" height="40" as="geometry"/>
         </mxCell>
 
-        <!-- AgentDecision -->
         <mxCell id="c-ad" value="AgentDecision  «@Builder»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1250" y="250" width="240" height="120" as="geometry"/>
         </mxCell>
@@ -224,7 +203,6 @@
           <mxGeometry y="99" width="240" height="21" as="geometry"/>
         </mxCell>
 
-        <!-- ToolResult -->
         <mxCell id="c-tr" value="ToolResult  «@Builder»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1510" y="260" width="240" height="110" as="geometry"/>
         </mxCell>
@@ -238,7 +216,6 @@
           <mxGeometry y="99" width="240" height="11" as="geometry"/>
         </mxCell>
 
-        <!-- AgentResponse -->
         <mxCell id="c-ar" value="AgentResponse  «@Builder»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1340" y="420" width="250" height="120" as="geometry"/>
         </mxCell>
@@ -252,7 +229,6 @@
           <mxGeometry y="109" width="250" height="11" as="geometry"/>
         </mxCell>
 
-        <!-- Dependency arrows from AbstractReActAgent to data objects -->
         <mxCell id="r-ara-ctx" value="uses" style="endArrow=open;html=1;dashed=1;dashPattern=5 3;strokeColor=#6c8ebf;fontSize=9;" edge="1" parent="1" source="c-ara" target="c-ctx">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
@@ -269,7 +245,6 @@
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- ============ Section 4: RAG Layer ============ -->
         <mxCell id="s4-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FFF0;strokeColor=#3399FF;dashed=1;arcSize=3;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="20" y="660" width="620" height="310" as="geometry"/>
         </mxCell>
@@ -277,7 +252,6 @@
           <mxGeometry x="30" y="664" width="280" height="22" as="geometry"/>
         </mxCell>
 
-        <!-- HybridRetriever -->
         <mxCell id="c-hr" value="HybridRetriever  «@Service»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="40" y="695" width="280" height="130" as="geometry"/>
         </mxCell>
@@ -291,7 +265,6 @@
           <mxGeometry y="84" width="280" height="46" as="geometry"/>
         </mxCell>
 
-        <!-- TenantVectorStore -->
         <mxCell id="c-tvs" value="TenantVectorStore" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#E6F3FF;strokeColor=#3399FF;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="360" y="695" width="260" height="115" as="geometry"/>
         </mxCell>
@@ -305,12 +278,10 @@
           <mxGeometry y="74" width="260" height="41" as="geometry"/>
         </mxCell>
 
-        <!-- VectorStore interface (Spring AI) -->
         <mxCell id="c-vs-label" value="«interface» VectorStore (Spring AI)" style="text;html=1;align=center;fontSize=9;fontColor=#999999;fontStyle=2;" vertex="1" parent="1">
           <mxGeometry x="380" y="670" width="220" height="18" as="geometry"/>
         </mxCell>
 
-        <!-- EsKeywordSearchService -->
         <mxCell id="c-eks" value="EsKeywordSearchService" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="40" y="860" width="260" height="100" as="geometry"/>
         </mxCell>
@@ -324,7 +295,6 @@
           <mxGeometry y="62" width="260" height="38" as="geometry"/>
         </mxCell>
 
-        <!-- RRFMerger -->
         <mxCell id="c-rrf" value="RRFMerger  «utility»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="360" y="870" width="260" height="70" as="geometry"/>
         </mxCell>
@@ -335,7 +305,6 @@
           <mxGeometry y="34" width="260" height="36" as="geometry"/>
         </mxCell>
 
-        <!-- RAG layer associations -->
         <mxCell id="r-hr-tvs" value="1" style="endArrow=open;html=1;strokeColor=#3399FF;fontSize=9;" edge="1" parent="1" source="c-hr" target="c-tvs">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
@@ -346,12 +315,10 @@
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- QuizGeneratorTool uses HybridRetriever -->
         <mxCell id="r-qgt-hr" value="uses" style="endArrow=open;html=1;dashed=1;dashPattern=5 3;strokeColor=#3399FF;fontSize=9;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c-qgt" target="c-hr">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- ============ Section 5: Domain Entities ============ -->
         <mxCell id="s5-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8F8F8;strokeColor=#666666;dashed=1;arcSize=3;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="660" y="660" width="1110" height="310" as="geometry"/>
         </mxCell>
@@ -359,7 +326,6 @@
           <mxGeometry x="670" y="664" width="220" height="22" as="geometry"/>
         </mxCell>
 
-        <!-- QuizSession -->
         <mxCell id="c-qs" value="QuizSession  «@Entity»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="670" y="695" width="240" height="130" as="geometry"/>
         </mxCell>
@@ -373,7 +339,6 @@
           <mxGeometry y="119" width="240" height="11" as="geometry"/>
         </mxCell>
 
-        <!-- QuizQuestion -->
         <mxCell id="c-qq" value="QuizQuestion  «@Entity»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="940" y="695" width="240" height="115" as="geometry"/>
         </mxCell>
@@ -381,7 +346,6 @@
           <mxGeometry y="26" width="240" height="89" as="geometry"/>
         </mxCell>
 
-        <!-- QuestionResponse -->
         <mxCell id="c-qr" value="QuestionResponse  «@Entity»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1210" y="695" width="240" height="115" as="geometry"/>
         </mxCell>
@@ -389,7 +353,6 @@
           <mxGeometry y="26" width="240" height="89" as="geometry"/>
         </mxCell>
 
-        <!-- UserKnowledgeState -->
         <mxCell id="c-uks" value="UserKnowledgeState  «@Entity»" style="swimlane;fontStyle=1;align=center;startSize=26;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
           <mxGeometry x="1480" y="695" width="270" height="135" as="geometry"/>
         </mxCell>
@@ -403,12 +366,9 @@
           <mxGeometry y="109" width="270" height="26" as="geometry"/>
         </mxCell>
 
-        <!-- Entity relationships -->
-        <!-- QuizSession 1──* QuizQuestion -->
         <mxCell id="r-qs-qq" value="1     *" style="endArrow=open;html=1;strokeColor=#666666;fontSize=10;" edge="1" parent="1" source="c-qs" target="c-qq">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <!-- QuizSession 1──* QuestionResponse -->
         <mxCell id="r-qs-qr" value="1                                  *" style="endArrow=open;html=1;strokeColor=#666666;fontSize=10;edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="c-qs" target="c-qr">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
@@ -418,12 +378,10 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <!-- QuizQuestion 1──* QuestionResponse -->
         <mxCell id="r-qq-qr" value="1   *" style="endArrow=open;html=1;strokeColor=#666666;fontSize=10;" edge="1" parent="1" source="c-qq" target="c-qr">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
-        <!-- Legend -->
         <mxCell id="legend-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CCCCCC;arcSize=8;" vertex="1" parent="1">
           <mxGeometry x="1230" y="575" width="540" height="60" as="geometry"/>
         </mxCell>

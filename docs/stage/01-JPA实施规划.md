@@ -1,5 +1,7 @@
 # JPA 实施规划
 
+> 规划日期：2026-01-14
+
 ## 概述
 
 本文档记录了将智能测验系统表结构适配 Spring Data JPA 的设计决策和实施计划。
@@ -232,7 +234,7 @@ List<Object[]> countByStatusForUser(@Param("userId") Long userId);
 | `sql/create_PGvector_store.sql` | - | 向量表，保持不变 |
 | `sql/user_document_persistence.sql` | - | MySQL 语法，非本项目 |
 | `docs/后端设计文档.md` | ✅ 已更新 | 增加 JPA 规范 |
-| `docs/项目需求文档.md` | - | 无需修改 |
+| `docs/SRS.md` | ✅ 已收敛 | 作为唯一需求文档维护 |
 | `pom.xml` | ✅ 已更新 | 添加 Hibernate Types 依赖 |
 
 ---

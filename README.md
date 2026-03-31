@@ -65,7 +65,7 @@ java $JAVA_OPTS -jar target/jc-ai-agent-backend-0.0.1-SNAPSHOT.jar
 - OpenAPI: `http://localhost:8525/api/v3/api-docs`
 
 ## 用户头像（OSS 前端直传）
-- 设计与对接说明：`src/main/resources/doc/用户头像-OSS前端直传.md`
+- 设计与对接说明：`docs/stage/02-用户头像-OSS前端直传.md`
 
 ## 前端 Prompt（基于 Swagger）
 请使用以下提示词生成前端需求/页面（基于 Swagger）：
