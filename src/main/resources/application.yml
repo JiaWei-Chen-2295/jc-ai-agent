@@ -21,7 +21,7 @@ spring:
     mcp:
       client:
         request-timeout: 60s
-        stdio:
+        streamable-http:
           connections: {}
 
 
@@ -65,6 +65,15 @@ jc-ai-agent:
       keyword-index: ${JC_HYBRID_SEARCH_INDEX:study_friends_bm25}
       rrf-k: ${JC_HYBRID_SEARCH_RRF_K:60}
       sync-on-startup: ${JC_HYBRID_SEARCH_SYNC_ON_STARTUP:false}
+  web-search:
+    enabled: ${JC_WEB_SEARCH_ENABLED:false}
+    max-results: ${JC_WEB_SEARCH_MAX_RESULTS:5}
+    scrape-main-content: ${JC_WEB_SEARCH_SCRAPE_MAIN_CONTENT:true}
+    max-content-chars: ${JC_WEB_SEARCH_MAX_CONTENT_CHARS:1200}
+    request-timeout: ${JC_WEB_SEARCH_REQUEST_TIMEOUT:30s}
+    connect-timeout: ${JC_WEB_SEARCH_CONNECT_TIMEOUT:10s}
+    firecrawl-api-key: ${FIRECRAWL_API_KEY:}
+    firecrawl-mcp-url: ${FIRECRAWL_MCP_URL:}
 server:
   port: 8525
   servlet:

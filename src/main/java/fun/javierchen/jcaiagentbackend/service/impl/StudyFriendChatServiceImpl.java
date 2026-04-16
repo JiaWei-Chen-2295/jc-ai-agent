@@ -1,5 +1,8 @@
 package fun.javierchen.jcaiagentbackend.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fun.javierchen.jcaiagentbackend.app.StudyFriendSource;
 import fun.javierchen.jcaiagentbackend.chat.model.entity.ChatMessage;
 import fun.javierchen.jcaiagentbackend.chat.model.entity.ChatSession;
 import fun.javierchen.jcaiagentbackend.chat.model.enums.ChatRole;
@@ -17,8 +20,10 @@ import fun.javierchen.jcaiagentbackend.repository.ChatSessionRepository;
 import fun.javierchen.jcaiagentbackend.exception.BusinessException;
 import fun.javierchen.jcaiagentbackend.exception.ThrowUtils;
 import fun.javierchen.jcaiagentbackend.service.StudyFriendChatService;
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -28,6 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StudyFriendChatServiceImpl implements StudyFriendChatService {
 
@@ -37,6 +43,7 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final AiModelConfigRepository modelConfigRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public ChatSessionVO createSession(Long tenantId, Long userId, String title, String modelId) {
@@ -88,8 +95,10 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
     }
 
     @Override
-    public void appendAssistantMessage(String chatId, Long tenantId, Long userId, String content) {
-        appendMessage(chatId, tenantId, userId, ChatRole.ASSISTANT.getCode(), content, null);
+    public void appendAssistantMessage(String chatId, Long tenantId, Long userId, String content,
+                                       Boolean webSearchUsed, List<StudyFriendSource> sources) {
+        appendMessage(chatId, tenantId, userId, ChatRole.ASSISTANT.getCode(), content, null,
+                buildAssistantMetadata(webSearchUsed, sources));
     }
 
     @Override
@@ -130,6 +139,11 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
 
     private void appendMessage(String chatId, Long tenantId, Long userId, String role,
                                String content, String clientMessageId) {
+        appendMessage(chatId, tenantId, userId, role, content, clientMessageId, null);
+    }
+
+    private void appendMessage(String chatId, Long tenantId, Long userId, String role,
+                               String content, String clientMessageId, String metadata) {
         if (!StringUtils.hasText(content)) {
             return;
         }
@@ -151,6 +165,7 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
         message.setRole(role);
         message.setClientMessageId(StringUtils.hasText(clientMessageId) ? clientMessageId : null);
         message.setContent(content);
+        message.setMetadata(metadata);
         LocalDateTime now = LocalDateTime.now();
         message.setCreatedAt(now);
         chatMessageRepository.insert(message);
@@ -214,7 +229,39 @@ public class StudyFriendChatServiceImpl implements StudyFriendChatService {
         vo.setRole(message.getRole());
         vo.setContent(message.getContent());
         vo.setCreatedAt(message.getCreatedAt());
+        ChatMessageMetadata metadata = parseMetadata(message.getMetadata());
+        if (metadata != null) {
+            vo.setWebSearchUsed(metadata.webSearchUsed());
+            vo.setSources(metadata.sources());
+        }
         return vo;
+    }
+
+    private String buildAssistantMetadata(Boolean webSearchUsed, List<StudyFriendSource> sources) {
+        if ((webSearchUsed == null || !webSearchUsed) && CollectionUtils.isEmpty(sources)) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(new ChatMessageMetadata(Boolean.TRUE.equals(webSearchUsed), sources));
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to serialize assistant chat metadata", e);
+            return null;
+        }
+    }
+
+    private ChatMessageMetadata parseMetadata(String metadata) {
+        if (!StringUtils.hasText(metadata)) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(metadata, ChatMessageMetadata.class);
+        } catch (Exception e) {
+            log.warn("Failed to parse chat metadata: {}", metadata, e);
+            return null;
+        }
+    }
+
+    private record ChatMessageMetadata(boolean webSearchUsed, List<StudyFriendSource> sources) {
     }
 
     private int normalizeLimit(int limit) {

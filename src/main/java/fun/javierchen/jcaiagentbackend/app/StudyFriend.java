@@ -3,6 +3,9 @@ package fun.javierchen.jcaiagentbackend.app;
 import fun.javierchen.jcaiagentbackend.advisor.AgentLoggerAdvisor;
 import fun.javierchen.jcaiagentbackend.chatmemory.FileBasedChatMemory;
 import fun.javierchen.jcaiagentbackend.rag.retrieval.HybridSearchVectorStore;
+import fun.javierchen.jcaiagentbackend.websearch.FirecrawlMcpSearchService;
+import fun.javierchen.jcaiagentbackend.websearch.FirecrawlSearchResult;
+import fun.javierchen.jcaiagentbackend.websearch.WebSearchProperties;
 import jakarta.annotation.Resource;
 import fun.javierchen.jcaiagentbackend.utils.VectorStoreFilterUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +39,8 @@ public class StudyFriend {
     /** 共享的会话记忆（按 chatId 隔离，跨模型复用） */
     private final ChatMemory chatMemory;
     private final ChatModelRegistry chatModelRegistry;
+    private final FirecrawlMcpSearchService firecrawlMcpSearchService;
+    private final WebSearchProperties webSearchProperties;
 
     private static final int RAG_TOP_K = 3;
     private static final double RAG_SIMILARITY_THRESHOLD = 0.50;
@@ -43,8 +48,12 @@ public class StudyFriend {
             "出一个题", "出一道题", "出题", "考察我", "考考我", "练习题", "给我一道题", "测试我"
     );
 
-    public StudyFriend(ChatModelRegistry chatModelRegistry) {
+    public StudyFriend(ChatModelRegistry chatModelRegistry,
+                       FirecrawlMcpSearchService firecrawlMcpSearchService,
+                       WebSearchProperties webSearchProperties) {
         this.chatModelRegistry = chatModelRegistry;
+        this.firecrawlMcpSearchService = firecrawlMcpSearchService;
+        this.webSearchProperties = webSearchProperties;
         String memoryDir = System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "chat_memory";
         this.chatMemory = new FileBasedChatMemory(memoryDir);
     }
@@ -65,25 +74,11 @@ public class StudyFriend {
     }
 
     public String doChatWithRAG(String chatMessage, String chatId, Long tenantId, String modelId) {
-        ChatClient client = buildChatClient(modelId);
-        ChatResponse chatResponse;
-        if (shouldUseRag(chatMessage)) {
-            chatResponse = client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                    .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage, tenantId))
-                    .call().chatResponse();
-        } else {
-            chatResponse = client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                    .advisors(new AgentLoggerAdvisor())
-                    .call().chatResponse();
-        }
-        String content = chatResponse.getResult().getOutput().getText();
-        log.info("ai content: {}", content);
-        return content;
+        return doChatWithRAG(chatMessage, chatId, tenantId, modelId, false).content();
+    }
+
+    public StudyFriendChatResult doChatWithRAG(String chatMessage, String chatId, Long tenantId, String modelId, boolean webSearchEnabled) {
+        return call(chatMessage, chatId, tenantId, modelId, webSearchEnabled);
     }
 
     public Flux<String> doChatWithRAGStream(String chatMessage, String chatId) {
@@ -95,20 +90,29 @@ public class StudyFriend {
     }
 
     public Flux<String> doChatWithRAGStream(String chatMessage, String chatId, Long tenantId, String modelId) {
+        return doChatWithRAGStream(chatMessage, chatId, tenantId, modelId, false).contentStream();
+    }
+
+    public StudyFriendStreamResult doChatWithRAGStream(String chatMessage, String chatId, Long tenantId, String modelId, boolean webSearchEnabled) {
+        FirecrawlSearchResult searchResult = resolveWebSearch(webSearchEnabled, chatMessage);
+        String promptMessage = buildUserPrompt(chatMessage, searchResult);
         ChatClient client = buildChatClient(modelId);
+        Flux<String> contentStream;
         if (shouldUseRag(chatMessage)) {
-            return client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
+            contentStream = client.prompt().user(promptMessage)
+                    .system(buildSystemPrompt(searchResult))
                     .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                     .advisors(new AgentLoggerAdvisor())
                     .advisors(buildRagAdvisor(chatMessage, tenantId))
                     .stream().content();
+        } else {
+            contentStream = client.prompt().user(promptMessage)
+                    .system(buildSystemPrompt(searchResult))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                    .advisors(new AgentLoggerAdvisor())
+                    .stream().content();
         }
-        return client.prompt().user(chatMessage)
-                .system(SYSTEM_PROMPT)
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                .advisors(new AgentLoggerAdvisor())
-                .stream().content();
+        return new StudyFriendStreamResult(contentStream, searchResult.hasSources(), searchResult.sources());
     }
 
     public String doChatWithTools(String chatMessage, String chatId) {
@@ -120,25 +124,11 @@ public class StudyFriend {
     }
 
     public String doChatWithTools(String chatMessage, String chatId, Long tenantId, String modelId) {
-        ChatClient client = buildChatClient(modelId);
-        ChatResponse chatResponse;
-        if (shouldUseRag(chatMessage)) {
-            chatResponse = client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                    .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage, tenantId))
-                    .call().chatResponse();
-        } else {
-            chatResponse = client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                    .advisors(new AgentLoggerAdvisor())
-                    .call().chatResponse();
-        }
-        String content = chatResponse.getResult().getOutput().getText();
-        log.info("ai content: {}", content);
-        return content;
+        return doChatWithTools(chatMessage, chatId, tenantId, modelId, false).content();
+    }
+
+    public StudyFriendChatResult doChatWithTools(String chatMessage, String chatId, Long tenantId, String modelId, boolean webSearchEnabled) {
+        return call(chatMessage, chatId, tenantId, modelId, webSearchEnabled);
     }
 
     public Flux<String> doChatWithRAGStreamTool(String chatMessage, String chatId) {
@@ -150,20 +140,11 @@ public class StudyFriend {
     }
 
     public Flux<String> doChatWithRAGStreamTool(String chatMessage, String chatId, Long tenantId, String modelId) {
-        ChatClient client = buildChatClient(modelId);
-        if (shouldUseRag(chatMessage)) {
-            return client.prompt().user(chatMessage)
-                    .system(SYSTEM_PROMPT)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                    .advisors(new AgentLoggerAdvisor())
-                    .advisors(buildRagAdvisor(chatMessage, tenantId))
-                    .stream().content();
-        }
-        return client.prompt().user(chatMessage)
-                .system(SYSTEM_PROMPT)
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
-                .advisors(new AgentLoggerAdvisor())
-                .stream().content();
+        return doChatWithRAGStreamTool(chatMessage, chatId, tenantId, modelId, false).contentStream();
+    }
+
+    public StudyFriendStreamResult doChatWithRAGStreamTool(String chatMessage, String chatId, Long tenantId, String modelId, boolean webSearchEnabled) {
+        return doChatWithRAGStream(chatMessage, chatId, tenantId, modelId, webSearchEnabled);
     }
 
     // -------------------------------------------------------------------------
@@ -183,6 +164,63 @@ public class StudyFriend {
                         new AgentLoggerAdvisor()
                 )
                 .build();
+    }
+
+    public boolean resolveWebSearchEnabled(Boolean requestedEnabled) {
+        return requestedEnabled != null ? requestedEnabled : webSearchProperties.isEnabled();
+    }
+
+    private StudyFriendChatResult call(String chatMessage, String chatId, Long tenantId, String modelId, boolean webSearchEnabled) {
+        FirecrawlSearchResult searchResult = resolveWebSearch(webSearchEnabled, chatMessage);
+        String promptMessage = buildUserPrompt(chatMessage, searchResult);
+        ChatClient client = buildChatClient(modelId);
+        ChatResponse chatResponse;
+        if (shouldUseRag(chatMessage)) {
+            chatResponse = client.prompt().user(promptMessage)
+                    .system(buildSystemPrompt(searchResult))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                    .advisors(new AgentLoggerAdvisor())
+                    .advisors(buildRagAdvisor(chatMessage, tenantId))
+                    .call().chatResponse();
+        } else {
+            chatResponse = client.prompt().user(promptMessage)
+                    .system(buildSystemPrompt(searchResult))
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                    .advisors(new AgentLoggerAdvisor())
+                    .call().chatResponse();
+        }
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("ai content: {}", content);
+        return new StudyFriendChatResult(content, searchResult.hasSources(), searchResult.sources());
+    }
+
+    private FirecrawlSearchResult resolveWebSearch(boolean webSearchEnabled, String chatMessage) {
+        if (!webSearchEnabled) {
+            return FirecrawlSearchResult.empty();
+        }
+        return firecrawlMcpSearchService.search(chatMessage);
+    }
+
+    private String buildSystemPrompt(FirecrawlSearchResult searchResult) {
+        if (!searchResult.hasSources()) {
+            return SYSTEM_PROMPT;
+        }
+        return SYSTEM_PROMPT + "\n如果系统附带了联网搜索结果，请优先结合这些网页资料回答，并保持结论最新、准确。";
+    }
+
+    private String buildUserPrompt(String chatMessage, FirecrawlSearchResult searchResult) {
+        if (!searchResult.hasSources()) {
+            return chatMessage;
+        }
+        return """
+                用户原始问题：
+                %s
+
+                以下是系统通过 FireCrawl MCP 检索到的网页资料，请优先结合这些资料回答。
+                不要在正文中重复罗列所有链接，来源链接会由系统单独返回给前端。
+
+                %s
+                """.formatted(chatMessage, searchResult.context());
     }
 
     private boolean shouldUseRag(String chatMessage) {

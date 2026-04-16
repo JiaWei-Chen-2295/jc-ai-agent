@@ -2,10 +2,12 @@ package fun.javierchen.jcaiagentbackend.repository;
 
 import fun.javierchen.jcaiagentbackend.chat.model.entity.ChatMessage;
 import lombok.RequiredArgsConstructor;
+import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,8 +49,22 @@ public class ChatMessageRepository {
                 message.getRole(),
                 message.getClientMessageId(),
                 message.getContent(),
-                message.getMetadata(),
+                toJsonbObject(message.getMetadata()),
                 Timestamp.valueOf(message.getCreatedAt()));
+    }
+
+    private PGobject toJsonbObject(String metadata) {
+        if (metadata == null) {
+            return null;
+        }
+        try {
+            PGobject jsonObject = new PGobject();
+            jsonObject.setType("jsonb");
+            jsonObject.setValue(metadata);
+            return jsonObject;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to create jsonb parameter for chat message metadata", e);
+        }
     }
 
     public boolean existsByClientMessageId(String chatId, Long userId, String role, String clientMessageId) {
@@ -102,5 +118,15 @@ public class ChatMessageRepository {
         sql.append(" ORDER BY id DESC LIMIT ?");
         params.add(limit);
         return jdbcTemplate.query(sql.toString(), rowMapper, params.toArray());
+    }
+
+    public List<ChatMessage> listRecentByChatId(String chatId, int limit) {
+        String sql = """
+                SELECT * FROM %s
+                WHERE chat_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """.formatted(TABLE_NAME);
+        return jdbcTemplate.query(sql, rowMapper, chatId, limit);
     }
 }

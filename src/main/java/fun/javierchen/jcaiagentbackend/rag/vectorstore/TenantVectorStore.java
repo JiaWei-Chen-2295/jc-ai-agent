@@ -12,8 +12,10 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 public class TenantVectorStore implements VectorStore {
+
+    private static final int MAX_EMBEDDING_INPUT_LENGTH = 2048;
 
     private final JdbcTemplate jdbcTemplate;
     private final EmbeddingModel embeddingModel;
@@ -31,6 +36,10 @@ public class TenantVectorStore implements VectorStore {
     private final String insertSql;
 
     public TenantVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, ObjectMapper objectMapper, String tableName) {
+        Assert.notNull(jdbcTemplate, "jdbcTemplate must not be null");
+        Assert.notNull(embeddingModel, "embeddingModel must not be null");
+        Assert.notNull(objectMapper, "objectMapper must not be null");
+        Assert.hasText(tableName, "tableName must not be blank");
         this.jdbcTemplate = jdbcTemplate;
         this.embeddingModel = embeddingModel;
         this.objectMapper = objectMapper;
@@ -119,13 +128,17 @@ public class TenantVectorStore implements VectorStore {
         if (request == null || !StringUtils.hasText(request.getQuery())) {
             return Collections.emptyList();
         }
+        String embeddingQuery = normalizeEmbeddingInput(request.getQuery());
+        if (!StringUtils.hasText(embeddingQuery)) {
+            return Collections.emptyList();
+        }
         Long tenantId = resolveTenantId(request.getFilterExpression());
         if (tenantId == null) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "租户未选择");
         }
 
         List<String> documentIdFilters = resolveFilterValues(request.getFilterExpression(), "documentId");
-        float[] queryEmbedding = embeddingModel.embed(request.getQuery());
+        float[] queryEmbedding = embeddingModel.embed(embeddingQuery);
         String documentFilterSql = "";
         if (!documentIdFilters.isEmpty()) {
             String placeholders = String.join(",", Collections.nCopies(documentIdFilters.size(), "?"));
@@ -175,6 +188,19 @@ public class TenantVectorStore implements VectorStore {
             }
         }
         return filtered;
+    }
+
+    private String normalizeEmbeddingInput(String text) {
+        if (!StringUtils.hasText(text)) {
+            return "";
+        }
+        String normalized = text.replaceAll("\\s+", " ").trim();
+        if (normalized.length() <= MAX_EMBEDDING_INPUT_LENGTH) {
+            return normalized;
+        }
+        String truncated = normalized.substring(0, MAX_EMBEDDING_INPUT_LENGTH).trim();
+        log.warn("Embedding query truncated from {} to {} characters", normalized.length(), truncated.length());
+        return truncated;
     }
 
     private Long resolveTenantId(Map<String, Object> metadata) {

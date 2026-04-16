@@ -1,11 +1,13 @@
 package fun.javierchen.jcaiagentbackend.service;
 
+import fun.javierchen.jcaiagentbackend.app.StudyFriendSource;
 import fun.javierchen.jcaiagentbackend.chat.model.entity.ChatSession;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatMessageListResponse;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionListResponse;
 import fun.javierchen.jcaiagentbackend.controller.dto.ChatSessionVO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface StudyFriendChatService {
 
@@ -29,7 +31,12 @@ public interface StudyFriendChatService {
 
     void appendUserMessage(String chatId, Long tenantId, Long userId, String content, String clientMessageId);
 
-    void appendAssistantMessage(String chatId, Long tenantId, Long userId, String content);
+    default void appendAssistantMessage(String chatId, Long tenantId, Long userId, String content) {
+        appendAssistantMessage(chatId, tenantId, userId, content, null, null);
+    }
+
+    void appendAssistantMessage(String chatId, Long tenantId, Long userId, String content,
+                               Boolean webSearchUsed, List<StudyFriendSource> sources);
 
     ChatSessionListResponse listSessionsForUser(Long tenantId, Long userId,
                                                 LocalDateTime beforeLastMessageAt, String beforeChatId, int limit);

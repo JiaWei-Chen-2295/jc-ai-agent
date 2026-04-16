@@ -2,6 +2,8 @@ package fun.javierchen.jcaiagentbackend.controller;
 
 
 import fun.javierchen.jcaiagentbackend.app.StudyFriend;
+import fun.javierchen.jcaiagentbackend.app.StudyFriendChatResult;
+import fun.javierchen.jcaiagentbackend.app.StudyFriendSourcePayload;
 import fun.javierchen.jcaiagentbackend.agent.service.StudyFriendAgentEventStreamService;
 import fun.javierchen.jcaiagentbackend.common.BaseResponse;
 import fun.javierchen.jcaiagentbackend.common.ErrorCode;
@@ -133,7 +135,7 @@ public class StudyFriendController {
         return ResultUtils.success(response);
     }
 
-    @GetMapping(value = "/do_chat/async", produces = MediaType.TEXT_PLAIN_VALUE)
+    @GetMapping(value = "/do_chat/async", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
             summary = "异步聊天（轮询获取完整回答）",
             description = "使用 chatId 维持上下文，会在服务端完成检索后返回一次性完整回答。",
@@ -143,15 +145,16 @@ public class StudyFriendController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "AI 的完整回答", content = @Content(
-                            mediaType = MediaType.TEXT_PLAIN_VALUE,
-                            examples = @ExampleObject(value = "向量数据库用于存储和检索高维向量，常用于相似度搜索。")
+                                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                examples = @ExampleObject(value = "{\"code\":0,\"data\":{\"content\":\"向量数据库用于存储和检索高维向量，常用于相似度搜索。\",\"webSearchUsed\":true,\"sources\":[{\"title\":\"Vector database guide\",\"url\":\"https://example.com/vector-db\",\"snippet\":\"An introduction to vector databases\"}]},\"message\":\"ok\"}")
                     ))
             }
     )
-    public String doChatWithRAG(@RequestParam("chatMessage") String chatMessage,
-                                @RequestParam("chatId") String chatId,
-                                @RequestParam(value = "messageId", required = false) String messageId,
-                                jakarta.servlet.http.HttpServletRequest request) {
+                    public BaseResponse<StudyFriendChatResult> doChatWithRAG(@RequestParam("chatMessage") String chatMessage,
+                                                 @RequestParam("chatId") String chatId,
+                                                 @RequestParam(value = "messageId", required = false) String messageId,
+                                                 @RequestParam(value = "webSearchEnabled", required = false) Boolean webSearchEnabled,
+                                                 jakarta.servlet.http.HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Long tenantId = requireTenantId();
         if (!userService.isAdmin(loginUser)) {
@@ -160,9 +163,11 @@ public class StudyFriendController {
         var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
         String modelId = session.getModelId();
-        String content = studyFriend.doChatWithRAG(chatMessage, chatId, tenantId, modelId);
-        studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(), content);
-        return content;
+        boolean effectiveWebSearchEnabled = studyFriend.resolveWebSearchEnabled(webSearchEnabled);
+        StudyFriendChatResult chatResult = studyFriend.doChatWithRAG(chatMessage, chatId, tenantId, modelId, effectiveWebSearchEnabled);
+        studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(), chatResult.content(),
+            chatResult.webSearchUsed(), chatResult.sources());
+        return ResultUtils.success(chatResult);
     }
 
     @GetMapping(value = "/do_chat/sse/emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -181,6 +186,7 @@ public class StudyFriendController {
     public SseEmitter doChatWithRAGStream(@RequestParam("chatMessage") String chatMessage,
                                           @RequestParam("chatId") String chatId,
                                           @RequestParam(value = "messageId", required = false) String messageId,
+                                          @RequestParam(value = "webSearchEnabled", required = false) Boolean webSearchEnabled,
                                           jakarta.servlet.http.HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Long tenantId = requireTenantId();
@@ -190,12 +196,15 @@ public class StudyFriendController {
         var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
         String modelId = session.getModelId();
+        boolean effectiveWebSearchEnabled = studyFriend.resolveWebSearchEnabled(webSearchEnabled);
+        var streamResult = studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId, modelId, effectiveWebSearchEnabled);
         // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
+        sendSourcesEvent(sseEmitter, streamResult.webSearchUsed(), streamResult.sources());
         // 增量内容直接透传给前端，完成后补全持久化
-        studyFriend.doChatWithRAGStream(chatMessage, chatId, tenantId, modelId).subscribe(
+        streamResult.contentStream().subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -210,7 +219,7 @@ public class StudyFriendController {
                 },
                 () -> {
                     studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(),
-                            assistantBuffer.toString());
+                        assistantBuffer.toString(), streamResult.webSearchUsed(), streamResult.sources());
                     sseEmitter.complete();
                 }
         );
@@ -234,6 +243,7 @@ public class StudyFriendController {
     public SseEmitter doChatWithRAGStreamTool(@RequestParam("chatMessage") String chatMessage,
                                               @RequestParam("chatId") String chatId,
                                               @RequestParam(value = "messageId", required = false) String messageId,
+                                              @RequestParam(value = "webSearchEnabled", required = false) Boolean webSearchEnabled,
                                               jakarta.servlet.http.HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Long tenantId = requireTenantId();
@@ -243,12 +253,15 @@ public class StudyFriendController {
         var session = studyFriendChatService.requireSessionForUser(chatId, tenantId, loginUser.getId());
         studyFriendChatService.appendUserMessage(chatId, tenantId, loginUser.getId(), chatMessage, messageId);
         String modelId = session.getModelId();
+        boolean effectiveWebSearchEnabled = studyFriend.resolveWebSearchEnabled(webSearchEnabled);
+        var streamResult = studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId, modelId, effectiveWebSearchEnabled);
         // SSE 流默认超时 3 分钟
         SseEmitter sseEmitter = new SseEmitter(3 * 60 * 1000L);
         // 缓存增量输出，流结束后一次性落库
         StringBuilder assistantBuffer = new StringBuilder();
+        sendSourcesEvent(sseEmitter, streamResult.webSearchUsed(), streamResult.sources());
         // 增量内容直接透传给前端，完成后补全持久化
-        studyFriend.doChatWithRAGStreamTool(chatMessage, chatId, tenantId, modelId).subscribe(
+        streamResult.contentStream().subscribe(
                 chunk -> {
                     try {
                         assistantBuffer.append(chunk);
@@ -263,7 +276,7 @@ public class StudyFriendController {
                 },
                 () -> {
                     studyFriendChatService.appendAssistantMessage(chatId, tenantId, loginUser.getId(),
-                            assistantBuffer.toString());
+                        assistantBuffer.toString(), streamResult.webSearchUsed(), streamResult.sources());
                     sseEmitter.complete();
                 }
         );
@@ -329,5 +342,15 @@ public class StudyFriendController {
         Long tenantId = TenantContextHolder.getTenantId();
         ThrowUtils.throwIf(tenantId == null, ErrorCode.NO_AUTH_ERROR, "Tenant not selected");
         return tenantId;
+    }
+
+    private void sendSourcesEvent(SseEmitter sseEmitter, boolean webSearchUsed, java.util.List<fun.javierchen.jcaiagentbackend.app.StudyFriendSource> sources) {
+        try {
+            sseEmitter.send(SseEmitter.event()
+                    .name("sources")
+                    .data(new StudyFriendSourcePayload(webSearchUsed, sources), MediaType.APPLICATION_JSON));
+        } catch (Exception e) {
+            log.warn("发送来源事件失败", e);
+        }
     }
 }

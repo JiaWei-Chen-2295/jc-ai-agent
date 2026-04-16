@@ -25,8 +25,8 @@ spring:
       api-key: test-api-key
     mcp:
       client:
-        stdio:
-          enabled: false
+        streamable-http:
+          connections: {}
 
 # 禁用 AI 相关配置
 jc-ai-agent:
@@ -35,6 +35,10 @@ jc-ai-agent:
   email_password: test-password
   tenant:
     max-create-teams: 5
+  web-search:
+    enabled: false
+    firecrawl-api-key: ""
+    firecrawl-mcp-url: ""
 
 # 禁用 MCP
-spring.ai.mcp.client.stdio.enabled: false
+spring.ai.mcp.client.streamable-http.enabled: false
