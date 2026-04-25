@@ -74,6 +74,30 @@ jc-ai-agent:
     connect-timeout: ${JC_WEB_SEARCH_CONNECT_TIMEOUT:10s}
     firecrawl-api-key: ${FIRECRAWL_API_KEY:}
     firecrawl-mcp-url: ${FIRECRAWL_MCP_URL:}
+  voice:
+    websocket-path: ${JC_VOICE_WEBSOCKET_PATH:/ws/voice}
+    session-idle-timeout: ${JC_VOICE_SESSION_IDLE_TIMEOUT:30m}
+    reconnect-grace-period: ${JC_VOICE_RECONNECT_GRACE_PERIOD:45s}
+    stale-eviction-interval: ${JC_VOICE_STALE_EVICTION_INTERVAL:60s}
+    text-stream-timeout: ${JC_VOICE_TEXT_STREAM_TIMEOUT:3m}
+    tts-audio-mime-type: ${JC_VOICE_TTS_AUDIO_MIME_TYPE:audio/mpeg}
+    codec: ${JC_VOICE_CODEC:audio/mpeg}
+    asr:
+      provider: ${JC_VOICE_ASR_PROVIDER:aliyun}
+      api-key: ${JC_VOICE_ASR_API_KEY:}
+      model: ${JC_VOICE_ASR_MODEL:paraformer-realtime-v1}
+      app-key: ${JC_VOICE_ASR_APP_KEY:}
+      access-key-id: ${JC_VOICE_ASR_ACCESS_KEY_ID:}
+      access-key-secret: ${JC_VOICE_ASR_ACCESS_KEY_SECRET:}
+      sample-rate: ${JC_VOICE_ASR_SAMPLE_RATE:16000}
+      format: ${JC_VOICE_ASR_FORMAT:pcm}
+    tts:
+      provider: ${JC_VOICE_TTS_PROVIDER:aliyun}
+      base-url: ${JC_VOICE_TTS_BASE_URL:}
+      api-key: ${JC_VOICE_TTS_API_KEY:}
+      voice: ${JC_VOICE_TTS_VOICE:longxiaochun}
+      model: ${JC_VOICE_TTS_MODEL:cosyvoice-v1}
+      output-format: ${JC_VOICE_TTS_OUTPUT_FORMAT:mp3}
 server:
   port: 8525
   servlet:

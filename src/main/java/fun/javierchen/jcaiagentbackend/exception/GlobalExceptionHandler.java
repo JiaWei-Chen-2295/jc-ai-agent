@@ -24,7 +24,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public Object businessExceptionHandler(BusinessException e, HttpServletRequest request) {
-        log.error("BusinessException", e);
+        if (e.getCode() == ErrorCode.NOT_LOGIN_ERROR.getCode()) {
+            log.info("BusinessException: code={}, message={}", e.getCode(), e.getMessage());
+        } else {
+            log.error("BusinessException", e);
+        }
         if (acceptsEventStream(request)) {
             String payload = "{\"code\":" + e.getCode() + ",\"message\":\"" + escapeJson(e.getMessage()) + "\"}";
             return ResponseEntity.status(400)
