@@ -32,3 +32,36 @@ overlap = 50
 
 
 []实现模型的路由
+
+
+
+
+[] # Task: Design & Implement a Modular Streaming Voice Module
+
+## Context
+I need a standalone, pluggable module for real-time streaming voice interaction. The goal is to create a reusable package that can be easily integrated into different frontend projects later.
+
+## Technical Stack & Requirements
+1. **Dual Stream Architecture**:
+   - **Text**: Receive via **SSE** (Server-Sent Events) for real-time text display.
+   - **Audio**: Receive via **WebSocket** (binary chunks) for low-latency audio playback.
+2. **Frontend Playback Engine**:
+   - Use the **MediaSource Extensions (MSE)** API.
+   - Dynamically append incoming audio chunks to a `SourceBuffer` for seamless, continuous playback.
+3. **Modularity & Reusability**:
+   - The code better be framework-agnostic.
+   - Expose clean public APIs (e.g., `start()`, `stop()`, `onText()`, `onError()`).
+   - Ensure proper lifecycle management (cleanup listeners, close connections, clear buffers) to prevent memory leaks.
+   - Handle edge cases: network reconnection, buffer underflow/overflow, and codec compatibility.
+
+## Output Expectations
+- Provide a high-level architecture overview explaining how SSE and WS streams are synchronized or managed independently.
+- Write the core TypeScript implementation focusing on the `StreamingVoiceManager` class.
+- Include comments explaining critical MSE handling logic (e.g., `sourceopen`, `updateend` events).
+- Keep the SDK structure modular so I can easily extract this into an npm package later.
+
+Please think step-by-step about the best way to manage the async nature of both streams and the stateful nature of MediaSource before writing the code.
+
+FEEL FREE TO ASK ME ANY THING !!!
+FEEL FREE TO ASK ME ANY THING !!!
+FEEL FREE TO ASK ME ANY THING !!!
