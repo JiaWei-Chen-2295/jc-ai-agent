@@ -1,12 +1,12 @@
 package fun.javierchen.jcaiagentbackend.voice.provider.tts;
 
-import com.alibaba.dashscope.audio.tts.SpeechSynthesisAudioFormat;
-import com.alibaba.dashscope.audio.tts.SpeechSynthesisParam;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisResult;
-import com.alibaba.dashscope.audio.tts.SpeechSynthesizer;
+import com.alibaba.dashscope.audio.ttsv2.SpeechSynthesisAudioFormat;
+import com.alibaba.dashscope.audio.ttsv2.SpeechSynthesisParam;
+import com.alibaba.dashscope.audio.ttsv2.SpeechSynthesizer;
+import com.alibaba.dashscope.common.ResultCallback;
 import fun.javierchen.jcaiagentbackend.voice.config.VoiceProperties;
 import fun.javierchen.jcaiagentbackend.voice.session.VoiceTurnContext;
-import io.reactivex.disposables.Disposable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,15 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AliyunTtsProvider implements TtsProvider {
 
     private final VoiceProperties voiceProperties;
+
     @Value("${spring.ai.dashscope.api-key:}")
     private String defaultDashScopeApiKey;
 
     @Override
-    public TtsSynthesis synthesizeStream(VoiceTurnContext turnContext, String text, TtsListener listener) {
-        if (StringUtils.isBlank(text)) {
-            listener.onCompleted(true);
-            return NoopTtsSynthesis.INSTANCE;
-        }
+    public TtsSynthesis openStream(VoiceTurnContext turnContext, TtsListener listener) {
         String apiKey = resolveApiKey();
         if (StringUtils.isBlank(apiKey)) {
             log.info("Skipping TTS streaming because provider credentials are not configured: turnId={}", turnContext.getTurnId());
@@ -39,59 +36,74 @@ public class AliyunTtsProvider implements TtsProvider {
             return NoopTtsSynthesis.INSTANCE;
         }
 
+        SpeechSynthesisAudioFormat format = resolveAudioFormat();
         SpeechSynthesisParam.SpeechSynthesisParamBuilder<?, ?> builder = SpeechSynthesisParam.builder()
                 .apiKey(apiKey)
                 .model(resolveModel())
-                .text(text)
-                .format(resolveAudioFormat())
-                .sampleRate(16000);
+                .format(format);
         String voice = StringUtils.trimToNull(voiceProperties.getTts().getVoice());
         if (voice != null) {
-            builder.parameter("voice", voice);
+            builder.voice(voice);
+        }
+        if (voiceProperties.getTts().getSpeechRate() != null) {
+            builder.speechRate(voiceProperties.getTts().getSpeechRate());
+        }
+        if (voiceProperties.getTts().getPitchRate() != null) {
+            builder.pitchRate(voiceProperties.getTts().getPitchRate());
+        }
+        if (voiceProperties.getTts().getVolume() != null) {
+            builder.volume(voiceProperties.getTts().getVolume());
         }
 
         SpeechSynthesisParam param = builder.build();
-        SpeechSynthesizer synthesizer = new SpeechSynthesizer();
-        AtomicBoolean closed = new AtomicBoolean(false);
         AtomicBoolean started = new AtomicBoolean(false);
-        AtomicInteger emittedChunkCount = new AtomicInteger(0);
-        try {
-            Disposable subscription = synthesizer.streamCall(param).subscribe(
-                    result -> emitAudioChunk(result, listener, closed, started, emittedChunkCount),
-                    error -> {
-                        if (!closed.get()) {
-                            listener.onError(error);
-                        }
-                    },
-                    () -> {
-                        if (!closed.get()) {
-                            boolean skipped = emittedChunkCount.get() == 0;
-                            if (skipped) {
-                                skipped = !emitBufferedAudioData(synthesizer, listener, started, emittedChunkCount);
-                            }
-                            if (skipped) {
-                                log.warn("Aliyun TTS stream completed without audio frames: turnId={}, model={}, voice={}",
-                                        turnContext.getTurnId(), param.getModel(), voice);
-                            }
-                            listener.onCompleted(skipped);
-                        }
-                    }
-            );
-            log.info("Started Aliyun TTS stream: turnId={}, model={}, voice={}, format={}",
-                    turnContext.getTurnId(), param.getModel(), voice, param.getFormat().getValue());
-            return new StreamingTtsSynthesis(subscription, closed);
-        } catch (Exception e) {
-            log.error("Failed to start Aliyun TTS stream: turnId={}", turnContext.getTurnId(), e);
-            listener.onError(e);
-            return NoopTtsSynthesis.INSTANCE;
-        }
+        AtomicBoolean closed = new AtomicBoolean(false);
+        AtomicBoolean completed = new AtomicBoolean(false);
+        AtomicInteger emittedChunks = new AtomicInteger(0);
+        ResultCallback<SpeechSynthesisResult> callback = new ResultCallback<>() {
+            @Override
+            public void onEvent(SpeechSynthesisResult result) {
+                if (closed.get() || result == null || result.getAudioFrame() == null) {
+                    return;
+                }
+                ByteBuffer buffer = result.getAudioFrame().asReadOnlyBuffer();
+                if (!buffer.hasRemaining()) {
+                    return;
+                }
+                byte[] chunk = new byte[buffer.remaining()];
+                buffer.get(chunk);
+                if (started.compareAndSet(false, true)) {
+                    listener.onStart();
+                }
+                emittedChunks.incrementAndGet();
+                listener.onAudioChunk(chunk);
+            }
+
+            @Override
+            public void onComplete() {
+                if (closed.get()) {
+                    return;
+                }
+                completed.set(true);
+                listener.onCompleted(emittedChunks.get() == 0);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (!closed.get()) {
+                    listener.onError(e);
+                }
+            }
+        };
+
+        SpeechSynthesizer synthesizer = new SpeechSynthesizer(param, callback);
+        log.info("Started Aliyun TTS bidirectional stream: turnId={}, model={}, voice={}, format={}",
+                turnContext.getTurnId(), param.getModel(), voice, format.name());
+        return new BidiTtsSynthesis(synthesizer, listener, closed, completed, emittedChunks);
     }
 
     private String resolveApiKey() {
-        return StringUtils.firstNonBlank(
-                voiceProperties.getTts().getApiKey(),
-                defaultDashScopeApiKey
-        );
+        return StringUtils.firstNonBlank(voiceProperties.getTts().getApiKey(), defaultDashScopeApiKey);
     }
 
     private String resolveModel() {
@@ -99,66 +111,69 @@ public class AliyunTtsProvider implements TtsProvider {
     }
 
     private SpeechSynthesisAudioFormat resolveAudioFormat() {
-        String configuredFormat = StringUtils.upperCase(StringUtils.defaultIfBlank(voiceProperties.getTts().getOutputFormat(), "mp3"));
-        return switch (configuredFormat) {
-            case "PCM" -> SpeechSynthesisAudioFormat.PCM;
-            case "WAV" -> SpeechSynthesisAudioFormat.WAV;
-            default -> SpeechSynthesisAudioFormat.MP3;
-        };
+        String configuredFormat = StringUtils.upperCase(StringUtils.trimToEmpty(voiceProperties.getTts().getOutputFormat()));
+        if (configuredFormat.isEmpty() || "MP3".equals(configuredFormat)) {
+            return SpeechSynthesisAudioFormat.MP3_22050HZ_MONO_256KBPS;
+        }
+        if ("PCM".equals(configuredFormat)) {
+            return SpeechSynthesisAudioFormat.PCM_22050HZ_MONO_16BIT;
+        }
+        if ("WAV".equals(configuredFormat)) {
+            return SpeechSynthesisAudioFormat.WAV_22050HZ_MONO_16BIT;
+        }
+        try {
+            return SpeechSynthesisAudioFormat.valueOf(configuredFormat);
+        } catch (IllegalArgumentException e) {
+            log.warn("Unknown TTS outputFormat '{}', falling back to MP3_22050HZ_MONO_256KBPS", configuredFormat);
+            return SpeechSynthesisAudioFormat.MP3_22050HZ_MONO_256KBPS;
+        }
     }
 
-    private void emitAudioChunk(SpeechSynthesisResult result,
-                                TtsListener listener,
-                                AtomicBoolean closed,
-                                AtomicBoolean started,
-                                AtomicInteger emittedChunkCount) {
-        if (closed.get() || result == null || result.getAudioFrame() == null) {
-            return;
-        }
-        ByteBuffer buffer = result.getAudioFrame().asReadOnlyBuffer();
-        if (!buffer.hasRemaining()) {
-            return;
-        }
-        byte[] chunk = new byte[buffer.remaining()];
-        buffer.get(chunk);
-        if (started.compareAndSet(false, true)) {
-            listener.onStart();
-        }
-        emittedChunkCount.incrementAndGet();
-        listener.onAudioChunk(chunk);
-    }
+    private static final class BidiTtsSynthesis implements TtsSynthesis {
 
-    private boolean emitBufferedAudioData(SpeechSynthesizer synthesizer,
-                                          TtsListener listener,
-                                          AtomicBoolean started,
-                                          AtomicInteger emittedChunkCount) {
-        ByteBuffer audioData = synthesizer.getAudioData();
-        if (audioData == null) {
-            return false;
-        }
-        ByteBuffer buffer = audioData.asReadOnlyBuffer();
-        if (!buffer.hasRemaining()) {
-            return false;
-        }
-        byte[] chunk = new byte[buffer.remaining()];
-        buffer.get(chunk);
-        if (started.compareAndSet(false, true)) {
-            listener.onStart();
-        }
-        emittedChunkCount.incrementAndGet();
-        listener.onAudioChunk(chunk);
-        log.info("Aliyun TTS used buffered audio fallback: frameBytes={}", chunk.length);
-        return true;
-    }
-
-    private static final class StreamingTtsSynthesis implements TtsSynthesis {
-
-        private final Disposable subscription;
+        private final SpeechSynthesizer synthesizer;
+        private final TtsListener listener;
         private final AtomicBoolean closed;
+        private final AtomicBoolean completed;
+        private final AtomicInteger emittedChunks;
 
-        private StreamingTtsSynthesis(Disposable subscription, AtomicBoolean closed) {
-            this.subscription = subscription;
+        private BidiTtsSynthesis(SpeechSynthesizer synthesizer, TtsListener listener,
+                                 AtomicBoolean closed, AtomicBoolean completed, AtomicInteger emittedChunks) {
+            this.synthesizer = synthesizer;
+            this.listener = listener;
             this.closed = closed;
+            this.completed = completed;
+            this.emittedChunks = emittedChunks;
+        }
+
+        @Override
+        public synchronized void appendText(String textDelta) {
+            if (closed.get() || StringUtils.isBlank(textDelta)) {
+                return;
+            }
+            try {
+                synthesizer.streamingCall(textDelta);
+            } catch (Exception e) {
+                if (!closed.get()) {
+                    listener.onError(e);
+                }
+            }
+        }
+
+        @Override
+        public synchronized void complete() {
+            if (closed.get() || completed.get()) {
+                return;
+            }
+            try {
+                synthesizer.streamingComplete();
+            } catch (Exception e) {
+                if (!closed.get()) {
+                    listener.onError(e);
+                }
+            } finally {
+                releaseDuplex();
+            }
         }
 
         @Override
@@ -167,9 +182,23 @@ public class AliyunTtsProvider implements TtsProvider {
         }
 
         @Override
-        public void close() {
-            if (closed.compareAndSet(false, true) && subscription != null && !subscription.isDisposed()) {
-                subscription.dispose();
+        public synchronized void close() {
+            if (!closed.compareAndSet(false, true)) {
+                return;
+            }
+            if (!completed.get()) {
+                listener.onCompleted(emittedChunks.get() == 0);
+            }
+            releaseDuplex();
+        }
+
+        private void releaseDuplex() {
+            try {
+                if (synthesizer.getDuplexApi() != null) {
+                    synthesizer.getDuplexApi().close(1000, "bye");
+                }
+            } catch (Exception ignored) {
+                // ignore close errors to keep close path idempotent
             }
         }
     }
@@ -177,16 +206,25 @@ public class AliyunTtsProvider implements TtsProvider {
     private static final class NoopTtsSynthesis implements TtsSynthesis {
 
         private static final NoopTtsSynthesis INSTANCE = new NoopTtsSynthesis();
-        private final AtomicBoolean closed = new AtomicBoolean(false);
+
+        @Override
+        public void appendText(String textDelta) {
+            // no-op
+        }
+
+        @Override
+        public void complete() {
+            // no-op
+        }
 
         @Override
         public void cancel() {
-            closed.set(true);
+            // no-op
         }
 
         @Override
         public void close() {
-            closed.set(true);
+            // no-op
         }
     }
 }

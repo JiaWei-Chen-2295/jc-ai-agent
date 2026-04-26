@@ -173,9 +173,14 @@ public class VoiceTurnOrchestrator {
                     chatSession.getModelId(),
                     effectiveWebSearchEnabled
             );
+            TtsProvider.TtsSynthesis synthesis = ttsProvider.openStream(turnContext, buildTtsListener(sessionContext, turnContext));
+            turnContext.setTtsSynthesis(synthesis);
             Disposable disposable = streamResult.contentStream().subscribe(
                     chunk -> onTextDelta(sessionContext, turnContext, chunk),
-                    error -> failTurn(sessionContext, turnContext, "VOICE_TEXT_STREAM_FAILED", safeMessage(error), false),
+                    error -> {
+                        synthesis.cancel();
+                        failTurn(sessionContext, turnContext, "VOICE_TEXT_STREAM_FAILED", safeMessage(error), false);
+                    },
                     () -> onTextCompleted(sessionContext, turnContext, streamResult.webSearchUsed(), streamResult.sources())
             );
             turnContext.setLlmSubscription(disposable);
@@ -194,6 +199,10 @@ public class VoiceTurnOrchestrator {
         }
         turnContext.appendAssistantText(chunk);
         voiceTextStreamService.publish(turnContext.getTurnId(), "text_delta", new TextDeltaPayload(chunk));
+        TtsProvider.TtsSynthesis synthesis = turnContext.getTtsSynthesis();
+        if (synthesis != null) {
+            synthesis.appendText(chunk);
+        }
     }
 
     private void onTextCompleted(VoiceSessionContext sessionContext, VoiceTurnContext turnContext,
@@ -211,11 +220,14 @@ public class VoiceTurnOrchestrator {
                 sources
         );
         voiceTextStreamService.publish(turnContext.getTurnId(), "text_end", new TextEndPayload("completed"));
-        startTts(sessionContext, turnContext);
+        TtsProvider.TtsSynthesis synthesis = turnContext.getTtsSynthesis();
+        if (synthesis != null) {
+            synthesis.complete();
+        }
     }
 
-    private void startTts(VoiceSessionContext sessionContext, VoiceTurnContext turnContext) {
-        TtsProvider.TtsSynthesis synthesis = ttsProvider.synthesizeStream(turnContext, turnContext.getAssistantText(), new TtsProvider.TtsListener() {
+    private TtsProvider.TtsListener buildTtsListener(VoiceSessionContext sessionContext, VoiceTurnContext turnContext) {
+        return new TtsProvider.TtsListener() {
             @Override
             public void onStart() {
                 if (!turnContext.isOutputStarted()) {
@@ -224,7 +236,7 @@ public class VoiceTurnOrchestrator {
                 }
                 voiceSessionRegistry.sendEvent(sessionContext,
                         envelope(sessionContext, turnContext.getTurnId(), "tts_state",
-                                new TtsStatePayload("start", voiceProperties.getTtsAudioMimeType(), false)));
+                                new TtsStatePayload("start", voiceProperties.resolveTtsAudioMimeType(), false)));
             }
 
             @Override
@@ -237,7 +249,7 @@ public class VoiceTurnOrchestrator {
                 turnContext.setAudioCompleted(true);
                 voiceSessionRegistry.sendEvent(sessionContext,
                         envelope(sessionContext, turnContext.getTurnId(), "tts_state",
-                                new TtsStatePayload("end", voiceProperties.getTtsAudioMimeType(), skipped)));
+                                new TtsStatePayload("end", voiceProperties.resolveTtsAudioMimeType(), skipped)));
                 completeTurn(sessionContext, turnContext);
             }
 
@@ -245,8 +257,7 @@ public class VoiceTurnOrchestrator {
             public void onError(Throwable error) {
                 failTurn(sessionContext, turnContext, "VOICE_TTS_FAILED", safeMessage(error), false);
             }
-        });
-        turnContext.setTtsSynthesis(synthesis);
+        };
     }
 
     private void completeTurn(VoiceSessionContext sessionContext, VoiceTurnContext turnContext) {
@@ -348,7 +359,7 @@ public class VoiceTurnOrchestrator {
             turnContext.setAsrSession(null);
         }
         if (turnContext.getTtsSynthesis() != null) {
-            turnContext.getTtsSynthesis().close();
+            turnContext.getTtsSynthesis().cancel();
             turnContext.setTtsSynthesis(null);
         }
     }

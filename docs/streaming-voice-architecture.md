@@ -116,6 +116,8 @@ Transport state is local and minimal:
 
 ## Recommended next implementation step
 
+The implementation checklist and concrete change plan now lives in `docs/streaming-voice-tts-streaming-fix-plan.md`.
+
 Complete the Aliyun provider adapters behind the already-stable interfaces:
 
 1. implement provider WebSocket streaming in `AliyunAsrProvider`

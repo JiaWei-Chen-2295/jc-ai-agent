@@ -1,6 +1,7 @@
 package fun.javierchen.jcaiagentbackend.voice.config;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,17 @@ public class VoiceProperties {
 
     private final TtsProperties tts = new TtsProperties();
 
+    public String resolveTtsAudioMimeType() {
+        String configuredFormat = StringUtils.upperCase(StringUtils.trimToEmpty(tts.getOutputFormat()));
+        if (configuredFormat.startsWith("PCM")) {
+            return "audio/pcm";
+        }
+        if (configuredFormat.startsWith("WAV")) {
+            return "audio/wav";
+        }
+        return StringUtils.defaultIfBlank(ttsAudioMimeType, "audio/mpeg");
+    }
+
     @Data
     public static class AsrProperties {
         private String provider = "aliyun";
@@ -49,5 +61,8 @@ public class VoiceProperties {
         private String voice = "longxiaochun";
         private String model = "cosyvoice-v1";
         private String outputFormat = "mp3";
+        private Float speechRate;
+        private Float pitchRate;
+        private Integer volume;
     }
 }
